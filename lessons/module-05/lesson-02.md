@@ -2,7 +2,7 @@
 id: "05.2"
 module: 5
 minutes: 12
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["05.1"]
 objectives:
   - "Improve recall with query rewriting and multi-query retrieval, measured independently."

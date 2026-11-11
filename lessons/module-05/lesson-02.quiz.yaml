@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    In turn four of a chat the user writes "does it support that?" after asking about batch endpoint
+    limits. Retrieval returns general streaming pages and the batch limitations chunk sits at rank 41.
+    What is the first thing to build?
+  options:
+    - >-
+      A reranker, so the batch limitations chunk is promoted from rank 41 into the top five.
+    - >-
+      A standalone-query rewrite from recent history, used for retrieval only, not for the answer.
+    - >-
+      HyDE, so the model writes a likely answer first and the retriever searches with that text.
+    - >-
+      A larger history window, so the retriever embeds all twenty turns of the conversation together.
+  correct: 1
+  explanation: >-
+    The query string does not describe the user's question, so no retriever or reranker can fix it.
+    A cheap rewrite into a self-contained query feeds retrieval, while the answer is still generated
+    from the real conversation.
+- id: q2
+  question: >-
+    Your measurements show multi-query (three paraphrases) adds one point of recall@10 over the
+    previous configuration, inside your noise band, for another 180 ms of time-to-first-token and
+    double the added cost. The assistant is interactive. What do you do?
+  options:
+    - >-
+      Adopt it, since every recall point matters and the cost is still a fraction of a cent.
+    - >-
+      Adopt it only for multi-hop queries, where paraphrasing is designed to have the largest effect.
+    - >-
+      Reject it, and record in the eval report that it was measured and why it was rejected.
+    - >-
+      Keep it but run the paraphrases in parallel, so the extra latency is no longer worth measuring.
+  correct: 2
+  explanation: >-
+    A gain inside the noise band is no gain, and it lands on the latency users feel most. A measured,
+    written-down rejection is the disciplined result; the technique was not free just because it helped a little.
+- id: q3
+  question: >-
+    Users ask compound questions such as "How do I set up authentication and what are the rate limits
+    for authenticated requests?" Two documents each hold half the answer, and the multi-hop stratum
+    scores far below the rest. Which technique targets this, and where should its effect show up?
+  options:
+    - >-
+      Query expansion with synonyms; it should raise recall evenly across every stratum in the set.
+    - >-
+      HyDE; it should lift the aggregate recall figure, since hypothetical answers resemble documents.
+    - >-
+      Conversational rewriting; it should mostly lift the conversational stratum of the golden set.
+    - >-
+      Decomposition into sub-queries; it should lift multi-hop far more than the aggregate.
+  correct: 3
+  explanation: >-
+    Decomposition splits the question into retrievable parts and unions the results, which is the
+    main fix for multi-hop. Its gain is concentrated in that stratum, so the aggregate understates it.
+- id: q4
+  question: >-
+    A colleague wants to adopt HyDE because it is widely recommended. Your documentation is written
+    in a style that is already close to questions and answers. What is the sound position?
+  options:
+    - >-
+      Measure it per stratum with latency and cost; on this corpus it may add noise, not signal.
+    - >-
+      Adopt it, because answers always share more words with documents than questions ever do.
+    - >-
+      Skip measuring it, because HyDE only works on dense prose and cannot help on any docs corpus.
+    - >-
+      Adopt it alongside multi-query, since the two techniques add up to the sum of their gains.
+  correct: 0
+  explanation: >-
+    HyDE helps where questions and documents differ sharply in style, and fails when the hypothetical
+    answer is wrong. Techniques do not compose additively, so each is measured rather than adopted on reputation.

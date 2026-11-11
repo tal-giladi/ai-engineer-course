@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    Your system prompt already says "Only use the provided context." Answers about the current API
+    still sometimes describe an older version the model saw often in training. What is the most
+    reliable next step?
+  options:
+    - >-
+      Repeat the instruction at the end of the prompt in capitals so the model cannot overlook it.
+    - >-
+      Switch to a larger model, since bigger models follow grounding instructions far more reliably.
+    - >-
+      Require structured claims with their supporting chunks before the answer, then verify them.
+    - >-
+      Lower the temperature to zero so the model stops improvising details beyond the context.
+  correct: 2
+  explanation: >-
+    The model cannot separate what it read from what it learned, so instruction alone is unreliable.
+    Making it commit to claims with support first, and checking them, turns grounding into structure.
+- id: q2
+  question: >-
+    An answer cites docs/limits.md#batch. The retrieved set for this query was api/batch.md and
+    api/errors.md. The filename looks completely plausible. What should the pipeline do?
+  options:
+    - >-
+      Accept it, since the file probably exists and the model may know the docs well from training.
+    - >-
+      Run a support-verification call to check whether that file really says what the claim asserts.
+    - >-
+      Strip the citation silently and show the answer to the user without any source attached.
+    - >-
+      Reject it as cited-but-not-retrieved and send the specific error into the repair loop.
+  correct: 3
+  explanation: >-
+    Any citation outside the retrieved set fails a four-line check, however plausible it looks. The
+    specific error goes to the repair loop, which fixes most cases on the first retry.
+- id: q3
+  question: >-
+    For a customer-facing documentation assistant you measure two configurations. A: missed refusal
+    0.58, false refusal 0.02. B: missed refusal 0.06, false refusal 0.19. Which do you ship, and why?
+  options:
+    - >-
+      B, because confident wrong answers to customers cost more than an unneeded refusal does.
+    - >-
+      A, because it refuses almost nothing and so is the more helpful assistant for customers.
+    - >-
+      Neither, because the combined refusal rate should be pushed as close to zero as possible.
+    - >-
+      A, because its in-scope accuracy is higher, which is the number the charter cares most about.
+  correct: 0
+  explanation: >-
+    The two rates trade against each other and the charter sets the operating point. For customers,
+    missed refusals are the dangerous direction, so the strict configuration is the right choice.
+- id: q4
+  question: >-
+    After shipping the strict configuration, false refusals are 0.19, and almost all of them are
+    ambiguous queries where the model refused rather than pick an interpretation. What do you change?
+  options:
+    - >-
+      Loosen the refusal procedure globally until the false refusal rate falls below 0.05.
+    - >-
+      Add a clarification path: answer the likely reading and say which case it covers.
+    - >-
+      Remove the refused field from the contract so that the model must always give an answer.
+    - >-
+      Drop the ambiguous queries from the golden set, since users rarely phrase questions that way.
+  correct: 1
+  explanation: >-
+    False refusals clustered in one stratum call for a targeted fix, not a global loosening that would
+    raise missed refusals. In the lesson this cut false refusal to 0.09 with missed refusal unchanged.

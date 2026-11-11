@@ -2,7 +2,7 @@
 id: "05.1"
 module: 5
 minutes: 12
-practice_minutes: 90
+practice_minutes: 60
 prerequisites: ["04.4"]
 objectives:
   - "Classify a wrong RAG answer by failure mode and fix the layer that is actually broken."

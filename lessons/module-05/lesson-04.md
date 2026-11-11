@@ -2,7 +2,7 @@
 id: "05.4"
 module: 5
 minutes: 12
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["05.3"]
 objectives:
   - "Produce grounded, cited answers and make the system refuse when the context does not support an answer."

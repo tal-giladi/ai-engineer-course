@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    A pipeline scores context recall 0.42, context precision 0.88, faithfulness 0.91 and answer
+    relevance 0.86. A teammate says faithfulness is excellent, so generation is fine and the issue
+    must be minor. How do you read this vector?
+  options:
+    - >-
+      Generation is healthy, so the next step is a reranker to lift recall toward the precision figure.
+    - >-
+      Stop at recall: it is a retrieval miss, and faithfulness is only to an incomplete context.
+    - >-
+      Average the four numbers; at about 0.77 the system is close to target and only needs tuning.
+    - >-
+      Faithfulness is the most important metric, so the low recall is unlikely to matter to users.
+  correct: 1
+  explanation: >-
+    Read top-down and stop at the first low value. When the context never held the answer, faithfulness
+    is meaningless; the fix is in retrieval, such as hybrid search, chunking or query rewriting.
+- id: q2
+  question: >-
+    Recall 0.93, precision 0.84 and faithfulness 0.90 are all good, but answer relevance is 0.51. You
+    recently added multi-query rewriting with three paraphrases. Where do you look?
+  options:
+    - >-
+      At the rewriter: a paraphrase may drift, so the answer addresses another question.
+    - >-
+      At the reranker, because relevance measures how well the top chunks are ranked for the query.
+    - >-
+      At grounding, because low relevance means the model is answering from its training memory.
+    - >-
+      At the embedding model, because relevance falls when the query and chunks are encoded poorly.
+  correct: 0
+  explanation: >-
+    Good retrieval, ranking and faithfulness with low relevance means a well-supported answer to the
+    wrong question. Over-aggressive rewriting is the usual cause; constrain it and check rewrites keep intent.
+- id: q3
+  question: >-
+    You import a RAGAS-style library and get faithfulness 0.86 on your golden set. Your lead wants to put
+    that number in a launch review as proof of grounding. What is missing?
+  options:
+    - >-
+      Nothing, because a published library has already been validated against human judgements.
+    - >-
+      A larger golden set, since 60 items is too few for any faithfulness figure to be reported at all.
+    - >-
+      A second library, so the two faithfulness scores can be averaged into a more stable final number.
+    - >-
+      Calibration: hand-label about 30 answers, measure agreement and state a trust boundary.
+  correct: 3
+  explanation: >-
+    These metrics are judge outputs and inherit every judge problem, including bias and drift. The library's
+    defaults were tuned on someone else's data, so an uncalibrated score has unknown meaning on yours.
+- id: q4
+  question: >-
+    Your report scores out-of-scope questions with recall 0.0 and precision 0.0, because there is no
+    relevant context for them. The overall averages look worse than any in-scope stratum. What do you change?
+  options:
+    - >-
+      Drop the out-of-scope stratum from the golden set, since it cannot be measured in a fair way.
+    - >-
+      Keep the zeros, since they correctly show the system retrieved nothing useful for these queries.
+    - >-
+      Report recall and precision as n/a there, and judge that stratum on faithfulness and refusal.
+    - >-
+      Give those items a recall of 1.0, since retrieving nothing is the correct result for them.
+  correct: 2
+  explanation: >-
+    Metrics that do not apply are reported as not applicable, never as zero, which would drag the
+    aggregate and hide a healthy system. Out-of-scope items are judged on faithfulness and refusal.

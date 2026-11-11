@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    A teammate says: "Cross-encoders are more accurate, so let's drop the vector index and score every
+    chunk in our million-chunk corpus with one." What is the problem with this plan?
+  options:
+    - >-
+      Cross-encoders only work on short chunks, so long documentation pages would get no score at all.
+    - >-
+      Cross-encoders cannot use hybrid search, so exact tokens like error codes would stop matching.
+    - >-
+      Cross-encoder scores are not comparable between queries, so no single cutoff can be chosen.
+    - >-
+      It needs a forward pass per query-document pair, so run it only on a shortlist of candidates.
+  correct: 3
+  explanation: >-
+    A cross-encoder reads query and document together, which makes it accurate but means nothing can be
+    precomputed. The funnel retrieves wide and cheap with the bi-encoder, then reranks a few dozen candidates.
+- id: q2
+  question: >-
+    Sweeping retrieve_k before a rerank to 5, recall@5 is 0.84 at 20, 0.89 at 50 and 0.89 at 100,
+    while p95 latency goes from 490 ms at 50 to 680 ms at 100. Which retrieve_k do you choose?
+  options:
+    - >-
+      50, because recall has saturated there and 100 only adds latency.
+    - >-
+      100, because a wider candidate pool can never make reranking any worse.
+    - >-
+      20, because it is the cheapest point that still beats retrieving 5 directly.
+    - >-
+      A round default like 100, since the exact value matters little once you rerank.
+  correct: 0
+  explanation: >-
+    The reranker's ceiling is recall at retrieve_k, so you want the point where retrieving more stops
+    finding more. Past saturation, extra candidates buy latency and nothing else.
+- id: q3
+  question: >-
+    Answer quality across a rerank_k sweep is 0.81 at 3, 0.85 at 5, 0.84 at 8, 0.79 at 12 and 0.71 at 20,
+    with cost rising at every step. A product manager wants 20 chunks "so the model never misses anything".
+    What do you tell them?
+  options:
+    - >-
+      20 is fine as long as the context still fits within the model's maximum context window.
+    - >-
+      20 is right for recall, so keep it and add a stronger judge to measure answer quality better.
+    - >-
+      Use 5: past it the relevant material is diluted and quality falls as cost climbs.
+    - >-
+      Use 3, because the cheapest configuration is always the safest choice for production traffic.
+  correct: 2
+  explanation: >-
+    More context is frequently worse: dilution, more tangents to latch onto and weak attention to the
+    middle. The sweep shows a peak at 5, and 20 is worse than 3 at about four times the cost.
+- id: q4
+  question: >-
+    Your reranked top-5 contains three near-copies of the same paragraph, and the best chunk often ends
+    up third in the context. You may not change retrieval or the reranker. What do you do?
+  options:
+    - >-
+      Raise rerank_k to 10, so that the copies are outnumbered by other useful chunks in the context.
+    - >-
+      Deduplicate by similarity, then put the best chunk first and the second-best last.
+    - >-
+      Lower the deduplication threshold to 0.5, so that any loosely related chunk is merged as well.
+    - >-
+      Keep the order the reranker produced, because position inside the context has no real effect.
+  correct: 1
+  explanation: >-
+    Deduplication frees slots and tokens, and ordering for attention puts the strongest material where
+    models attend most reliably. In the lesson's ablation this gained points with the same five chunks.

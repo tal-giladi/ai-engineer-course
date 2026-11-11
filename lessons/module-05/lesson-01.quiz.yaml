@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    A user reports a wrong answer. Your diagnosis shows the expected chunk at rank 23 of 100
+    candidates with a cutoff of 5; context recall is 0.85 and context precision is 0.31. A teammate
+    proposes trying a new embedding model and re-indexing. What do you do?
+  options:
+    - >-
+      Agree, because the model never saw the chunk, so retrieval must be the stage that failed here.
+    - >-
+      Add a reranker, because the chunk was retrieved and only ranked too low to make the cutoff.
+    - >-
+      Raise the cutoff to 25 so the chunk is always included in the context sent to the model.
+    - >-
+      Rewrite the prompt to tell the model to answer only from the context it was actually given.
+  correct: 1
+  explanation: >-
+    Good recall with low precision is the ranking-failure signature: the chunk is in the candidate
+    set but outranked. Re-chunking or re-embedding is the classic expensive misdiagnosis; retrieve
+    wide and rank narrow with a reranker.
+- id: q2
+  question: >-
+    A query returns a confidently wrong answer. You search the corpus for the answer text, find it,
+    then retrieve with k=100 and it does not appear at any rank. Which fix is aimed at the right stage?
+  options:
+    - >-
+      Reorder the assembled context so the most relevant chunks appear first and last.
+    - >-
+      Add a reranker so the right chunk is promoted above the near-duplicates around it.
+    - >-
+      Fix retrieval itself: chunking, embedding fit, hybrid search or filters.
+    - >-
+      Add citation validation so the model cannot cite a document it was never actually given.
+  correct: 2
+  explanation: >-
+    Absent at k=100 while present in the corpus is a true retrieval miss. Nothing downstream can
+    recover it, since no reranker can promote a chunk it never received, so the fix belongs at stage 1.
+- id: q3
+  question: >-
+    Diagnosis for a wrong answer about v3 rate limits: the expected chunk is rank 3 and made the
+    cutoff, sits at position 6 of 12 in a 9,400-token context full of v2 rate-limit chunks; recall
+    0.92, precision 0.78, faithfulness 0.41. Which failure mode is it?
+  options:
+    - >-
+      Generation drift, since the model answered from training memory about the older v2 API.
+    - >-
+      Ranking failure, since several v2 chunks were ranked into the top-k next to the right one.
+    - >-
+      Retrieval miss, since a faithfulness of 0.41 means the right chunk was not really retrieved.
+    - >-
+      Context assembly, since the chunk was buried mid-context among near-duplicate material.
+  correct: 3
+  explanation: >-
+    The chunk was retrieved and ranked well but placed in the middle of a long, duplicate-heavy
+    context. That is an assembly failure, fixed by deduplicating, reordering and trimming the context.
+- id: q4
+  question: >-
+    The expected chunk is rank 1, at position 1 of 4 in a short context, and says async support is
+    planned but not available. The model answers "yes, via AsyncClient" and cites a file that was
+    never retrieved. Which field caught this, and what is the fix?
+  options:
+    - >-
+      The cited-but-not-retrieved check; fix it with grounding and citation validation at generation.
+    - >-
+      The rank of the expected chunk; fix it with hybrid search so the answer is retrieved properly.
+    - >-
+      The position in context; fix it by moving the most relevant chunk to the very end of the prompt.
+    - >-
+      The context token count; fix it by trimming the context so the model sees less distracting text.
+  correct: 0
+  explanation: >-
+    Retrieval, ranking and placement were all perfect, so this is generation drift: parametric
+    override plus a fabricated citation. One line comparing cited IDs to retrieved IDs flags it.
