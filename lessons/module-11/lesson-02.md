@@ -179,7 +179,7 @@ step 5  model → "The standard tier rate limit is 60 requests per minute."
 | Per-tool rate limit | 2 / 40 | Chunked exfiltration across calls |
 | **Still succeeding** | **0 / 40** | |
 
-And the one that nearly got through: an attempt to exfiltrate via a **citation URL** rendered in the answer — the model was persuaded to include a link with session data in the query string, which the *user's browser* would fetch on click. No tool involved, so no tool control applied.
+And one attempt outside these 40, with no tool call at all, nearly got through: an attempt to exfiltrate via a **citation URL** rendered in the answer — the model was persuaded to include a link with session data in the query string, which the *user's browser* would fetch on click. No tool involved, so no tool control applied.
 
 Caught by output filtering (Lesson 11.3), and it is the reminder that the tool boundary is not the only boundary.
 

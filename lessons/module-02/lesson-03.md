@@ -154,11 +154,11 @@ An extraction pipeline over 1,000 records, instrumented per attempt with the `at
 
 | Attempt | Entered | Recovered | Recovery rate | Cumulative recovered | Tokens spent | % of total tokens |
 |---|---|---|---|---|---|---|
-| 1 (initial) | 1,000 | 847 | 84.7% | 84.7% | 412k | 51% |
-| 2 (repair 1) | 153 | 130 | 85.0% | 97.7% | 98k | 12% |
-| 3 (repair 2) | 23 | 14 | 60.9% | 99.1% | 21k | 3% |
-| 4 (repair 3) | 9 | 1 | 11.1% | 99.2% | 11k | 1% |
-| 5 (repair 4) | 8 | 0 | 0.0% | 99.2% | 12k | 1.5% |
+| 1 (initial) | 1,000 | 847 | 84.7% | 84.7% | 412k | 74% |
+| 2 (repair 1) | 153 | 130 | 85.0% | 97.7% | 98k | 18% |
+| 3 (repair 2) | 23 | 14 | 60.9% | 99.1% | 21k | 4% |
+| 4 (repair 3) | 9 | 1 | 11.1% | 99.2% | 11k | 2% |
+| 5 (repair 4) | 8 | 0 | 0.0% | 99.2% | 12k | 2% |
 
 Read the last two rows. Attempts 4 and 5 recovered **one record out of 1,000** and consumed 23k tokens doing it — and note that the tokens grow per attempt even as the population shrinks, because each repair carries more context.
 

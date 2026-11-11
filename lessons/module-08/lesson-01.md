@@ -130,7 +130,7 @@ Analysis: a cost problem. The task is narrow and high-volume — exactly what a 
 
 **Two-year cost: ~$9,400.**
 
-Value: 8% → 1% semantic error on 40,000 extractions a month. Roughly 2,800 fewer bad records monthly, each costing about 6 minutes of manual correction — around 280 hours a year.
+Value: 8% → 1% semantic error on 40,000 extractions a month. Roughly 2,800 fewer bad records monthly, each costing about 6 minutes of manual correction — around 280 hours a month, over 3,000 a year.
 
 **Ship it.** But notice: the decision needed the value quantified, not just the improvement. "It got better" would not have supported this.
 
@@ -166,7 +166,7 @@ Value: 8% → 1% semantic error on 40,000 extractions a month. Roughly 2,800 few
 - **Never fine-tune to teach facts.** They freeze, they cannot be cited, and the model confabulates around the gaps — worse than not knowing.
 - **Exhaust prompting first, with measured evidence.** Three versions and a plateau, not a feeling.
 - **Fine-tuning is an artifact you own** — serving, re-evaluation, retraining, versioning, and a guaranteed base-model deprecation event on a one-to-two-year horizon.
-- **Quantify the value, not just the improvement.** "8% → 1%" does not justify $9,400; "280 hours a year" does.
+- **Quantify the value, not just the improvement.** "8% → 1%" does not justify $9,400; "280 hours a month" does.
 - **A well-argued "no" is a strong professional result** and a strong interview answer.
 
 ---

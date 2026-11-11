@@ -245,4 +245,4 @@ Notice the last limitation: an *accepted security finding*, stated in the README
 
 The repository speaks for you until someone asks you to speak for it. That happens in the round hiring research identifies as central — a project deep-dive with follow-up probes, forty-five minutes, where every claim gets pushed until it breaks or holds.
 
-**Lesson 12.3** structures that answer and drills the depth ladder — the four-rung probe most candidates fail at rung three, and which every decision record you wrote in this course exists to answer.
+**Lesson 12.3** structures that answer and drills the depth ladder — the five-rung probe most candidates fail at rung three, and which every decision record you wrote in this course exists to answer.

@@ -178,7 +178,7 @@ Re-run with `apply_chat_template`: identical hyperparameters, near-identical los
 
 **6. Format with `apply_chat_template`.** Then **print three formatted examples and read them character by character**, including special tokens. Confirm prompt-token masking is active.
 
-**7. Split** 80/20 train/validation and save as JSONL.
+**7. Split** roughly 80/20 train/validation and save as JSONL.
 
 **8. Write the datasheet** — `spine/finetune/datasheet.md`: sources with counts, the full funnel table with per-stage removals and reasons, the leakage check result, the final size and split, category and length distributions, synthetic proportion if any, license note, and known limitations. This is a portfolio artifact for Module 12 and it is what a hiring manager reads to judge whether you understand data.
 

@@ -35,8 +35,8 @@
     tokenization and tool-calling quality are not, and they fail quietly as cost, latency or quality drift.
 - id: q3
   question: >-
-    An extraction endpoint reports 4,102 calls, a mean cost per call of $0.0021, 1,000 requests, a
-    mean cost per request of $0.0086 and a p95 cost per request of $0.0294. Each request should make
+    An extraction endpoint reports 2,914 calls, a mean cost per call of $0.0021, 1,000 requests, a
+    mean cost per request of $0.0061 and a p95 cost per request of $0.0294. Each request should make
     one call. Which field confirms the cause in one query, and what is the likely cause?
   options:
     - >-
@@ -49,7 +49,7 @@
       `finish_reason`: answers are hitting `length`, so the client asks the model to continue.
   correct: 0
   explanation: >-
-    About four calls per request when one is expected points at retries, and grouping by `attempt`
+    Nearly three calls per request when one is expected points at retries, and grouping by `attempt`
     shows it at once. The per-call numbers looked healthy; only the per-request view exposed the loop.
 - id: q4
   question: >-

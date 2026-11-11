@@ -155,7 +155,7 @@ That distinction — retrieval miss versus ranking failure — is the taxonomy i
 - **Chunking sets a hard ceiling on retrieval** and is the cheapest part of the stack to change. Nothing downstream can recover information the chunker destroyed.
 - **The tension is precision versus sufficiency:** small chunks embed sharply but answer poorly; large chunks answer well but embed vaguely.
 - **Structure-aware splitting is the largest ordinary win** — documents already encode their semantics and most chunkers throw that away.
-- **Contextual headers are the best return per unit effort in the course:** a few tokens per chunk, high double-digit recall gains, one line of code.
+- **Contextual headers are the best return per unit effort in the course:** a few tokens per chunk, about nine points of recall in the worked example, one line of code.
 - **Small-to-big dissolves the tension** — embed small, generate from big — and depends on the parent/neighbour metadata you should add now rather than after a re-index.
 - **Distinguish "never retrieved" from "retrieved and ranked low."** Only the first is a chunking problem.
 

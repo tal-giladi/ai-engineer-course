@@ -171,7 +171,7 @@ That answer is Modules 6, 7, and 11 arriving in forty seconds because the risk c
 
 ## Visual Aid
 
-*A seven-step reference card, rendered as a single page. Each step is a numbered band with three or four bullet prompts beneath it, and a small tag on the right naming the module that supplies its content: 1 Requirements (accuracy bar · cost ceiling · sensitivity · corpus) — "the two starred questions signal production experience"; 2 Approach [M8]; 3 Retrieval [M4–5]; 4 Agent boundary [M6–7]; 5 **Evaluation** [M3] — highlighted, tagged "most candidates say nothing"; 6 **Cost model** [M1, M9–10] — highlighted, tagged "do the arithmetic out loud"; 7 Failure modes [M11]. A timing column down the right edge shows a 40-minute budget per step.*
+*A seven-step reference card, rendered as a single page. Each step is a numbered band with three or four bullet prompts beneath it, and a small tag on the right naming the module that supplies its content: 1 Requirements (accuracy bar · cost ceiling · sensitivity · corpus) — "the two starred questions signal production experience"; 2 Approach [M8]; 3 Retrieval [M4–5]; 4 Agent boundary [M6–7]; 5 **Evaluation** [M3] — highlighted, tagged "most candidates say nothing"; 6 **Cost model** [M1, M9–10] — highlighted, tagged "do the arithmetic out loud"; 7 Failure modes [M11]. A timing column down the right edge splits the 40-minute round across the seven steps.*
 
 ---
 

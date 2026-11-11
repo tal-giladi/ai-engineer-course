@@ -29,7 +29,7 @@ Open with five minutes of structure, then let them drive.
 
 **2. The architecture, and the reasons.** The pipeline, and *why* each significant piece is what it is. Reasons, not names. "Hybrid retrieval, because a third of our queries contained error codes and function names that dense retrieval ranked at position 19."
 
-**3. The trade-offs.** Stated as trade-offs, not wins. "Reranking gained 15 points on multi-hop and cost 190 ms at p95. We accepted it because multi-hop was our second-priority failure mode; Module 10's caching later recovered the latency."
+**3. The trade-offs.** Stated as trade-offs, not wins. "Reranking gained 15 points on multi-hop and added 1.3 s at p95 (2.1 s → 3.4 s). We accepted it because multi-hop was our second-priority failure mode; Module 10's caching later recovered the latency."
 
 Candidates who present only wins sound like they have not operated anything. Every real decision cost something.
 

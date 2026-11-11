@@ -109,19 +109,25 @@ Starting point: p95 8,400 ms, $0.0094/request, quality 0.87. **SLO: p95 under 3,
 
 **Change 2 — citation validation on a 10% sample** instead of every request.
 
-| | 5,150 ms | $0.0072 | 0.87 |
+| | p95 | Cost | Quality |
+|---|---|---|---|
+| After | 5,150 ms | $0.0072 | 0.87 |
 
 −26%, −23% cost. Fabricated citations are still *caught* by the four-line mechanical check from Lesson 5.4; only the expensive model-based support verification moved to sampling.
 
 **Change 3 — embedding cache.**
 
-| | 4,980 ms | $0.0070 | 0.87 |
+| | p95 | Cost | Quality |
+|---|---|---|---|
+| After | 4,980 ms | $0.0070 | 0.87 |
 
 Small, free, permanent.
 
 **Change 4 — semantic cache at threshold 0.90.**
 
-| | 2,240 ms | $0.0031 | **0.79** ← |
+| | p95 | Cost | Quality |
+|---|---|---|---|
+| After | 2,240 ms | $0.0031 | **0.79** ← |
 
 Enormous latency and cost win. **Quality dropped 8 points**, below the SLO floor. The eval report shows the failures concentrated in one stratum: near-miss queries, exactly as predicted.
 
@@ -138,13 +144,17 @@ At 0.97, quality is fully preserved with a 19% hit rate. Chosen — and this swe
 
 **Change 5 — route simple factual queries to the fine-tuned 8B model** (Module 9), escalating on low confidence.
 
-| | **2,890 ms** | **$0.0026** | **0.86** |
+| | p95 | Cost | Quality |
+|---|---|---|---|
+| After | **2,890 ms** | **$0.0026** | **0.86** |
 
 **SLO met.** p95 2,890 ms, cost $0.0026, quality 0.86.
 
 **Change 6 — trim retrieval from 5 chunks to 3.** Tried, and reverted:
 
-| | 2,510 ms | $0.0021 | **0.81** |
+| | p95 | Cost | Quality |
+|---|---|---|---|
+| After | 2,510 ms | $0.0021 | **0.81** |
 
 −13% latency and −19% cost for 5 points of quality, concentrated in the multi-hop stratum. Below the floor. **Reverted.**
 

@@ -15,7 +15,7 @@ Preference set, confound audit before and after, training run with sampled outpu
 | Criterion | Full credit |
 |---|---|
 | One dimension | Pairs vary on verbosity only; correctness, citation, and formatting matched |
-| Confound audit | Length ratio reported before and after, target 0.9–1.1 |
+| Confound audit | Length ratio (chosen / rejected) reported before and after; here it should sit well below 1, because brevity is the trained dimension (the Lesson 9.1 exception to the 0.9–1.1 target). Every other dimension is checked as matched |
 | Judge ceiling stated | The judge's measured agreement rate acknowledged as the data's quality ceiling |
 | Sampled outputs | Generated at checkpoints during training and read, not curves alone |
 | Both axes measured | Response length **and** task accuracy, before and after |

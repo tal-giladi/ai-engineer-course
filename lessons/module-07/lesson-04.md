@@ -222,7 +222,7 @@ Caught in five minutes by reading the descriptions before connecting. Not caught
 
 ## Visual Aid
 
-*A topology diagram. Left, a box labeled "HOST — your agent" containing three small "client" boxes. From each client, an arrow crosses a heavy dashed vertical line labeled "TRUST BOUNDARY" to a server box on the right: "product-docs (yours, stdio)," "filesystem (3rd party, stdio, pinned v1.4)," "postgres (3rd party, http, read-only role)." Each server box lists its primitives (tools / resources / prompts). A red arrow runs backwards from a server's "description" field, through the trust boundary, into the host's prompt-assembly box, labeled "tool descriptions enter the model's context — injection vector." Caption: "The protocol carries capabilities in one direction and untrusted text in the other."*
+*A topology diagram. Left, a box labeled "HOST — your agent" containing three small "client" boxes. From each client, an arrow crosses a heavy dashed vertical line labeled "TRUST BOUNDARY" to a server box on the right: "product-docs (yours, stdio)," "filesystem (3rd party, stdio, pinned 2.3.0)," "postgres (3rd party, http, read-only role)." Each server box lists its primitives (tools / resources / prompts). A red arrow runs backwards from a server's "description" field, through the trust boundary, into the host's prompt-assembly box, labeled "tool descriptions enter the model's context — injection vector." Caption: "The protocol carries capabilities in one direction and untrusted text in the other."*
 
 ---
 

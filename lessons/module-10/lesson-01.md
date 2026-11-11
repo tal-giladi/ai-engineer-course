@@ -192,7 +192,7 @@ At 50 concurrent, the 8% "errors" are explicit 429s returned in under two second
 
 ## Visual Aid
 
-*A request lifecycle diagram with four horizontal lanes: Client, Service, Agent Loop, Model Provider. A request flows down through all four. At 3 seconds, a red "disconnect" marker on the Client lane, with a heavy red arrow propagating downward through every lane in turn — annotated at each: "1. cancel task," "2. abort agent loop → CANCELLED," "3. close provider connection — meter stops," "4. record partial spend." Beside the diagram, a shaded region on the Model Provider lane from 3 s to 9 s is labeled "what you pay for without this — 21% of spend." Below, a small before/after bar pair: "wasted spend 21% → 2%."*
+*A request lifecycle diagram with four horizontal lanes: Client, Service, Agent Loop, Model Provider. A request flows down through all four. At 3 seconds, a red "disconnect" marker on the Client lane, with a heavy red arrow propagating downward through every lane in turn — annotated at each: "disconnect detected — cancel the task," then the three layers: "1. abort agent loop → CANCELLED," "2. close provider connection — meter stops," "3. record partial spend." Beside the diagram, a shaded region on the Model Provider lane from 3 s to 9 s is labeled "what you pay for without this — 21% of spend." Below, a small before/after bar pair: "wasted spend 21% → 2%."*
 
 ---
 

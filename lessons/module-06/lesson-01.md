@@ -118,7 +118,7 @@ Rules:
 
 - **Return what the model needs, not what the API returned.** Summarize, project, filter.
 - **Cap the size.** A hard token limit per tool result, with explicit truncation the model can see: `[... 47 more results truncated ...]`.
-- **Externalize large payloads.** Return a handle — `result_id: "r_8891", summary: "...", 312 rows"` — and provide a second tool to fetch specific parts. Lesson 6.3 develops this.
+- **Externalize large payloads.** Return a handle — `result_id: "r_8891", summary: "312 rows"` — and provide a second tool to fetch specific parts. Lesson 6.3 develops this.
 - **Format errors for a reader.** `"Search failed: index unavailable. Retry may succeed."` is actionable; a Python traceback is 400 tokens of noise.
 
 ---

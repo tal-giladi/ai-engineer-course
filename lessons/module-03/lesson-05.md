@@ -45,7 +45,7 @@ So split it:
 - Target: under 90 seconds, under a few cents
 - Catches: broken pipelines, malformed prompts, crashed retrieval, obvious regressions
 
-**Full tier — on merge to main, and on demand.**
+- The complete dev set (60 items by golden v1.2, grown from the Lesson 3.2 split; held-out items stay out), all metrics, judge included with position swapping
 - The complete dev set, all metrics, judge included with position swapping
 - Target: a few minutes, a dollar or so
 - Catches: real quality regressions, per-stratum failures, cost drift
@@ -70,7 +70,7 @@ Gate on the **noise band you measured**:
 gate:
   baseline_source: eval-report.md   # the current committed baseline
   overall:
-    max_drop: 0.04        # from judge trust boundary (Lesson 3.4)
+    max_drop: 0.04        # noise of the overall mean: 3.4's per-item 0.4 (0–3 scale) shrinks when averaged over 60 items
   per_stratum:
     max_drop: 0.10        # smaller n, wider band
   hard_failures:
@@ -141,7 +141,7 @@ Every full-tier run appends to `eval-report.md`. Structure each entry:
 
 **Change:** retrieve 50 → rerank to 5 (was: retrieve 5 directly)
 **Prompt version:** answer v3 (unchanged)
-**Dataset:** golden v1.2 (60 items)
+**Dataset:** golden v1.2 (60 dev items)
 
 | Stratum | Before | After | Δ |
 |---|---|---|---|

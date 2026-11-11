@@ -5,7 +5,7 @@ minutes: 12
 practice_minutes: 60
 prerequisites: ["01.3"]
 objectives:
-  - "Predict and measure the token cost and latency of a call, and explain how context length, sampling parameters, and streaming affect each."
+  - "Record a minimum telemetry record (request_id, attempt, tokens, cost, latency) for every model call, and aggregate cost and latency per user request rather than per call."
 volatility: implementation
 sources: []
 last_verified: "2026-08-24"
@@ -107,7 +107,7 @@ That last one is the metric that survives to the end of this course. A system wi
 A team instruments an extraction endpoint and reports healthy numbers:
 
 ```
-Calls: 4,102
+Calls: 2,914
 Mean cost per call: $0.0021
 Mean latency per call: 1.9 s
 ```
@@ -116,8 +116,8 @@ Then they group by `request_id`:
 
 ```
 Requests: 1,000
-Mean calls per request: 4.1        ← expected 1.0
-Mean cost per request: $0.0086     ← 4× the per-call figure
+Mean calls per request: 2.9        ← expected 1.0
+Mean cost per request: $0.0061     ← 3× the per-call figure
 p95 cost per request: $0.0294      ← 14× the per-call figure
 ```
 
