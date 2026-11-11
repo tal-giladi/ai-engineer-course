@@ -1,0 +1,180 @@
+- id: q1
+  question: >-
+    A posting reads: "MS/PhD preferred. Deep understanding of learning-to-rank. Experience with
+    distributed training and feature stores. Publications a plus." Should a software engineer moving
+    into AI engineering apply?
+  options:
+    - >-
+      Yes, because most AI roles list a degree preference that they do not enforce in practice.
+    - >-
+      No, because every requirement is model science, so this is an ML engineering role.
+    - >-
+      Yes, but only after finishing the fine-tuning modules, which cover distributed training.
+    - >-
+      It cannot be decided from the posting alone without knowing more about the company first.
+  correct: 1
+  explanation: >-
+    Learning-to-rank, distributed training, feature stores and publications are all about training
+    models, not integrating them. Ask whether a posting wants you to train models or to build with them.
+- id: q2
+  question: >-
+    You move a service from provider A to provider B. Both speak the OpenAI-compatible API, and every
+    integration test passes on the first run. Which problem is most likely to reach production unnoticed?
+  options:
+    - >-
+      Requests from the existing call sites are rejected because B expects a different message shape.
+    - >-
+      Streaming stops working, because each provider implements chunked responses in its own way.
+    - >-
+      The `system`, `user` and `assistant` roles get mapped differently, so the tests start failing.
+    - >-
+      Prompt caching works differently or not at all on B, so cost and TTFT rise with no error.
+  correct: 3
+  explanation: >-
+    Message shape, roles and streaming are genuinely portable. Caching, structured-output enforcement,
+    tokenization and tool-calling quality are not, and they fail quietly as cost, latency or quality drift.
+- id: q3
+  question: >-
+    An extraction endpoint reports 4,102 calls, a mean cost per call of $0.0021, 1,000 requests, a
+    mean cost per request of $0.0086 and a p95 cost per request of $0.0294. Each request should make
+    one call. Which field confirms the cause in one query, and what is the likely cause?
+  options:
+    - >-
+      `attempt`: most requests fail validation and go round a repair-and-retry loop.
+    - >-
+      `call_site`: traffic has moved to a more expensive stage of the extraction pipeline.
+    - >-
+      `model`: a stable alias was quietly updated to a newer and more expensive model version.
+    - >-
+      `finish_reason`: answers are hitting `length`, so the client asks the model to continue.
+  correct: 0
+  explanation: >-
+    About four calls per request when one is expected points at retries, and grouping by `attempt`
+    shows it at once. The per-call numbers looked healthy; only the per-request view exposed the loop.
+- id: q4
+  question: >-
+    You need to cut the p95 latency of a summarization endpoint. Input is about 4,000 tokens and
+    output is about 800 tokens. Which single change reduces latency the most?
+  options:
+    - >-
+      Trim the retrieved context so that the input drops from about 4,000 to about 2,000 tokens.
+    - >-
+      Switch from a streamed response to a buffered one so the client receives a single payload.
+    - >-
+      Constrain the output to about 200 tokens with an explicit length limit in the prompt.
+    - >-
+      Set `temperature=0`, so the model stops sampling and returns its most likely answer faster.
+  correct: 2
+  explanation: >-
+    Output tokens are generated one at a time, so removing 600 of them removes 600 serial steps.
+    Halving input only shortens the parallel prefill, buffering does not change total time, and
+    temperature does not affect latency.
+- id: q5
+  question: >-
+    A teammate adds exact-match assertions on model output to the test suite, arguing that
+    `temperature=0` makes the output deterministic. What is the right response?
+  options:
+    - >-
+      Agree, as long as the tests run against the same model alias each time they are executed.
+    - >-
+      Agree for hosted models, but not for local ones, since local inference uses less stable kernels.
+    - >-
+      Disagree only for long answers, since short answers at `temperature=0` always come out the same.
+    - >-
+      Disagree: batching and floating-point order still vary output, so test with tolerance.
+  correct: 3
+  explanation: >-
+    `temperature=0` picks the most likely token at each step, but GPU floating-point order, continuous
+    batching, model updates behind an alias and expert routing all change results. Evaluate with
+    tolerance bands, not exact matches.
+- id: q6
+  question: >-
+    Your `LLMClient` has three backends and only one supports prompt caching. A developer calls
+    `client.complete(messages, cache_prefix=True)` on a backend without it. What should the client do?
+  options:
+    - >-
+      Raise `UnsupportedCapability`, naming the profile and the capability that was requested.
+    - >-
+      Drop the parameter and send the request, since the answer is the same with or without caching.
+    - >-
+      Log a warning and continue, so the developer can see the issue without breaking the request.
+    - >-
+      Reroute the call to the backend that does support caching, so the cost stays as planned.
+  correct: 0
+  explanation: >-
+    A silently dropped capability gives a correct-looking answer, a higher bill and no error to find.
+    A loud failure points straight at the cause; a warning in a log is easy to miss for weeks.
+- id: q7
+  question: >-
+    One prompt benchmarked on three backends. Frontier: $0.0180 per request, p95 2.1 s, excellent
+    quality. Hosted 8B: $0.0021, p95 1.4 s, good quality. Local 7B in Docker: no per-request cost
+    (hardware excluded), p95 3.8 s, acceptable quality. Which fits an interactive customer-facing
+    assistant at 50,000 requests a day?
+  options:
+    - >-
+      Frontier for everything, because customer-facing answers must always have the best quality.
+    - >-
+      Local 7B, because at 50,000 requests a day the per-request cost matters more than anything.
+    - >-
+      Hosted 8B for most traffic, with hard queries routed to the frontier model as a fallback.
+    - >-
+      Hosted 8B for everything, because its quality is good enough and frontier fallback adds risk.
+  correct: 2
+  explanation: >-
+    Hosted 8B fits interactive latency and costs about $105 a day instead of $900, and good quality
+    covers most traffic; routing hard queries to frontier covers the rest. Local is too slow here.
+- id: q8
+  question: >-
+    Same three backends: frontier at $0.0180 per request and p95 2.1 s, hosted 8B at $0.0021 and
+    1.4 s, local 7B in Docker with no per-request cost and 3.8 s at acceptable quality. Which fits a
+    nightly batch job classifying 2 million documents?
+  options:
+    - >-
+      Hosted 8B, because its lower p95 latency lets the batch finish well within the night window.
+    - >-
+      Local 7B, because overnight latency hardly matters and per-document cost dominates here.
+    - >-
+      Frontier, because classification errors in a batch are expensive to find and fix afterwards.
+    - >-
+      Hosted 8B, because self-hosting a model is only worth it for interactive real-time traffic.
+  correct: 1
+  explanation: >-
+    Overnight, latency is irrelevant, and 2 million documents at even $0.0021 each is $4,200 per run.
+    High-volume batch work is where self-hosting pays.
+- id: q9
+  question: >-
+    Your team develops against `qwen3.5:4b` on Ollama and ships on a hosted frontier model by changing
+    only the base URL, key and model name. A teammate proposes running the merge-gating eval suite on
+    the local model too, since "the code path is identical and it's free". What is the strongest objection?
+  options:
+    - >-
+      Local quality and provider features differ, so a local pass says little about production.
+    - >-
+      Ollama returns a different response shape, so the eval harness would need to be rewritten for it.
+    - >-
+      Local runs are slower than hosted calls, so the gate would push CI past its time budget on merges.
+    - >-
+      Small models vary at `temperature=0`, while hosted frontier models return identical output every time.
+  correct: 0
+  explanation: >-
+    The seam makes the code identical, not the system: small local models lag on knowledge, and
+    Ollama lacks features such as prompt caching and `tool_choice`. Gating evals run on the production
+    model. Neither local nor hosted models are deterministic at `temperature=0`.
+- id: q10
+  question: >-
+    Same three backends: frontier ($0.0180 per request, excellent quality), hosted 8B ($0.0021, good)
+    and local 7B in Docker (no per-request cost, acceptable). Which fits a prototype you will demo to
+    stakeholders next week?
+  options:
+    - >-
+      Local 7B, because a prototype should cost nothing until the stakeholders approve a budget.
+    - >-
+      Hosted 8B, because it is the setup you would ship, so the demo shows realistic economics.
+    - >-
+      Local 7B, because running offline keeps the live demo safe from provider outages and limits.
+    - >-
+      Frontier, because quality matters most, volume is tiny and your time is what is short.
+  correct: 3
+  explanation: >-
+    At demo volume the cost difference is trivial, and the scarce resource is your time before the
+    demo. Optimizing cost on a prototype is premature; with the seam you can switch later.

@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    Your dashboard shows a mean cost per call of $0.002 and a mean latency per call of 1.8 s, both
+    flat for a month, yet finance says the bill has tripled. Which view of the telemetry should you
+    build first?
+  options:
+    - >-
+      A per-call breakdown by model name, to see whether a pricier model was switched in by someone.
+    - >-
+      A daily total of tokens in and tokens out, to see whether prompts quietly grew over the month.
+    - >-
+      Records grouped by `request_id`, to see the cost and number of calls per user-facing request.
+    - >-
+      A p99 per-call latency chart, to catch the rare slow calls that the mean value is hiding.
+  correct: 2
+  explanation: >-
+    Per-call numbers can look healthy while each request makes many more calls than you think. The
+    unit that matters to users and to finance is the request, so group by `request_id` first.
+- id: q2
+  question: >-
+    In an async Python service, one user request passes through about ten layers before it reaches
+    the model client. Every model call needs the same `request_id`. How should you make it available?
+  options:
+    - >-
+      Store it in a `contextvars.ContextVar` set at the entry point and read it in the client.
+    - >-
+      Add a `request_id` argument to every function on the path, from the handler down to the client.
+    - >-
+      Keep it in a module-level global that the handler overwrites at the start of every request.
+    - >-
+      Generate a fresh ID inside the client for each call, then join the records later by timestamp.
+  correct: 0
+  explanation: >-
+    A `ContextVar` carries the ID to every call in the request without threading it through ten
+    signatures, and it stays correct when requests run concurrently. A global would mix requests up.
+- id: q3
+  question: >-
+    Total model spend last month was $840 and you have been asked to cut it. Which field in your
+    `CallRecord` tells you where to start looking?
+  options:
+    - >-
+      `finish_reason`, because calls that stopped on `length` are the ones wasting the most tokens.
+    - >-
+      `call_site`, because spend grouped by stage shows which part of the system costs the most.
+    - >-
+      `prompt_version`, because the most recent prompt change is the most likely source of the cost.
+    - >-
+      `profile`, because the hosted frontier profile is always the largest line on the model bill.
+  correct: 1
+  explanation: >-
+    "Total spend: $840" says nothing; spend by `call_site` (for example `agent.plan`, `rag.answer`,
+    `eval.judge`) points straight at the stage to work on.
+- id: q4
+  question: >-
+    System A costs $0.020 per request and 60% of its requests produce a usable answer. System B costs
+    $0.025 per request and 95% produce a usable answer. Which is cheaper per useful answer?
+  options:
+    - >-
+      System A, because it is a fifth cheaper per request and volume decides the monthly bill.
+    - >-
+      They are about equal, because B's higher success rate roughly cancels out its higher price.
+    - >-
+      System A, because failed requests can be retried later at the same cheaper per-request price.
+    - >-
+      System B, at about $0.026 per successful request against about $0.033 for System A.
+  correct: 3
+  explanation: >-
+    Cost per successful request is cost divided by requests that produced a usable answer: 0.020 /
+    0.60 is about $0.033, and 0.025 / 0.95 is about $0.026. A low success rate hides the real price.

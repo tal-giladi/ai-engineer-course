@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    An online shop wants a custom recommendation model trained on its own purchase history, plus
+    the pipeline that retrains it every week. Which role is this job, and why?
+  options:
+    - >-
+      AI engineer, because the result ends up inside a product that customers use every day.
+    - >-
+      ML engineer, because the work is building and training a model and its training pipeline.
+    - >-
+      Data scientist, because the work starts from the company's own historical purchase data.
+    - >-
+      AI engineer, because a weekly retraining pipeline is mostly deployment and infrastructure.
+  correct: 1
+  explanation: >-
+    Training a custom model and owning the pipeline that produces it is ML engineering. An AI
+    engineer integrates existing models into products; they rarely train one from scratch.
+- id: q2
+  question: >-
+    You are a backend engineer with six years of Python, Docker and AWS. A posting for "AI
+    Engineer, Platform" asks for FastAPI, RAG pipelines, agentic workflows, vector databases,
+    evaluation frameworks and cost and latency work. How should you read it?
+  options:
+    - >-
+      As out of reach for now, since RAG, agents and evaluation all need an ML research background.
+    - >-
+      As mostly a match on title only, since the AI items are the parts the interview will focus on.
+    - >-
+      As a rough split: the systems items you already have, the AI items map to specific modules.
+    - >-
+      As a role to apply for only after you have trained and published at least one model yourself.
+  correct: 2
+  explanation: >-
+    Decompose the posting line by line. The systems requirements are work you already do, and
+    retrieval, agents and evaluation are a specific, learnable middle; nothing on it needs a new degree.
+- id: q3
+  question: >-
+    While building your `job-map.md`, one of your three postings comes out almost entirely GAP:
+    learning-to-rank, distributed training, feature stores, publications. What is the most useful
+    conclusion?
+  options:
+    - >-
+      It is likely an ML engineering role with an AI title, so it is not the job this course targets.
+    - >-
+      You probably tagged too strictly, so move the borderline rows from GAP into the LEARNING column.
+    - >-
+      The fine-tuning modules will close these gaps, so tag each of those rows as LEARNING, Module 8.
+    - >-
+      It shows the course is missing material, so you should add a statistics course before Module 2.
+  correct: 0
+  explanation: >-
+    Every line there is model science. A posting that is mostly GAP is often an ML engineering role
+    wearing an AI engineering title, and spotting that early saves you a lost first technical screen.
+- id: q4
+  question: >-
+    You have two weeks before your first interviews and can deepen only one of the four pillars.
+    Which one most clearly signals that you have shipped LLM systems rather than followed tutorials?
+  options:
+    - >-
+      Retrieval, because RAG is the most common pattern and appears in a large share of postings.
+    - >-
+      Agents, because interviewers ask specifically whether you have built one that calls tools.
+    - >-
+      Production, because serving and cost are where your backend experience converts most directly.
+    - >-
+      Evaluation, because measuring whether the system works is the clearest sign you shipped one.
+  correct: 3
+  explanation: >-
+    All four are screened, but evaluation is repeatedly described as the clearest signal of real
+    shipping experience, and it is where most self-taught candidates have nothing to say.

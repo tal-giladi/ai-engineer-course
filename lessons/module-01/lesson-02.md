@@ -2,7 +2,7 @@
 id: "01.2"
 module: 1
 minutes: 14
-practice_minutes: 75
+practice_minutes: 90
 prerequisites: ["01.1"]
 objectives:
   - "Configure a single OpenAI-compatible client that routes to a hosted frontier model, a Hugging Face endpoint, or a local Docker-served open-weights model without changing call sites."

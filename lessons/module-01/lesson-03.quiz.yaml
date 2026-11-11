@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    A test asserts the exact text a model returns at `temperature=0`. It passes most days and fails
+    now and then with slightly reworded output. Nothing in your code changed. What should you do?
+  options:
+    - >-
+      Lower temperature further, or also set top-p to 0, so that the output becomes fully fixed.
+    - >-
+      Pin the request to a single server so the batching on the provider side no longer affects it.
+    - >-
+      Accept the variation and test with tolerance instead of an exact match against fixed text.
+    - >-
+      Add an automatic retry to the test, since a failure here is a transient network or provider fault.
+  correct: 2
+  explanation: >-
+    `temperature=0` is not determinism: GPU floating-point order, continuous batching, model updates
+    behind an alias and expert routing all vary output. Exact-match tests on model text will flake.
+- id: q2
+  question: >-
+    Two calls go to the same model. Call A sends a 5,000-token prompt and gets back 50 tokens. Call B
+    sends a 500-token prompt and gets back 500 tokens. Which usually finishes first, and why?
+  options:
+    - >-
+      Call A, because its input is read in parallel while B's output comes one token at a time.
+    - >-
+      Call B, because it sends ten times fewer tokens and the model must read all of them first.
+    - >-
+      Both finish in about the same time, because their total token counts are of the same order.
+    - >-
+      Call B, because a long prompt fills the context window and slows every generated token after it.
+  correct: 0
+  explanation: >-
+    Prefill handles all input tokens in one parallel pass; decode produces output tokens serially.
+    Output tokens dominate latency, so 50 output tokens beat 500 even with a much longer prompt.
+- id: q3
+  question: >-
+    A product manager asks you to turn on streaming for a chat feature "to bring the token bill down".
+    What will streaming actually change?
+  options:
+    - >-
+      The bill drops, because tokens the user never reads before closing the window are not charged.
+    - >-
+      Total latency drops by about half, since output tokens are sent while the input is processed.
+    - >-
+      The cost goes up a little, since each streamed chunk carries its own overhead in billed tokens.
+    - >-
+      Time to first token improves for the user; the cost stays the same for the same tokens.
+  correct: 3
+  explanation: >-
+    Streaming changes perception, not cost: the user sees text sooner, but you pay for the same
+    tokens. It also means the output cannot be fully validated before the first bytes go out.
+- id: q4
+  question: >-
+    You budget a feature by counting characters in typical prompts and dividing by four, then apply
+    the same estimate to two backends from different model families. The bills do not match the
+    plan. What went wrong?
+  options:
+    - >-
+      The ratio is right for prose; the gap must come from network retries, which the estimate leaves out.
+    - >-
+      Each family has its own tokenizer, so the same text is a different count; read `usage` instead.
+    - >-
+      Four characters per token holds for every model, so one of the providers is overcharging you.
+    - >-
+      Character counts work for input only; output tokens are priced per word, so they need a second rule.
+  correct: 1
+  explanation: >-
+    Different model families tokenize the same string differently, and code, non-English text and IDs
+    tokenize worse still. Count with the model's own tokenizer or take token counts from the response.

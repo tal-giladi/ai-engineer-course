@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    Your service calls one vendor's SDK directly from about 300 places. Product now wants a cheap
+    model for the easy 80% of requests and an expensive one for the rest. What is the right change?
+  options:
+    - >-
+      Add an if/else around each of the 300 call sites that picks the vendor SDK per request type.
+    - >-
+      Put one `LLMClient` in front of every call, with each backend as a profile in configuration.
+    - >-
+      Fork the service into two deployments, one per model, and route between them at the load balancer.
+    - >-
+      Keep the vendor SDK and ask the vendor for a cheaper tier, since their SDK already handles models.
+  correct: 1
+  explanation: >-
+    One client that the whole application talks to, with base URL, key, model and capabilities in
+    profiles, makes switching a configuration change and running two models just two client instances.
+- id: q2
+  question: >-
+    A developer calls `client.complete(messages, cache_prefix=True)` on the `local` profile, whose
+    backend has no prompt caching. The client has no capability check. What happens?
+  options:
+    - >-
+      The SDK rejects the unknown keyword with a validation error before the request is ever sent.
+    - >-
+      The server returns an error naming the field, so the developer finds the problem on the first run.
+    - >-
+      The answer comes back looking correct, caching never happens, and nothing reports an error.
+    - >-
+      The backend falls back to its own caching mechanism, so the cost is roughly what was planned.
+  correct: 2
+  explanation: >-
+    Most SDKs accept the extra keyword and the server ignores it, so you get a working answer with a
+    wrong cost model and no error to find. That is why an unsupported capability must raise.
+- id: q3
+  question: >-
+    You move an agent from one backend to another through the same client. Every tool call still
+    parses and nothing errors, but the agent now picks the wrong tool noticeably more often. What is
+    the most likely explanation?
+  options:
+    - >-
+      Tool-calling is portable in name only: every backend supports it, but not equally well.
+    - >-
+      The new backend does not support tool calling, so the client is silently dropping the tools.
+    - >-
+      The new backend tokenizes differently, so the tool definitions no longer fit in its context.
+    - >-
+      The client's capability flags are wrong, since a correct seam would have raised an exception.
+  correct: 0
+  explanation: >-
+    Basic tool calling works across backends, but reliability differs and a prompt tuned for one model
+    may select tools poorly on another. No capability check catches a quality difference like this.
+- id: q4
+  question: >-
+    You iterate on a prompt against `qwen3.5:4b` in Ollama until it passes every eval locally. The
+    production profile is a hosted frontier model. What does the local pass tell you?
+  options:
+    - >-
+      That the prompt is tuned, since the code path is identical and only the base URL will change.
+    - >-
+      That production quality will be at least this good, since frontier models are stronger than 4B ones.
+    - >-
+      That production latency will be similar, since the request and response shapes are the same.
+    - >-
+      That your code paths work; the evals that gate the change still have to run on production.
+  correct: 3
+  explanation: >-
+    A small local model is for development speed, not evidence. Quality, provider features, latency
+    and caching all differ, and a prompt tuned on a 4B model is not tuned for the production model.
