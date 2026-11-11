@@ -38,7 +38,8 @@ substance; only format changes, plus new multiple-choice quizzes.
 
 ## Who is working on what
 
-(updated by the main session)
+(updated by the main session) Agents work one module each, two at a time, writing only that
+module's quiz/project/status files and `practice_minutes`; the main session commits per module.
 
 ## Decisions
 

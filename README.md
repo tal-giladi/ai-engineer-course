@@ -1,5 +1,7 @@
 # AI Engineer: From Software Engineer to Shipping AI Systems
 
+A hands-on course for experienced software engineers moving into AI engineering. Over 12 modules you build one production agentic RAG service, from a provider-agnostic model gateway through evaluation, retrieval, agents, fine-tuning, serving and security, and finish with a portfolio and interview preparation.
+
 **12 modules · 53 lessons · 12 quizzes · 1 capstone · ~151,000 words · ~11 hours of instruction**
 
 Built end to end from [`brief/course-brief.md`](brief/course-brief.md). Job-market research conducted before the outline; module order follows hiring demand rather than textbook order.
@@ -46,7 +48,8 @@ Use the sidebar to browse module by module, or jump straight to a lesson.
 Every lesson: introduction, key concepts, worked examples with real numbers, practice, described visual aid, key takeaways, transition hook.
 
 ### Assessments — `assessments/`
-- `module-NN-quiz.md` — 7–10 questions each with full answer keys and explanations. Weighted toward diagnosis and applied judgment rather than recall.
+- `module-NN-quiz.md` + `module-NN-quiz.quiz.yaml` — short intro page and 8–10 multiple-choice scenario questions per module, weighted toward diagnosis and applied judgment rather than recall. Every lesson also has a 3–5 question `lesson-MM.quiz.yaml`.
+- `projects/module-NN-practical.md` (repo root) — the hands-on practical exercises that used to sit inside the module quizzes, with their rubrics.
 - `capstone-rubric.md` — 100-point rubric across six dimensions, plus a grader's four-minute pass.
 
 ### Assets — `assets/`
