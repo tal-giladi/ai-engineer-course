@@ -1,11 +1,18 @@
-# Lesson 3.1 — Why You Evaluate Before You Build
-
-**Module 3: Evaluation Foundations** · ~10 min
-**Objectives:** M3-LO1, M3-LO2
-
+---
+id: "03.1"
+module: 3
+minutes: 10
+practice_minutes: 90
+prerequisites: ["02.4"]
+objectives:
+  - "Build a golden dataset for a task — sourcing, labeling, sizing, and splitting it — and justify every choice."
+  - "Select task-appropriate metrics and explain why accuracy is usually the wrong one."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 03.1 · Why You Evaluate Before You Build
 
 This module is placed here deliberately, and the placement is the most consequential structural decision in the course.
 

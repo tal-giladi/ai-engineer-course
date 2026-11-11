@@ -1,11 +1,17 @@
-# Lesson 4.4 — Hybrid Retrieval: Dense + BM25 + Fusion
-
-**Module 4: Retrieval I** · ~13 min
-**Objective:** M4-LO4 — Implement hybrid retrieval combining dense vectors and BM25 with rank fusion, and measure the gain over either alone.
-
+---
+id: "04.4"
+module: 4
+minutes: 13
+practice_minutes: 90
+prerequisites: ["04.3"]
+objectives:
+  - "Implement hybrid retrieval combining dense vectors and BM25 with rank fusion, and measure the gain over either alone."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 04.4 · Hybrid Retrieval: Dense + BM25 + Fusion
 
 Your dense retriever understands meaning. Ask it about "authentication failures" and it will find documents about login errors, credential rejection, and token expiry, even though none of them use your words. That is genuinely impressive and it is why embeddings took over.
 

@@ -1,11 +1,23 @@
-# Lesson 7.2 — Checkpointing, Interrupts, and Human-in-the-Loop
-
-**Module 7: Agent Architectures — LangGraph & MCP** · ~13 min
-**Objective:** M7-LO2 — Use checkpointing, interrupts, and human-in-the-loop approval for consequential actions.
-
+---
+id: "07.2"
+module: 7
+minutes: 13
+practice_minutes: 90
+prerequisites: ["07.1"]
+objectives:
+  - "Use checkpointing, interrupts, and human-in-the-loop approval for consequential actions."
+volatility: implementation
+sources:
+  - title: "LangGraph interrupts (interrupt(), Command(resume=...), static interrupts for debugging, re-execution on resume)"
+    url: https://docs.langchain.com/oss/python/langgraph/interrupts
+  - title: "LangGraph 1.2.20 source, langgraph/types.py (interrupt(value, *, response_schema=None))"
+    url: https://pypi.org/project/langgraph/1.2.20/
+  - title: "LangGraph persistence and time travel"
+    url: https://docs.langchain.com/oss/python/langgraph/persistence
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 07.2 · Checkpointing, Interrupts, and Human-in-the-Loop
 
 Lesson 6.5 left you with an unsatisfying approval gate: it worked, and it held a process open for as long as the human took to respond. If that human went to lunch, a worker was tied up for an hour. If the process restarted, fourteen steps of work vanished.
 

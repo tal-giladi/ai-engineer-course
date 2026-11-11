@@ -1,11 +1,17 @@
-# Lesson 4.1 — Embeddings: Choosing and Benchmarking a Model
-
-**Module 4: Retrieval I** · ~13 min
-**Objective:** M4-LO1 — Choose an embedding model on evidence, benchmarking candidates on their own corpus rather than trusting a leaderboard.
-
+---
+id: "04.1"
+module: 4
+minutes: 13
+practice_minutes: 90
+prerequisites: ["03.5"]
+objectives:
+  - "Choose an embedding model on evidence, benchmarking candidates on their own corpus rather than trusting a leaderboard."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 04.1 · Embeddings: Choosing and Benchmarking a Model
 
 Retrieval-augmented generation is the most in-demand skill in AI engineering — it appears in a large majority of applied LLM job postings, and it is the pattern most interview questions circle back to. Everything in the next two modules builds toward a retrieval system you can defend in a system design round.
 

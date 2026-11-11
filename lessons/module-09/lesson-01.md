@@ -1,11 +1,17 @@
-# Lesson 9.1 — Preference Data: Defining What "Better" Means
-
-**Module 9: Fine-Tuning II** · ~13 min
-**Objective:** M9-LO1 — Construct preference data that encodes a real quality dimension, and explain what SFT cannot teach that preferences can.
-
+---
+id: "09.1"
+module: 9
+minutes: 13
+practice_minutes: 90
+prerequisites: ["08.4"]
+objectives:
+  - "Construct preference data that encodes a real quality dimension, and explain what SFT cannot teach that preferences can."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 09.1 · Preference Data: Defining What "Better" Means
 
 Your Lesson 8.4 evaluation left a specific residue: the fine-tuned model was five points below baseline on ambiguous and adversarial strata, and its refusal behavior had to be patched with a router rather than fixed.
 

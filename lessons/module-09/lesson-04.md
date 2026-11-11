@@ -1,11 +1,17 @@
-# Lesson 9.4 — Shipping Adapters: Merging, Quantizing, Serving
-
-**Module 9: Fine-Tuning II** · ~13 min
-**Objective:** M9-LO4 — Ship the result: merge or serve adapters, quantize, and account for the quality cost of quantization.
-
+---
+id: "09.4"
+module: 9
+minutes: 13
+practice_minutes: 90
+prerequisites: ["09.3"]
+objectives:
+  - "Ship the result: merge or serve adapters, quantize, and account for the quality cost of quantization."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 09.4 · Shipping Adapters: Merging, Quantizing, Serving
 
 A trained adapter in a Colab notebook is not a deployed model. Between the two sit four decisions — merge or mount, quantize or not, how to version, and what happens when the base model is deprecated — and each one has a wrong answer that costs you later.
 

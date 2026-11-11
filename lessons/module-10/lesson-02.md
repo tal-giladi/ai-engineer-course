@@ -1,11 +1,17 @@
-# Lesson 10.2 — Serving Open-Weights Models with vLLM
-
-**Module 10: Serving, Deployment & Performance** · ~12 min
-**Objective:** M10-LO2 — Serve an open-weights model with vLLM behind the same OpenAI-compatible interface used since Module 1.
-
+---
+id: "10.2"
+module: 10
+minutes: 12
+practice_minutes: 90
+prerequisites: ["10.1"]
+objectives:
+  - "Serve an open-weights model with vLLM behind the same OpenAI-compatible interface used since Module 1."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 10.2 · Serving Open-Weights Models with vLLM
 
 In Lesson 1.2 you built a client with a seam, and the argument was that a hosted frontier model and a local open-weights model should be a config change apart. Nine modules later, this is where that claim gets tested with a model you trained yourself.
 

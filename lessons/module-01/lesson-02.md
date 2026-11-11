@@ -1,11 +1,29 @@
-# Lesson 1.2 — One Interface, Many Models: The OpenAI-Compatible Gateway
-
-**Module 1: The AI Engineer Role & a Provider-Agnostic Baseline** · ~14 min
-**Objective:** M1-LO2 — Configure a single OpenAI-compatible client that routes to a hosted frontier model, a Hugging Face endpoint, or a local Docker-served open-weights model without changing call sites.
-
+---
+id: "01.2"
+module: 1
+minutes: 14
+practice_minutes: 75
+prerequisites: ["01.1"]
+objectives:
+  - "Configure a single OpenAI-compatible client that routes to a hosted frontier model, a Hugging Face endpoint, or a local Docker-served open-weights model without changing call sites."
+volatility: implementation
+sources:
+  - title: "Ollama, OpenAI compatibility (endpoints, supported and unsupported fields)"
+    url: https://docs.ollama.com/api/openai-compatibility
+  - title: "Ollama, Anthropic compatibility (/v1/messages, unsupported features)"
+    url: https://docs.ollama.com/api/anthropic-compatibility
+  - title: "Ollama model library tags (qwen3.5, gemma4, ministral-3, granite4.2)"
+    url: https://ollama.com/library
+  - title: "mlx-lm HTTP server"
+    url: https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/SERVER.md
+  - title: "Artificial Analysis, \"Sub-32B open weights models now offer GPT-5 level intelligence\" (2026-04-13)"
+    url: https://artificialanalysis.ai/articles/sub-32b-open-weights
+  - title: "Qwen3.5-9B model card (vendor-reported benchmarks)"
+    url: https://huggingface.co/Qwen/Qwen3.5-9B
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 01.2 · One Interface, Many Models: The OpenAI-Compatible Gateway
 
 You are about to add a dependency to your architecture that is more volatile than any database, queue, or cloud service you have worked with. Model providers deprecate models on months of notice. Prices change. A model that was best-in-class for your task in March is mid-tier by September. Rate limits appear during your busiest hour. And unlike a database migration, switching models is something you may want to do *deliberately and often* — a cheap model for the easy 80% of requests, an expensive one for the rest.
 

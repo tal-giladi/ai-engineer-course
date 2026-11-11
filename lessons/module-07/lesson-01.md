@@ -1,11 +1,29 @@
-# Lesson 7.1 — From Loop to Graph: Porting to LangGraph
-
-**Module 7: Agent Architectures — LangGraph & MCP** · ~14 min
-**Objective:** M7-LO1 — Port a hand-rolled loop to LangGraph and name what the framework adds and what it hides.
-
+---
+id: "07.1"
+module: 7
+minutes: 14
+practice_minutes: 90
+prerequisites: ["06.5"]
+objectives:
+  - "Port a hand-rolled loop to LangGraph and name what the framework adds and what it hides."
+volatility: implementation
+sources:
+  - title: "LangGraph overview and graph API"
+    url: https://docs.langchain.com/oss/python/langgraph/overview
+  - title: "Apache Burr (incubating), install and API"
+    url: https://github.com/apache/burr
+  - title: "n8n node settings (Retry On Fail, On Error)"
+    url: https://docs.n8n.io/workflows/components/nodes/
+  - title: "n8n error workflows (Error Trigger)"
+    url: https://docs.n8n.io/flow-logic/error-handling/
+  - title: "n8n MCP Client Tool"
+    url: https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/
+  - title: "n8n MCP Server Trigger"
+    url: https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 07.1 · From Loop to Graph: Porting to LangGraph
 
 You built an agent without a framework, on purpose. Now you are going to put it in one, also on purpose, and the order is what makes this lesson worth anything.
 

@@ -1,11 +1,17 @@
-# Lesson 6.1 — Tool Calling: The Protocol Beneath Every Agent
-
-**Module 6: The Agent Loop from Scratch** · ~12 min
-**Objective:** M6-LO1 — Implement tool calling end to end — schema, dispatch, result formatting, parallel calls — against the raw API.
-
+---
+id: "06.1"
+module: 6
+minutes: 12
+practice_minutes: 90
+prerequisites: ["05.5"]
+objectives:
+  - "Implement tool calling end to end — schema, dispatch, result formatting, parallel calls — against the raw API."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 06.1 · Tool Calling: The Protocol Beneath Every Agent
 
 "Agentic AI" is the most heavily marketed term in this field, and underneath the marketing is a mechanism you can hold in your head in about five minutes. This lesson is that mechanism.
 

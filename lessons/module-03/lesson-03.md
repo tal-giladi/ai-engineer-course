@@ -1,11 +1,17 @@
-# Lesson 3.3 — Metrics That Fit the Task
-
-**Module 3: Evaluation Foundations** · ~12 min
-**Objective:** M3-LO2 — Select task-appropriate metrics and explain why accuracy is usually the wrong one.
-
+---
+id: "03.3"
+module: 3
+minutes: 12
+practice_minutes: 75
+prerequisites: ["03.2"]
+objectives:
+  - "Select task-appropriate metrics and explain why accuracy is usually the wrong one."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 03.3 · Metrics That Fit the Task
 
 You have 60 labeled examples. The natural next move is to run the system, count how many it got right, and divide. That number is accuracy, and it is almost always the wrong metric — not slightly wrong, but wrong in a way that actively conceals the failures you built the dataset to find.
 

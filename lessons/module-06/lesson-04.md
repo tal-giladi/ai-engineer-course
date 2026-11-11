@@ -1,11 +1,17 @@
-# Lesson 6.4 — Failure Recovery, Budgets, and Termination
-
-**Module 6: The Agent Loop from Scratch** · ~12 min
-**Objective:** M6-LO4 — Make the loop survive failure: tool errors, malformed calls, step and token budgets, explicit termination.
-
+---
+id: "06.4"
+module: 6
+minutes: 12
+practice_minutes: 90
+prerequisites: ["06.3"]
+objectives:
+  - "Make the loop survive failure: tool errors, malformed calls, step and token budgets, explicit termination."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 06.4 · Failure Recovery, Budgets, and Termination
 
 This is the lesson that separates a demo from a system, and it is the one interviewers probe hardest, because it is where production experience shows.
 

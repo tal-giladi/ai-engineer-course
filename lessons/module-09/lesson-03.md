@@ -1,11 +1,17 @@
-# Lesson 9.3 — Distilling a Frontier Model into a Small One
-
-**Module 9: Fine-Tuning II** · ~14 min
-**Objective:** M9-LO3 — Distill a frontier model's behavior on a narrow task into a small deployable model, and quantify the cost and latency win.
-
+---
+id: "09.3"
+module: 9
+minutes: 14
+practice_minutes: 90
+prerequisites: ["09.2"]
+objectives:
+  - "Distill a frontier model's behavior on a narrow task into a small deployable model, and quantify the cost and latency win."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 09.3 · Distilling a Frontier Model into a Small One
 
 This is the most immediately valuable technique in the fine-tuning track, because it addresses a problem every team with an LLM in production eventually has: **one narrow, high-volume task is the largest line on the AI budget, and it does not need a frontier model.**
 

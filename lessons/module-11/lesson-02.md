@@ -1,11 +1,17 @@
-# Lesson 11.2 — Tool Permissions, Sandboxing, and Least Privilege
-
-**Module 11: Security, Safety & Reliability** · ~12 min
-**Objective:** M11-LO2 — Design tool permissions on least-privilege lines, with sandboxing and approval gates for consequential actions.
-
+---
+id: "11.2"
+module: 11
+minutes: 12
+practice_minutes: 90
+prerequisites: ["11.1"]
+objectives:
+  - "Design tool permissions on least-privilege lines, with sandboxing and approval gates for consequential actions."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 11.2 · Tool Permissions, Sandboxing, and Least Privilege
 
 Lesson 11.1 established that you cannot reliably stop a model from following injected instructions. This lesson is what you do about that, and it starts by inverting the question.
 

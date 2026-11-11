@@ -1,11 +1,17 @@
-# Lesson 5.3 — Reranking and Context Assembly
-
-**Module 5: Retrieval II — Production RAG** · ~13 min
-**Objective:** M5-LO2 (part 2) — Improve precision with a cross-encoder reranker, and assemble context deliberately.
-
+---
+id: "05.3"
+module: 5
+minutes: 13
+practice_minutes: 90
+prerequisites: ["05.2"]
+objectives:
+  - "Improve precision with a cross-encoder reranker, and assemble context deliberately."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 05.3 · Reranking and Context Assembly
 
 Two jobs get conflated in most RAG implementations, and separating them is worth doing explicitly.
 

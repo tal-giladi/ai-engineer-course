@@ -1,11 +1,17 @@
-# Lesson 6.2 — Writing the Agent Loop by Hand
-
-**Module 6: The Agent Loop from Scratch** · ~13 min
-**Objective:** M6-LO2 — Write an agent loop by hand and explain every control-flow decision inside it.
-
+---
+id: "06.2"
+module: 6
+minutes: 13
+practice_minutes: 90
+prerequisites: ["06.1"]
+objectives:
+  - "Write an agent loop by hand and explain every control-flow decision inside it."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 06.2 · Writing the Agent Loop by Hand
 
 You are about to write an agent in roughly forty lines with no framework. It will work.
 

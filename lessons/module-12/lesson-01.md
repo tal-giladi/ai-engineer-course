@@ -1,11 +1,17 @@
-# Lesson 12.1 — Shipping the Capstone
-
-**Module 12: Capstone, Portfolio & Interview Readiness** · ~13 min
-**Objective:** M12-LO1 — Finish and harden the spine system against a definition of done drawn from real job requirements.
-
+---
+id: "12.1"
+module: 12
+minutes: 13
+practice_minutes: 90
+prerequisites: ["11.5"]
+objectives:
+  - "Finish and harden the spine system against a definition of done drawn from real job requirements."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 12.1 · Shipping the Capstone
 
 You have built a production AI system across eleven modules. The remaining risk is not technical — it is that the project stalls at 90% forever, because "finished" is a feeling and the feeling never arrives.
 

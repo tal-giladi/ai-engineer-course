@@ -1,11 +1,17 @@
-# Lesson 12.3 — The Project Deep-Dive Round
-
-**Module 12: Capstone, Portfolio & Interview Readiness** · ~14 min
-**Objective:** M12-LO3 — Deliver a project deep-dive: problem, architecture and why, trade-offs, evaluation metrics, what you would improve next.
-
+---
+id: "12.3"
+module: 12
+minutes: 14
+practice_minutes: 90
+prerequisites: ["12.2"]
+objectives:
+  - "Deliver a project deep-dive: problem, architecture and why, trade-offs, evaluation metrics, what you would improve next."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 12.3 · The Project Deep-Dive Round
 
 Hiring research identifies the project deep-dive with follow-up probes as a central round in AI engineering interviews. Forty-five minutes, one project, and an interviewer whose job is to find out whether you understand what you built or assembled it from tutorials.
 

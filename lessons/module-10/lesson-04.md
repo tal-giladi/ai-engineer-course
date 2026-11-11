@@ -1,11 +1,17 @@
-# Lesson 10.4 — Tracing: Seeing Inside an Agent Run
-
-**Module 10: Serving, Deployment & Performance** · ~12 min
-**Objective:** M10-LO4 — Instrument end-to-end tracing and read an agent run's trace to find where time and money went.
-
+---
+id: "10.4"
+module: 10
+minutes: 12
+practice_minutes: 90
+prerequisites: ["10.3"]
+objectives:
+  - "Instrument end-to-end tracing and read an agent run's trace to find where time and money went."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 10.4 · Tracing: Seeing Inside an Agent Run
 
 Back in Lesson 1.4 you added a field called `request_id` to a telemetry record, and the justification was a promise: it would matter later. This is later.
 

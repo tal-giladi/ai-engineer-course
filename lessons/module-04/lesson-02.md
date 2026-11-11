@@ -1,11 +1,17 @@
-# Lesson 4.2 — Chunking: The Decision That Quietly Determines Your Recall
-
-**Module 4: Retrieval I** · ~14 min
-**Objective:** M4-LO2 — Design and defend a chunking strategy, and demonstrate its effect on retrieval recall.
-
+---
+id: "04.2"
+module: 4
+minutes: 14
+practice_minutes: 90
+prerequisites: ["04.1"]
+objectives:
+  - "Design and defend a chunking strategy, and demonstrate its effect on retrieval recall."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 04.2 · Chunking: The Decision That Quietly Determines Your Recall
 
 Chunking gets one paragraph in most RAG tutorials: split at 1,000 characters with 200 overlap, move on. It deserves a great deal more attention, because it sets a hard ceiling on everything downstream. No reranker, no query rewriting, and no better model can retrieve information that your chunking destroyed.
 

@@ -1,11 +1,17 @@
-# Lesson 11.3 — PII, Output Filtering, and Compliance Basics
-
-**Module 11: Security, Safety & Reliability** · ~11 min
-**Objective:** M11-LO3 — Handle PII and sensitive output: detection, redaction, filtering, and what to log versus what never to log.
-
+---
+id: "11.3"
+module: 11
+minutes: 11
+practice_minutes: 90
+prerequisites: ["11.2"]
+objectives:
+  - "Handle PII and sensitive output: detection, redaction, filtering, and what to log versus what never to log."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 11.3 · PII, Output Filtering, and Compliance Basics
 
 This lesson is aimed at an engineer who will be asked about data handling in a design review, not at a compliance officer. It is about knowing where your system keeps user content, which is more places than you think, and what to do about each.
 

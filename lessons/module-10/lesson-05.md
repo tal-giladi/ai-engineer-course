@@ -1,11 +1,27 @@
-# Lesson 10.5 — Packaging: Docker Compose, Configuration, CI
-
-**Module 10: Serving, Deployment & Performance** · ~11 min
-**Objective:** M10-LO5 — Package the system as reproducible Docker Compose with externalized config and a CI pipeline.
-
+---
+id: "10.5"
+module: 10
+minutes: 11
+practice_minutes: 90
+prerequisites: ["10.4"]
+objectives:
+  - "Package the system as reproducible Docker Compose with externalized config and a CI pipeline."
+volatility: implementation
+sources:
+  - title: "Git git worktree documentation"
+    url: https://git-scm.com/docs/git-worktree
+  - title: "Claude Code, run parallel sessions with worktrees (claude --worktree)"
+    url: https://code.claude.com/docs/en/worktrees
+  - title: "Codex app, Git worktrees"
+    url: https://learn.chatgpt.com/docs/environments/git-worktrees
+  - title: "Cursor, worktrees (Agents Window, .cursor/worktrees.json)"
+    url: https://cursor.com/docs/configuration/worktrees
+  - title: "Docker Compose project name (-p)"
+    url: https://docs.docker.com/compose/how-tos/project-name/
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 10.5 · Packaging: Docker Compose, Configuration, CI
 
 This is the most familiar ground in the course for you, so it is short and focused on what is AI-specific.
 

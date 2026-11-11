@@ -1,11 +1,17 @@
-# Lesson 8.1 — The Fine-Tuning Decision: When *Not* To
-
-**Module 8: Fine-Tuning I** · ~13 min
-**Objective:** M8-LO1 — Decide between prompting, retrieval, and fine-tuning for a given problem, with a cost and maintenance argument.
-
+---
+id: "08.1"
+module: 8
+minutes: 13
+practice_minutes: 90
+prerequisites: ["07.4"]
+objectives:
+  - "Decide between prompting, retrieval, and fine-tuning for a given problem, with a cost and maintenance argument."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 08.1 · The Fine-Tuning Decision: When Not To
 
 Fine-tuning appears in roughly a quarter of AI engineering job postings, so you need it. It is also the technique most often applied to problems it does not solve, usually because it is the most *interesting* option available.
 

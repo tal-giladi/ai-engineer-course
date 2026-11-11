@@ -1,11 +1,17 @@
-# Lesson 6.3 — State, Memory, and Context Management
-
-**Module 6: The Agent Loop from Scratch** · ~12 min
-**Objective:** M6-LO3 — Manage state, memory, and a shrinking context window across a long-running task.
-
+---
+id: "06.3"
+module: 6
+minutes: 12
+practice_minutes: 90
+prerequisites: ["06.2"]
+objectives:
+  - "Manage state, memory, and a shrinking context window across a long-running task."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 06.3 · State, Memory, and Context Management
 
 Your agent's conversation grows every step. Its context window does not. That is not a performance concern — it is a correctness ceiling, and it arrives sooner than you expect.
 

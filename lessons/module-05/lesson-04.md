@@ -1,11 +1,17 @@
-# Lesson 5.4 — Grounding, Citations, and Knowing When to Refuse
-
-**Module 5: Retrieval II — Production RAG** · ~12 min
-**Objective:** M5-LO3 — Produce grounded, cited answers and make the system refuse when the context does not support an answer.
-
+---
+id: "05.4"
+module: 5
+minutes: 12
+practice_minutes: 90
+prerequisites: ["05.3"]
+objectives:
+  - "Produce grounded, cited answers and make the system refuse when the context does not support an answer."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 05.4 · Grounding, Citations, and Knowing When to Refuse
 
 This is the layer that separates a RAG demo from something an organization will put in front of its customers, and it is the layer most tutorials skip entirely.
 

@@ -1,11 +1,27 @@
-# Lesson 7.4 — MCP: Consuming and Building Servers
-
-**Module 7: Agent Architectures — LangGraph & MCP** · ~13 min
-**Objective:** M7-LO4 — Build an MCP server exposing their tools and consume third-party MCP servers as a client.
-
+---
+id: "07.4"
+module: 7
+minutes: 13
+practice_minutes: 90
+prerequisites: ["07.3"]
+objectives:
+  - "Build an MCP server exposing their tools and consume third-party MCP servers as a client."
+volatility: implementation
+sources:
+  - title: "MCP specification 2026-07-28, key changes"
+    url: https://modelcontextprotocol.io/specification/2026-07-28/changelog
+  - title: "MCP specification 2025-11-25 (previous revision)"
+    url: https://modelcontextprotocol.io/specification/2025-11-25
+  - title: "MCP Python SDK v2 release notes (2026-07-28 support, v1.x maintenance) and migration guide"
+    url: https://github.com/modelcontextprotocol/python-sdk/releases
+  - title: "langchain-mcp-adapters (0.3.2, requires mcp<2)"
+    url: https://github.com/langchain-ai/langchain-mcp-adapters
+  - title: "Filesystem MCP server"
+    url: https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 07.4 · MCP: Consuming and Building Servers
 
 You have made this architectural argument once already. In Lesson 1.2 you refused to call vendor SDKs directly and built a seam, so that swapping a model provider became configuration rather than a rewrite.
 

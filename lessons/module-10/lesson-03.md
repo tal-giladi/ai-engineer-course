@@ -1,11 +1,17 @@
-# Lesson 10.3 — Caching, Batching, and the Latency Budget
-
-**Module 10: Serving, Deployment & Performance** · ~12 min
-**Objective:** M10-LO3 — Meet a stated latency and cost SLO using caching, batching, routing, and context trimming — and show the measurement.
-
+---
+id: "10.3"
+module: 10
+minutes: 12
+practice_minutes: 90
+prerequisites: ["10.2"]
+objectives:
+  - "Meet a stated latency and cost SLO using caching, batching, routing, and context trimming — and show the measurement."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 10.3 · Caching, Batching, and the Latency Budget
 
 Optimization without measurement is the most common way to waste a week in this field. Someone decides the model is slow, switches to a faster one, loses two points of quality, and discovers the p95 barely moved — because 60% of the latency was in two sequential reranker calls nobody had looked at.
 

@@ -1,11 +1,17 @@
-# Lesson 8.3 — LoRA and QLoRA Supervised Fine-Tuning on Colab
-
-**Module 8: Fine-Tuning I** · ~14 min
-**Objective:** M8-LO3 — Run LoRA/QLoRA supervised fine-tuning on Colab GPU and push the adapter to Hugging Face.
-
+---
+id: "08.3"
+module: 8
+minutes: 14
+practice_minutes: 90
+prerequisites: ["08.2"]
+objectives:
+  - "Run LoRA/QLoRA supervised fine-tuning on Colab GPU and push the adapter to Hugging Face."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 08.3 · LoRA and QLoRA Supervised Fine-Tuning on Colab
 
 This is the lesson people expect to be hard. It is not. With a clean dataset from Lesson 8.2, a QLoRA run on a 7–8B model takes about twenty-five minutes on a Colab GPU and roughly sixty lines of code.
 

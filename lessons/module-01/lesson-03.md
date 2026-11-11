@@ -1,11 +1,17 @@
-# Lesson 1.3 — The Physics of an LLM Call: Tokens, Context, Sampling, Streaming
-
-**Module 1: The AI Engineer Role & a Provider-Agnostic Baseline** · ~12 min
-**Objective:** M1-LO3 — Predict and measure the token cost and latency of a call, and explain how context length, sampling parameters, and streaming affect each.
-
+---
+id: "01.3"
+module: 1
+minutes: 12
+practice_minutes: 60
+prerequisites: ["01.2"]
+objectives:
+  - "Predict and measure the token cost and latency of a call, and explain how context length, sampling parameters, and streaming affect each."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 01.3 · The Physics of an LLM Call: Tokens, Context, Sampling, Streaming
 
 Every design decision you make in the next eleven modules — how many documents to retrieve, whether to add a reranker, how long to let an agent run, whether to fine-tune a smaller model — is a trade against three quantities: tokens, latency, and money. Those three are governed by a handful of mechanical facts about how a model actually processes a request.
 

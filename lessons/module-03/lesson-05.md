@@ -1,11 +1,31 @@
-# Lesson 3.5 — Regression Suites and CI Gating
-
-**Module 3: Evaluation Foundations** · ~12 min
-**Objective:** M3-LO4 — Wire a regression suite into CI that blocks a prompt or model change on measured quality loss.
-
+---
+id: "03.5"
+module: 3
+minutes: 12
+practice_minutes: 90
+prerequisites: ["03.4"]
+objectives:
+  - "Wire a regression suite into CI that blocks a prompt or model change on measured quality loss."
+volatility: implementation
+sources:
+  - title: "Promptfoo command line (exit code 100, PROMPTFOO_PASS_RATE_THRESHOLD, -o)"
+    url: https://www.promptfoo.dev/docs/usage/command-line/
+  - title: "Promptfoo configuration reference (test metadata, threshold, assertion metric)"
+    url: https://www.promptfoo.dev/docs/configuration/reference/
+  - title: "Promptfoo Python provider and Python assertions"
+    url: https://www.promptfoo.dev/docs/providers/python/
+  - title: "Promptfoo CI/CD integration (caching, GitHub Action)"
+    url: https://www.promptfoo.dev/docs/integrations/ci-cd/
+  - title: "OpenAI, \"OpenAI to acquire Promptfoo\" (2026-03-09)"
+    url: https://openai.com/index/openai-to-acquire-promptfoo/
+  - title: "Braintrust"
+    url: https://www.braintrust.dev/docs
+  - title: "LangSmith evaluation"
+    url: https://docs.langchain.com/langsmith/evaluation
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 03.5 · Regression Suites and CI Gating
 
 Everything you have built in this module works only if someone runs it. Evaluation that depends on discipline is evaluation that stops happening in week five, during a rush, on the change that most needed checking.
 

@@ -1,11 +1,17 @@
-# Lesson 5.1 — The RAG Failure Taxonomy
-
-**Module 5: Retrieval II — Production RAG** · ~12 min
-**Objective:** M5-LO1 — Classify a wrong RAG answer by failure mode and fix the layer that is actually broken.
-
+---
+id: "05.1"
+module: 5
+minutes: 12
+practice_minutes: 90
+prerequisites: ["04.4"]
+objectives:
+  - "Classify a wrong RAG answer by failure mode and fix the layer that is actually broken."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 05.1 · The RAG Failure Taxonomy
 
 "The RAG is wrong" is not a bug report. It is the beginning of a week of guessing, and the guessing usually starts at the wrong end — someone tries a different embedding model when the problem was context ordering, or rewrites the prompt when the answer was never retrieved.
 

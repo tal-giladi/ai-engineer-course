@@ -1,11 +1,17 @@
-# Lesson 11.5 — Reliability and Cost: Retries, Fallback Routing, Kill Switches
-
-**Module 11: Security, Safety & Reliability** · ~12 min
-**Objective:** M11-LO5 — Keep the system inside a cost and reliability envelope: retries with backoff, provider fallback routing, rate limits, and runaway-agent kill switches.
-
+---
+id: "11.5"
+module: 11
+minutes: 12
+practice_minutes: 90
+prerequisites: ["11.4"]
+objectives:
+  - "Keep the system inside a cost and reliability envelope: retries with backoff, provider fallback routing, rate limits, and runaway-agent kill switches."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 11.5 · Reliability and Cost: Retries, Fallback Routing, Kill Switches
 
 Your system's most critical dependency is a third-party API with variable latency, aggressive rate limits, occasional outages, and a deprecation schedule you do not control. Inside it sits an agent that spends money autonomously.
 

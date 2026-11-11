@@ -1,11 +1,17 @@
-# Lesson 4.3 — Vector Stores in Docker: pgvector vs Qdrant
-
-**Module 4: Retrieval I** · ~13 min
-**Objective:** M4-LO3 — Stand up pgvector and Qdrant in Docker, index the same corpus in both, and articulate when each is the right call.
-
+---
+id: "04.3"
+module: 4
+minutes: 13
+practice_minutes: 90
+prerequisites: ["04.2"]
+objectives:
+  - "Stand up pgvector and Qdrant in Docker, index the same corpus in both, and articulate when each is the right call."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 04.3 · Vector Stores in Docker: pgvector vs Qdrant
 
 "Which vector database?" is a question you will be asked in an interview, and the answer that impresses is not a product name. It is the reasoning: what the workload looks like, what the filtering requirements are, what the team already operates, and what the migration costs if you are wrong.
 

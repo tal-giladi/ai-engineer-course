@@ -1,11 +1,17 @@
-# Lesson 12.2 — Documenting Like a Hire: Model Card, Eval Report, Architecture Doc
-
-**Module 12: Capstone, Portfolio & Interview Readiness** · ~13 min
-**Objective:** M12-LO2 — Document the work the way hiring panels read it.
-
+---
+id: "12.2"
+module: 12
+minutes: 13
+practice_minutes: 90
+prerequisites: ["12.1"]
+objectives:
+  - "Document the work the way hiring panels read it."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 12.2 · Documenting Like a Hire: Model Card, Eval Report, Architecture Doc
 
 Hiring research is consistent on one point that engineers find mildly insulting and should take seriously: **a well-documented project with a clear write-up beats five undocumented notebooks, every time.**
 

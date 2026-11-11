@@ -1,11 +1,17 @@
-# Lesson 3.4 — LLM-as-Judge and Judge Calibration
-
-**Module 3: Evaluation Foundations** · ~13 min
-**Objective:** M3-LO3 — Implement LLM-as-judge, calibrate the judge against human labels, and quantify how far to trust it.
-
+---
+id: "03.4"
+module: 3
+minutes: 13
+practice_minutes: 90
+prerequisites: ["03.3"]
+objectives:
+  - "Implement LLM-as-judge, calibrate the judge against human labels, and quantify how far to trust it."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 03.4 · LLM-as-Judge and Judge Calibration
 
 Using a model to score another model's output is standard practice — it appears in most senior job descriptions, it is what RAGAS-style RAG metrics are built on, and it is the only affordable way to score open-ended text at volume.
 

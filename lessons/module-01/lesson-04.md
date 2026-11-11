@@ -1,11 +1,17 @@
-# Lesson 1.4 — Instrumenting Cost and Latency From Day One
-
-**Module 1: The AI Engineer Role & a Provider-Agnostic Baseline** · ~12 min
-**Objective:** M1-LO3 — Predict and measure the token cost and latency of a call, and explain how context length, sampling parameters, and streaming affect each.
-
+---
+id: "01.4"
+module: 1
+minutes: 12
+practice_minutes: 60
+prerequisites: ["01.3"]
+objectives:
+  - "Predict and measure the token cost and latency of a call, and explain how context length, sampling parameters, and streaming affect each."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 01.4 · Instrumenting Cost and Latency From Day One
 
 There is a predictable moment in the life of every LLM project. Somewhere around week eight, someone from finance asks why the bill tripled. The team looks at the code, sees nothing obviously wrong, and starts guessing. Was it the new prompt? The retrieval change? More users? A retry loop? Nobody can tell, because the system logs "request completed" and nothing else.
 

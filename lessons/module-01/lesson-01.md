@@ -1,11 +1,17 @@
-# Lesson 1.1 — What an AI Engineer Actually Does (and What They Don't)
-
-**Module 1: The AI Engineer Role & a Provider-Agnostic Baseline** · ~12 min
-**Objective:** M1-LO1 — Distinguish AI engineering from ML engineering and data science, and map a real job posting onto the modules of this course.
-
+---
+id: "01.1"
+module: 1
+minutes: 12
+practice_minutes: 30
+prerequisites: []
+objectives:
+  - "Distinguish AI engineering from ML engineering and data science, and map a real job posting onto the modules of this course."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 01.1 · What an AI Engineer Actually Does (and What They Don't)
 
 You already know how to build software. You can design a service, containerize it, reason about failure, and argue about database choices. The reason you are here is that a category of job appeared with "AI" in the title, the postings look intimidating, and it is genuinely hard to tell from the outside how much of it is mathematics you never learned and how much is engineering you already do.
 

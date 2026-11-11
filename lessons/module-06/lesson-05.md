@@ -1,11 +1,17 @@
-# Lesson 6.5 — Sandboxed Execution and Dangerous Tools
-
-**Module 6: The Agent Loop from Scratch** · ~13 min
-**Objective:** M6-LO5 — Execute untrusted or dangerous tool calls inside a sandbox.
-
+---
+id: "06.5"
+module: 6
+minutes: 13
+practice_minutes: 90
+prerequisites: ["06.4"]
+objectives:
+  - "Execute untrusted or dangerous tool calls inside a sandbox."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 06.5 · Sandboxed Execution and Dangerous Tools
 
 Until now everything your systems produced was text. A wrong answer was embarrassing; it was not destructive.
 

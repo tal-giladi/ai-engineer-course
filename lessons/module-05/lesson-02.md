@@ -1,11 +1,17 @@
-# Lesson 5.2 — Query Rewriting and Multi-Query Retrieval
-
-**Module 5: Retrieval II — Production RAG** · ~12 min
-**Objective:** M5-LO2 (part 1) — Improve recall with query rewriting and multi-query retrieval, measured independently.
-
+---
+id: "05.2"
+module: 5
+minutes: 12
+practice_minutes: 90
+prerequisites: ["05.1"]
+objectives:
+  - "Improve recall with query rewriting and multi-query retrieval, measured independently."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 05.2 · Query Rewriting and Multi-Query Retrieval
 
 Every retrieval technique in Module 4 assumed the query was a reasonable description of what the user wanted. Real queries are not.
 

@@ -1,11 +1,17 @@
-# Lesson 8.4 — Did It Work? Measuring Against the Baseline
-
-**Module 8: Fine-Tuning I** · ~13 min
-**Objective:** M8-LO4 — Prove — or disprove — improvement against the Module 3 baseline rather than asserting it.
-
+---
+id: "08.4"
+module: 8
+minutes: 13
+practice_minutes: 90
+prerequisites: ["08.3"]
+objectives:
+  - "Prove — or disprove — improvement against the Module 3 baseline rather than asserting it."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 08.4 · Did It Work? Measuring Against the Baseline
 
 Search for fine-tuning tutorials and count how many end at "the loss went down." Almost all of them.
 

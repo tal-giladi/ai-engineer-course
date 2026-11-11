@@ -1,11 +1,17 @@
-# Lesson 8.2 — Building a Dataset from Production Traces
-
-**Module 8: Fine-Tuning I** · ~13 min
-**Objective:** M8-LO2 — Build a supervised dataset from production traces, including deduplication, filtering, and held-out splits.
-
+---
+id: "08.2"
+module: 8
+minutes: 13
+practice_minutes: 90
+prerequisites: ["08.1"]
+objectives:
+  - "Build a supervised dataset from production traces, including deduplication, filtering, and held-out splits."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 08.2 · Building a Dataset from Production Traces
 
 Data quality dominates every other variable in fine-tuning. Not by a little — a clean 800-example set will beat a noisy 50,000-example set on the same base model with the same hyperparameters, reliably.
 

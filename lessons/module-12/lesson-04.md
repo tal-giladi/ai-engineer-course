@@ -1,11 +1,17 @@
-# Lesson 12.4 — The AI System Design Round
-
-**Module 12: Capstone, Portfolio & Interview Readiness** · ~13 min
-**Objective:** M12-LO4 — Work an AI system design round out loud: requirements, retrieval strategy, agent boundaries, eval plan, cost model, failure modes.
-
+---
+id: "12.4"
+module: 12
+minutes: 13
+practice_minutes: 90
+prerequisites: ["12.3"]
+objectives:
+  - "Work an AI system design round out loud: requirements, retrieval strategy, agent boundaries, eval plan, cost model, failure modes."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 12.4 · The AI System Design Round
 
 Classic system design has a well-known playbook — estimate load, choose a database, shard, cache, handle failure. The AI system design round borrows that shape and adds three concerns that the classic playbook has no vocabulary for: **the system is non-deterministic, quality is a measured property rather than a correctness property, and every request has a variable price.**
 

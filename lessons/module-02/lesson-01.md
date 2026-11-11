@@ -1,11 +1,17 @@
-# Lesson 2.1 — Why Free-Form Text Is a Bad API
-
-**Module 2: Structured Output & Prompting as Engineering** · ~11 min
-**Objective:** M2-LO1 — Define a typed contract between model and application using JSON Schema and Pydantic, and enforce it with schema-constrained generation.
-
+---
+id: "02.1"
+module: 2
+minutes: 11
+practice_minutes: 60
+prerequisites: ["01.4"]
+objectives:
+  - "Define a typed contract between model and application using JSON Schema and Pydantic, and enforce it with schema-constrained generation."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 02.1 · Why Free-Form Text Is a Bad API
 
 You would never accept an unvalidated response body from a third-party HTTP API and start indexing into it. You would define a schema, parse into a type, and handle the failure case. Everyone agrees on this. It is unremarkable engineering.
 

@@ -1,11 +1,17 @@
-# Lesson 10.1 — Designing the Service: FastAPI, Async, Streaming
-
-**Module 10: Serving, Deployment & Performance** · ~13 min
-**Objective:** M10-LO1 — Design and build a streaming FastAPI service around an agent, handling concurrency, cancellation, and backpressure.
-
+---
+id: "10.1"
+module: 10
+minutes: 13
+practice_minutes: 90
+prerequisites: ["09.4"]
+objectives:
+  - "Design and build a streaming FastAPI service around an agent, handling concurrency, cancellation, and backpressure."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 10.1 · Designing the Service: FastAPI, Async, Streaming
 
 This is the module where your existing seniority converts most directly into hireability. Roughly 93% of AI-first roles require skills beyond generative AI — Python, FastAPI, Docker, CI/CD, observability — and hiring managers screen for "production instincts" in the project deep-dive. Most people who finish an AI course arrive with a notebook. You are going to arrive with a traced, cached, dockerized service that meets a stated SLO.
 

@@ -1,11 +1,25 @@
-# Lesson 2.3 — Validation, Repair Loops, and Failure Budgets
-
-**Module 2: Structured Output & Prompting as Engineering** · ~13 min
-**Objective:** M2-LO2 — Implement a validate-repair-retry loop with an explicit failure budget, and decide when to fail loudly instead of retrying.
-
+---
+id: "02.3"
+module: 2
+minutes: 13
+practice_minutes: 90
+prerequisites: ["02.2"]
+objectives:
+  - "Implement a validate-repair-retry loop with an explicit failure budget, and decide when to fail loudly instead of retrying."
+volatility: implementation
+sources:
+  - title: "Instructor (validation, max_retries, from_provider)"
+    url: https://github.com/567-labs/instructor
+  - title: "Pydantic validators"
+    url: https://docs.pydantic.dev/latest/concepts/validators/
+  - title: "Anthropic structured outputs (output_config.format)"
+    url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  - title: "vLLM structured outputs"
+    url: https://docs.vllm.ai/en/latest/features/structured_outputs.html
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 02.3 · Validation, Repair Loops, and Failure Budgets
 
 In Lesson 1.4 you saw a system where per-call metrics looked perfect and per-request cost was fourteen times higher at p95. The cause was a repair loop nobody had bounded. Seventy percent of requests were failing validation, retrying up to four times, and most of them were failing anyway — burning the entire budget to arrive at the same failure.
 

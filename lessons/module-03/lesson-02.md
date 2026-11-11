@@ -1,11 +1,17 @@
-# Lesson 3.2 — Building a Golden Dataset
-
-**Module 3: Evaluation Foundations** · ~13 min
-**Objective:** M3-LO1 — Build a golden dataset for a task — sourcing, labeling, sizing, and splitting it — and justify every choice.
-
+---
+id: "03.2"
+module: 3
+minutes: 13
+practice_minutes: 90
+prerequisites: ["03.1"]
+objectives:
+  - "Build a golden dataset for a task — sourcing, labeling, sizing, and splitting it — and justify every choice."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 03.2 · Building a Golden Dataset
 
 Of everything you build in this course, the golden dataset is the artifact most likely to still be in use in two years.
 

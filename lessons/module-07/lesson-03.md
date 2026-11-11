@@ -1,11 +1,17 @@
-# Lesson 7.3 — Multi-Agent Patterns, and When They're a Mistake
-
-**Module 7: Agent Architectures — LangGraph & MCP** · ~13 min
-**Objective:** M7-LO3 — Evaluate multi-agent patterns and argue when a single agent is the better design.
-
+---
+id: "07.3"
+module: 7
+minutes: 13
+practice_minutes: 90
+prerequisites: ["07.2"]
+objectives:
+  - "Evaluate multi-agent patterns and argue when a single agent is the better design."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 07.3 · Multi-Agent Patterns, and When They're a Mistake
 
 Multi-agent architecture is the most over-recommended pattern in this field. Diagrams with a supervisor and five specialists look like real architecture, they are easy to draw on a whiteboard, and they map onto how humans organize teams — which makes them intuitively appealing and frequently wrong.
 

@@ -1,11 +1,17 @@
-# Lesson 5.5 — Measuring RAG: Faithfulness, Context Precision, Context Recall
-
-**Module 5: Retrieval II — Production RAG** · ~13 min
-**Objective:** M5-LO4 — Evaluate a RAG pipeline on faithfulness, context precision, and context recall, and read those numbers as a diagnosis.
-
+---
+id: "05.5"
+module: 5
+minutes: 13
+practice_minutes: 90
+prerequisites: ["05.4"]
+objectives:
+  - "Evaluate a RAG pipeline on faithfulness, context precision, and context recall, and read those numbers as a diagnosis."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 05.5 · Measuring RAG: Faithfulness, Context Precision, Context Recall
 
 RAGAS and the metric names in this lesson appear by name in job postings, which is a reason to know them. It is not the reason they matter.
 

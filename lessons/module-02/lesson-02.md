@@ -1,11 +1,29 @@
-# Lesson 2.2 — Structured Outputs and Schema-Constrained Generation
-
-**Module 2: Structured Output & Prompting as Engineering** · ~13 min
-**Objective:** M2-LO1 — Define a typed contract between model and application using JSON Schema and Pydantic, and enforce it with schema-constrained generation.
-
+---
+id: "02.2"
+module: 2
+minutes: 13
+practice_minutes: 75
+prerequisites: ["02.1"]
+objectives:
+  - "Define a typed contract between model and application using JSON Schema and Pydantic, and enforce it with schema-constrained generation."
+volatility: implementation
+sources:
+  - title: "vLLM structured outputs (structured_outputs, StructuredOutputsParams, backends, guided_* removed in v0.12.0)"
+    url: https://docs.vllm.ai/en/latest/features/structured_outputs.html
+  - title: "Outlines README and quickstart"
+    url: https://github.com/dottxt-ai/outlines
+  - title: "OpenAI Structured Outputs guide (Responses API text.format, responses.parse)"
+    url: https://developers.openai.com/api/docs/guides/structured-outputs
+  - title: "Anthropic structured outputs (output_config.format, GA; output_format deprecated)"
+    url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  - title: "Gemini structured output (Interactions API response_format)"
+    url: https://aistudio.google.com/docs/structured-output
+  - title: "Instructor"
+    url: https://github.com/567-labs/instructor
+last_verified: "2026-11-11"
 ---
 
-## Introduction
+# 02.2 · Structured Outputs and Schema-Constrained Generation
 
 Last lesson ended with a rule: stop parsing, start constraining. This lesson is the mechanics of that — three different mechanisms with genuinely different guarantees, an honest map of which backends support which, and the part that surprises most engineers: **how you design the schema matters as much as which mechanism you use.**
 

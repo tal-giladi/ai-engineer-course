@@ -1,11 +1,17 @@
-# Lesson 11.4 — Red-Teaming Your Own Agent
-
-**Module 11: Security, Safety & Reliability** · ~12 min
-**Objective:** M11-LO4 — Red-team their own agent systematically and turn each successful attack into a regression test.
-
+---
+id: "11.4"
+module: 11
+minutes: 12
+practice_minutes: 90
+prerequisites: ["11.3"]
+objectives:
+  - "Red-team their own agent systematically and turn each successful attack into a regression test."
+volatility: concept
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 11.4 · Red-Teaming Your Own Agent
 
 You have built defenses against attacks you thought of. That is a reasonable start and it has a structural weakness: you defended against your own imagination.
 

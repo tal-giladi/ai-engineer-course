@@ -1,11 +1,17 @@
-# Lesson 9.2 — DPO and ORPO in Practice
-
-**Module 9: Fine-Tuning II** · ~13 min
-**Objective:** M9-LO2 — Run DPO or ORPO on top of an SFT checkpoint and evaluate for both gains and regressions.
-
+---
+id: "09.2"
+module: 9
+minutes: 13
+practice_minutes: 90
+prerequisites: ["09.1"]
+objectives:
+  - "Run DPO or ORPO on top of an SFT checkpoint and evaluate for both gains and regressions."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 09.2 · DPO and ORPO in Practice
 
 You have preference pairs that vary on one audited dimension. This lesson turns them into weights.
 

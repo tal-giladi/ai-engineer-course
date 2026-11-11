@@ -1,11 +1,17 @@
-# Lesson 2.4 — Prompts as Versioned Artifacts (and How Caching Changes the Math)
-
-**Module 2: Structured Output & Prompting as Engineering** · ~13 min
-**Objective:** M2-LO3 — Treat prompts as versioned artifacts — diffable, testable, cacheable — and explain when prompt caching changes cost and latency.
-
+---
+id: "02.4"
+module: 2
+minutes: 13
+practice_minutes: 75
+prerequisites: ["02.3"]
+objectives:
+  - "Treat prompts as versioned artifacts — diffable, testable, cacheable — and explain when prompt caching changes cost and latency."
+volatility: implementation
+sources: []
+last_verified: "2026-08-24"
 ---
 
-## Introduction
+# 02.4 · Prompts as Versioned Artifacts (and How Caching Changes the Math)
 
 Somewhere in your codebase right now there is a triple-quoted string that determines how your system behaves. It has been edited six times. Nobody reviewed the edits. There is no record of which version produced last week's results, and no way to roll back to the version that worked without reading git blame and guessing.
 
