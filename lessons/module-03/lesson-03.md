@@ -2,7 +2,7 @@
 id: "03.3"
 module: 3
 minutes: 12
-practice_minutes: 75
+practice_minutes: 60
 prerequisites: ["03.2"]
 objectives:
   - "Select task-appropriate metrics and explain why accuracy is usually the wrong one."

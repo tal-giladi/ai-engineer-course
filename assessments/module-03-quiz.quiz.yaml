@@ -1,0 +1,181 @@
+- id: q1
+  question: >-
+    A developer changes a prompt, tests it on three examples that all improve, and ships it.
+    Held-out evaluation later shows overall quality dropped from 0.85 to 0.75. What is the primary
+    mechanism?
+  options:
+    - >-
+      The provider updated the model between the two runs, so the scores are not comparable.
+    - >-
+      The held-out set is too small to be reliable, so the 10-point drop is probably noise.
+    - >-
+      Selection bias: the three examples were the ones that motivated the change.
+    - >-
+      Prompt changes are inherently unpredictable, so no amount of testing would have caught it.
+  correct: 2
+  explanation: >-
+    Testing a change on the inputs that motivated it is manual overfitting, and the regression
+    landed in categories nobody was looking at. A 10-point drop on 60 stratified items is well
+    outside noise, and the effect was measurable, which is the point.
+- id: q2
+  question: >-
+    A ticket classifier reports accuracy 0.88 on a 60-item stratified set, above the 0.85 target.
+    Per class, billing, technical and account sit at 0.85-0.95 recall, but escalate (5 items, where a
+    miss means an angry customer waits days) has recall 0.20. Should it ship?
+  options:
+    - >-
+      No; 4 of 5 escalations are misrouted, and so small a class barely moves the aggregate.
+    - >-
+      Yes; 0.88 clears the target, and a 5-item class is too small to justify blocking a release.
+    - >-
+      Yes, provided macro F1 is also above 0.85, since macro F1 already weights the rare classes.
+    - >-
+      No; the whole set is too small, so the 0.88 figure needs re-measuring on a larger sample.
+  correct: 0
+  explanation: >-
+    Escalate is 8% of the set, so a catastrophic score there hardly dents a weighted average. That
+    is why aggregates are never reported alone; the fix is the prompt plus a bigger escalate stratum.
+- id: q3
+  question: >-
+    A colleague argues that 60 hand-built stratified items are more useful than the team's 5,000
+    items scraped from production logs. You agree. What is one genuine limitation of the 60-item set
+    that the 5,000-item set does not share?
+  options:
+    - >-
+      It misses the real phrasing of users, because every item has to be written by hand.
+    - >-
+      It over-represents rare categories, so its overall score cannot be compared across releases.
+    - >-
+      It cannot use mechanical checks such as must_contain, which need many examples to work.
+    - >-
+      It cannot reliably detect small changes; differences under roughly 5-8 points are noise.
+  correct: 3
+  explanation: >-
+    Resolution is the real cost of a small set. The answer is not to pad it with easy items but to
+    know the resolution and refuse to act on differences inside it.
+- id: q4
+  question: >-
+    You are choosing metrics for the retrieval step of a RAG pipeline. A teammate proposes
+    reporting recall@k alone. What does that hide, and what should you add?
+  options:
+    - >-
+      It hides answer faithfulness, so add an LLM judge that scores each retrieved chunk.
+    - >-
+      It hides ranking quality, as rank 9 counts like rank 1, so add MRR next to it.
+    - >-
+      It hides whether the document was found at all, so add nDCG to check for misses.
+    - >-
+      It hides class imbalance between query types, so add a confusion matrix per stratum.
+  correct: 1
+  explanation: >-
+    recall@k only asks whether the needed document is in the top k. MRR shows how high the first
+    relevant one ranks; report both, alongside cost and latency.
+- id: q5
+  question: >-
+    A faithfulness judge calibrated on 40 items shows 61% agreement with humans, 0.42 correlation
+    with human scores and 0.79 correlation with word count. The team plans to use it to label
+    preference pairs for training in Module 9. What happens if they do so unfixed?
+  options:
+    - >-
+      Nothing serious; the preference model will learn faithfulness from the 61% it gets right.
+    - >-
+      The trained model grows verbose, which shows up as latency and cost, not as eval failures.
+    - >-
+      The trained model starts refusing more often, because short answers get lower judge scores.
+    - >-
+      Training will fail to converge, since the labels disagree with humans about 40% of the time.
+  correct: 1
+  explanation: >-
+    The judge is measuring length, so every choice made on its scores selects longer answers. Used
+    for preference data, it trains verbosity into the weights. The fix is a prompt change: anchors,
+    a per-claim procedure and an explicit length instruction.
+- id: q6
+  question: >-
+    You need a judge to compare a candidate change against your baseline answers. Which judge
+    prompt is the most reliable?
+  options:
+    - >-
+      "Rate the quality of this answer from 1 to 10."
+    - >-
+      "Score faithfulness, relevance, tone and completeness from 1 to 5."
+    - >-
+      "Here are answers A and B. Give a verdict on which is better, then explain your reasoning."
+    - >-
+      "Here are answers A and B. Reason about the rubric, then say which is better."
+  correct: 3
+  explanation: >-
+    Relative judgment beats absolute scoring, and reasoning before the verdict conditions it because
+    generation is sequential. Unanchored 1-10 scales cluster at 7-8, multi-dimension calls collapse
+    together, and verdict-first reasoning is rationalisation. Run it with position swapping too.
+- id: q7
+  question: >-
+    Your CI eval gate fails about one run in four with no code change, and you are replacing the
+    fixed threshold with a band relative to the committed baseline. Where should the width of that
+    band come from?
+  options:
+    - >-
+      From judge calibration: measured agreement and mean absolute difference give the noise.
+    - >-
+      From the team's quality target, for example 0.85, minus a safety margin of a few points.
+    - >-
+      From the largest drop seen in past runs that later turned out to be a real regression.
+    - >-
+      From the cost budget, so the band is as narrow as the team can afford to re-run on failure.
+  correct: 0
+  explanation: >-
+    The number is measured, not chosen. Calibration in Lesson 3.4 gives the judge's noise, and the
+    policy is not to act on differences inside it, with wider bands per stratum and hard floors.
+- id: q8
+  question: >-
+    A CI report shows overall 0.847 to 0.812 (inside the band) with simple_factual, multi_hop and
+    adversarial flat, but out_of_scope (8 items) down from 0.88 to 0.38 after prompt v3 became v4.
+    Per-stratum thresholds caught it. What extra control should exist for this behaviour?
+  options:
+    - >-
+      A tighter overall band, so that a 0.035 drop in the aggregate would also fail the gate.
+    - >-
+      More out-of-scope items in the smoke tier, so the problem is caught on the pull request.
+    - >-
+      An absolute hard floor on refusal accuracy that holds whatever the baseline says.
+    - >-
+      A rule that prompt changes run the held-out set before they are allowed to merge.
+  correct: 2
+  explanation: >-
+    v4 almost certainly pushed toward directness, which removed the hedging that produced refusals.
+    Refusal is a non-negotiable behaviour, so it gets an absolute floor, not only a relative band.
+- id: q9
+  question: >-
+    Your eval report shows 0.89 faithfulness on your golden set, and your judge agrees with human
+    labels on 86% of items. Which claim does this evidence support?
+  options:
+    - >-
+      In production, about 89% of answers are faithful to the retrieved documentation.
+    - >-
+      The system is correct on about 89% of questions, within the judge's 14% error.
+    - >-
+      The system is better than a competitor that scored 0.87 on the same golden set.
+    - >-
+      On this set, with this judge and these versions, faithfulness measured 0.89.
+  correct: 3
+  explanation: >-
+    The number is scoped to this set, this judge, this prompt and model version. It does not give
+    production faithfulness, overall correctness, or a win over a 0.87 that may be inside the noise.
+- id: q10
+  question: >-
+    In Promptfoo you have two suites. Refusal (out-of-scope questions such as pricing, where a
+    wrong answer invents facts for customers) passes 98-100% run to run on the unchanged system.
+    Tone (answers should be friendly) passes 88-93%. Which pair of PROMPTFOO_PASS_RATE_THRESHOLD
+    settings is best?
+  options:
+    - >-
+      98 for refusal and 85 for tone, set by failure cost and kept below each suite's noise.
+    - >-
+      95 for both suites, since one shared threshold keeps the gate consistent and easy to explain.
+    - >-
+      100 for both, Promptfoo's default and the only setting that cannot let a regression through.
+    - >-
+      90 for refusal and 98 for tone, since every user sees tone while refusals are rare.
+  correct: 0
+  explanation: >-
+    A pass-rate threshold is set by what a failure costs and must sit below what the unchanged
+    system already scores. 95 and 100 fail tone on no change, and the last option inverts the costs.

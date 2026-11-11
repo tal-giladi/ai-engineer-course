@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    A team has 5,000 evaluation items scraped from logs, almost all simple lookups. A colleague
+    proposes replacing it with 60 hand-picked items across eight strata. What is the strongest
+    reason the 60-item set is more useful?
+  options:
+    - >-
+      It is cheaper to run on every commit, so regressions are caught sooner in the cycle.
+    - >-
+      Smaller sets are more stable statistically, so they can detect changes of about 2%.
+    - >-
+      It covers the rare, risky categories that the scraped set barely contains at all.
+    - >-
+      Hand-written items are cleaner than real queries, so the model is judged more fairly.
+  correct: 2
+  explanation: >-
+    A scraped set is dominated by the common case and tells you repeatedly that lookups work. A
+    stratified set says something about every category, including the ones you actually fear.
+- id: q2
+  question: >-
+    Out-of-scope questions are about 2% of production traffic. You are building a 60-item golden
+    set for a documentation assistant. How many out-of-scope items should it contain?
+  options:
+    - >-
+      About one, so the set mirrors production and the overall score reflects real users.
+    - >-
+      Around eight, because refusal is the behaviour most likely to degrade silently.
+    - >-
+      None; out-of-scope handling is tested later by online evaluation on live traffic.
+    - >-
+      As many as you can find, ideally half the set, since refusal matters more than answers.
+  correct: 1
+  explanation: >-
+    A golden set is a test suite weighted by risk, not a sample of production. Over-sample what you
+    fear, with at least five or six items in any stratum you want to read on its own.
+- id: q3
+  question: >-
+    Two people label the same ten items and disagree on three, all of the form "What's the rate
+    limit?": one says ambiguous, the other says simple factual. What should you do next?
+  options:
+    - >-
+      Revise the rubric so only one reading fits, then re-label and re-check.
+    - >-
+      Have a third person break the tie and keep whichever label wins the majority vote.
+    - >-
+      Drop the three disputed items, since unclear questions would add noise to the set.
+    - >-
+      Keep both labels and score the system as correct if it matches either one of them.
+  correct: 0
+  explanation: >-
+    Disagreement here means the rubric allowed both readings. Fixing the rubric removes noise that
+    would otherwise sit in every measurement taken from the set.
+- id: q4
+  question: >-
+    While tuning, you notice an item in the held-out set that the system gets wrong, and the fix
+    looks like a one-line prompt change. What is the right move?
+  options:
+    - >-
+      Fix it now and re-run the held-out set to confirm the change works as intended.
+    - >-
+      Move the item into the dev set, fix it there, and replace it with a brand-new held-out item.
+    - >-
+      Fix it, but only once the full held-out set has been run and the result recorded.
+    - >-
+      Leave it; fix the class of problem on dev and see if the held-out score moves.
+  correct: 3
+  explanation: >-
+    Fixing individual held-out failures turns the held-out set into training data and inflates its
+    scores. Fix the general problem on dev; if it was real, the held-out score moves too.

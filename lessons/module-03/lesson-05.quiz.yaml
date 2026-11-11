@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    Your CI eval step is `assert score >= 0.85`. It fails about one run in four with no code change,
+    and engineers want to turn it off. What should replace it?
+  options:
+    - >-
+      A lower fixed threshold such as 0.80, so normal variation no longer trips the gate.
+    - >-
+      A band relative to the committed baseline, sized from the judge's measured noise.
+    - >-
+      Retry the eval up to three times and pass the gate if any one of the runs clears 0.85.
+    - >-
+      Move the eval into a nightly job so that flaky failures never block a pull request.
+  correct: 1
+  explanation: >-
+    The system is non-deterministic, the judge has measured disagreement and the set has limited
+    resolution. Gating on a band from that measured noise stops the flapping without hiding drops.
+- id: q2
+  question: >-
+    A team wants to add its held-out set to the full CI tier that runs on every merge to main, so
+    that every change is checked on unseen data. What is wrong with this plan?
+  options:
+    - >-
+      Nothing; the held-out set is the most trustworthy signal, so it should run as often as possible.
+    - >-
+      The held-out set is usually too small for CI and would flap on every merge to main.
+    - >-
+      Running on every merge means the team ends up tuning against it, so it stops being unseen.
+    - >-
+      CI should only run the smoke tier; anything larger belongs in a separate manual review.
+  correct: 2
+  explanation: >-
+    A set that runs on every merge is a set you are tuning against. The held-out tier runs at
+    milestones only, outside automated CI, by design.
+- id: q3
+  question: >-
+    A pull request trims verbosity in the answer prompt. The 15-item smoke tier passes. After the
+    merge, the full tier fails with out_of_scope down 0.50 while the overall score drops only 0.035.
+    What does this show?
+  options:
+    - >-
+      Smoke tiers are unreliable, so every PR should run the full 60-item set before merging.
+    - >-
+      The full tier is too strict; a 0.035 overall drop is inside the band and should pass.
+    - >-
+      The out_of_scope stratum is too small to trust, so the failure is probably just noise.
+    - >-
+      The tiers worked as designed: the full set's per-stratum check caught it.
+  correct: 3
+  explanation: >-
+    A smoke tier with two out-of-scope items cannot see this, which is why it is not the only tier.
+    The per-stratum band and the refusal hard floor caught a regression the aggregate hid.
+- id: q4
+  question: >-
+    In Promptfoo you run two suites. Refusal, where a failure means an invented price for a
+    customer, passes 98-100% on the unchanged system; tone passes 88-93%. Which pass-rate
+    thresholds fit best?
+  options:
+    - >-
+      98 for refusal and 85 for tone, set by failure cost and kept below each suite's noise.
+    - >-
+      100 for both, the Promptfoo default, so that no regression of any kind can slip through.
+    - >-
+      95 for both, because one shared threshold keeps the gate consistent and easy to explain.
+    - >-
+      90 for refusal and 98 for tone, since every user sees tone but refusals are rare.
+  correct: 0
+  explanation: >-
+    The threshold is a decision based on what a failure costs, and it must sit below the rate the
+    unchanged system already scores. 100 or 95 would fail tone with no change at all.

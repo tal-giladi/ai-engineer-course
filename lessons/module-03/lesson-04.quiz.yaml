@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    You need a judge to tell you whether prompt v4 is better than the current baseline prompt v3 on
+    your documentation answers. Which judge design fits best?
+  options:
+    - >-
+      Score each answer from 1 to 10 for overall quality and compare the two averages.
+    - >-
+      Score faithfulness, relevance, tone and completeness in one call, then sum them up.
+    - >-
+      Ask for a verdict on which answer is better first, then a short explanation after it.
+    - >-
+      Show both answers, ask for reasoning first, then which better meets the rubric.
+  correct: 3
+  explanation: >-
+    Pairwise comparison is more reliable than absolute scoring, and reasoning placed before the
+    verdict actually conditions it. Verdict-first reasoning is post-hoc, and multi-dimension calls
+    collapse the scores together.
+- id: q2
+  question: >-
+    Calibrating a faithfulness judge on 40 hand-labelled items, you find 61% agreement with humans,
+    0.42 correlation with human scores and 0.79 correlation with answer word count. What is the fix?
+  options:
+    - >-
+      Switch to a larger judge model, since a weak model falls back on surface features.
+    - >-
+      Add anchors, a per-claim procedure and a line saying length is not a factor.
+    - >-
+      Keep the judge and normalise its scores by dividing each one by the answer's length.
+    - >-
+      Label more items by hand, since 40 is too few to trust a 0.79 length correlation.
+  correct: 1
+  explanation: >-
+    The unanchored rubric left the judge to fall back on a proxy, apparent thoroughness, which reads
+    as length. It is a prompt change, not a model change, and it costs nothing extra.
+- id: q3
+  question: >-
+    Your generator and your pairwise judge are the same model. Results consistently favour your
+    system over a competitor's. Which bias should you suspect first, and what is the fix?
+  options:
+    - >-
+      Self-preference; judge with a different model family than the generator.
+    - >-
+      Position bias; run each comparison twice with the answer order swapped.
+    - >-
+      Verbosity bias; add an explicit rubric line saying that length is not quality.
+    - >-
+      Rubric drift; version the judge prompt and re-score the baseline after edits.
+  correct: 0
+  explanation: >-
+    Models measurably prefer their own outputs, which biases the judge in exactly the direction that
+    makes your system look good. Cross-family judging removes it.
+- id: q4
+  question: >-
+    After calibration your judge agrees with humans on 86% of items, with a mean absolute difference
+    of 0.31 on a 0-3 scale, and judge.md says you do not act on differences below 0.4. A change
+    moves the average score from 2.10 to 2.35. What do you do?
+  options:
+    - >-
+      Keep the change, since any improvement on a calibrated judge counts as real progress.
+    - >-
+      Revert it, because an 86% agreement rate means 14% of the scores are simply wrong.
+    - >-
+      Treat it as noise, since the move is inside the judge's stated trust boundary.
+    - >-
+      Recalibrate the judge on 40 new items, then accept the change if it holds after that.
+  correct: 2
+  explanation: >-
+    The written trust boundary, "we do not act on differences smaller than 0.4", turns the judge
+    into an instrument with a stated resolution. A 0.25 move is inside it.

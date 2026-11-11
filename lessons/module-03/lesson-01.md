@@ -2,7 +2,7 @@
 id: "03.1"
 module: 3
 minutes: 10
-practice_minutes: 90
+practice_minutes: 30
 prerequisites: ["02.4"]
 objectives:
   - "Build a golden dataset for a task — sourcing, labeling, sizing, and splitting it — and justify every choice."

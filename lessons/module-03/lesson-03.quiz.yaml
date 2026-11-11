@@ -1,0 +1,68 @@
+- id: q1
+  question: >-
+    An invoice extractor pulls seven fields and reports an aggregate F1 of 0.91. The finance system
+    downstream depends mostly on the due-date field. What should the evaluation report instead?
+  options:
+    - >-
+      Exact-match accuracy on the whole object, since a partly wrong invoice is wrong overall.
+    - >-
+      Per-field precision, recall and F1, so one broken field cannot hide inside the average.
+    - >-
+      ROUGE against reference invoices, because it rewards outputs that reuse the right words.
+    - >-
+      The same aggregate F1, but on a larger set so that the 0.91 figure becomes more precise.
+  correct: 1
+  explanation: >-
+    An aggregate of 0.91 can be six fields at 0.98 and one at 0.42. Per-field metrics show which
+    field is broken, and the broken one may be exactly the one downstream code needs.
+- id: q2
+  question: >-
+    A ticket classifier scores 0.88 accuracy on a 60-item set. The rare escalate class (5 items)
+    has recall 0.20, and three of its four misses went to technical. What is the best next step?
+  options:
+    - >-
+      Ship it, since 0.88 clears the 0.85 target and 5 items are too few to judge the class.
+    - >-
+      Report macro F1 instead of accuracy, which already accounts for the small escalate class.
+    - >-
+      Fix how the prompt tells escalations from technical issues, and grow the escalate stratum.
+    - >-
+      Retrain on many more billing and technical tickets, since they make up most of the real traffic.
+  correct: 2
+  explanation: >-
+    The confusion matrix points to a specific prompt fix. With only 5 items, one item moves recall
+    by 0.20, so the stratum also needs more examples to give the metric any resolution.
+- id: q3
+  question: >-
+    System A succeeds 60% of the time at $0.02 per request. System B succeeds 85% of the time at
+    $0.028 per request. Judged on cost per successful task, how do they compare?
+  options:
+    - >-
+      They cost about the same, near $0.033 per useful answer.
+    - >-
+      A is cheaper, because each of its calls costs 30% less than B's.
+    - >-
+      B is much cheaper, because its success rate is 25 points higher.
+    - >-
+      They cannot be compared until both have the same success rate.
+  correct: 0
+  explanation: >-
+    Cost per success is cost per request divided by success rate: 0.02 / 0.60 and 0.028 / 0.85 both
+    come to about $0.033. Per-call cost alone would make B look worse than it is.
+- id: q4
+  question: >-
+    A teammate wants to evaluate the documentation assistant's answers with BLEU against reference
+    answers, because it is cheap and produces one clear number. What is the main problem?
+  options:
+    - >-
+      BLEU is too expensive to compute on every single commit for a 60-item golden set.
+    - >-
+      BLEU is a training diagnostic that measures how surprised the model is by text.
+    - >-
+      BLEU works well here, but it must be reported per stratum rather than as one overall number.
+    - >-
+      An answer that contradicts the reference with the same words can still score well.
+  correct: 3
+  explanation: >-
+    BLEU and ROUGE measure n-gram overlap, not correctness. A correct answer phrased differently
+    scores badly, so the number adds no information while people still act on it.

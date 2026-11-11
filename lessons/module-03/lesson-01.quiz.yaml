@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    Over six weeks a developer makes forty prompt edits. Each one was tried on three examples and
+    looked better every time, yet users now say the assistant is worse than in week two. What best
+    explains this?
+  options:
+    - >-
+      The provider must have changed the model, since every single edit was verified before shipping.
+    - >-
+      Each edit was checked only on inputs that motivated it, so other regressions went unseen.
+    - >-
+      Forty edits is too many; prompts degrade once they pass a certain length and complexity.
+    - >-
+      Three examples per change is fine, but they should have been chosen at random each time.
+  correct: 1
+  explanation: >-
+    This is the vibes trap: selection bias in the test cases, non-monotonic effects and invisible
+    regressions. Each change was verified, but never on held-out data covering the other categories.
+- id: q2
+  question: >-
+    Your team has a judge scoring a fixed offline set in CI and plans to add online scoring of
+    production traffic. Nobody has ever compared the judge's scores with a person reading the same
+    outputs. What is the main risk?
+  options:
+    - >-
+      Online scoring gives a delayed signal, so regressions will reach users before anyone sees them.
+    - >-
+      The offline set will drift away from production and gate merges on stale examples.
+    - >-
+      Both surfaces rest on an unchecked judge, so the chain measures nothing in particular.
+    - >-
+      CI costs will rise because the judge runs on both the offline set and live traffic.
+  correct: 2
+  explanation: >-
+    Human evaluation exists to calibrate the other two surfaces. Without it, the judge that scores
+    both the offline set and production traffic is producing confident numbers nobody has validated.
+- id: q3
+  question: >-
+    A change raises answer accuracy on in-scope questions but also makes the assistant answer more
+    out-of-scope questions instead of refusing. The team argues for a week about whether to keep it.
+    Which part of the evaluation charter would have settled this in advance?
+  options:
+    - >-
+      The priority ordering, for example that a wrong answer is worse than a refusal.
+    - >-
+      The purpose statement describing what the system is for and who relies on it day to day.
+    - >-
+      The non-goals section, which lists what the harness deliberately does not measure.
+    - >-
+      A definition of good answers as "helpful and accurate", agreed by the whole team.
+  correct: 0
+  explanation: >-
+    Metrics trade off against each other constantly. A written priority ordering decides those
+    trade-offs before they come up; "helpful and accurate" is too vague for anyone to disagree with.
+- id: q4
+  question: >-
+    You add "Be concise and direct" to the answer prompt. On a stratified 60-item set the overall
+    score drops from 0.85 to 0.75, and the out-of-scope stratum falls from 0.88 to 0.42. What most
+    likely happened?
+  options:
+    - >-
+      The set is too small to trust, because 60 items cannot detect a 10-point overall change.
+    - >-
+      Shorter answers lose detail, so the judge marked many correct but brief answers as wrong.
+    - >-
+      The new instruction confused the model, and a rewording would restore the old behaviour.
+    - >-
+      Directness removed the hedging the model used to decline questions the docs lacked.
+  correct: 3
+  explanation: >-
+    Hedging was how the model refused out-of-scope questions; pushed toward directness it answered
+    them confidently and wrongly. A 10-point drop is well outside the noise of a 60-item set.
