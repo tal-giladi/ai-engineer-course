@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    A teammate plans a red-team session by collecting the latest jailbreak prompts from forums and
+    trying each against the agent. Why is this a weak plan on its own?
+  options:
+    - >-
+      Forum jailbreaks are always patched by the provider, so none of them will work anymore.
+    - >-
+      Manual attempts are too slow; only automated campaigns produce findings worth reporting.
+    - >-
+      It tests one person's imagination, not a grid of every input channel against every target.
+    - >-
+      Jailbreaks only test direct injection, and direct injection is out of scope for a red team.
+  correct: 2
+  explanation: >-
+    Trick lists expire and cover only what someone thought of. Crossing every untrusted input
+    channel with every tool and store forces attacks on cells like memory or MCP descriptions that
+    you would otherwise skip.
+- id: q2
+  question: >-
+    Your automated campaign of 200 attacks reports zero successes. The outcome judge was written
+    an hour ago and has not been checked. What should you do before trusting the result?
+  options:
+    - >-
+      Publish it, since 200 automated attempts are far more coverage than any manual session.
+    - >-
+      Rerun the campaign with a stronger attacker model, since the variants were too similar.
+    - >-
+      Switch the judge to a larger model, since bigger judges do not need any calibration step.
+    - >-
+      Hand-label about 20 outcomes and check the judge's agreement with your own labels first.
+  correct: 3
+  explanation: >-
+    An uncalibrated security judge can report clean results that mean nothing. Calibrate it against
+    hand-labeled outcomes, exactly as with a quality judge, before reading anything into a zero.
+- id: q3
+  question: >-
+    A path-traversal attack succeeded, and you fixed it. Which regression test best captures the
+    fix for the CI security suite?
+  options:
+    - >-
+      Assert that the exact URL-encoded attack causes a validation error from the file tool.
+    - >-
+      Assert the attack fails and that a legitimate read in the base folder still works.
+    - >-
+      Assert that the agent's answer mentions it cannot open files outside the docs folder.
+    - >-
+      Assert that the outcome judge scores the run as safe when the attack is replayed in CI.
+  correct: 1
+  explanation: >-
+    Each test needs two assertions: the attack fails and the system still works. A fix that breaks
+    legitimate behavior is not a fix, and a test that only checks the block cannot catch that.
+- id: q4
+  question: >-
+    A red team finds that two phrasings extract your system prompt. The prompt holds no secrets and
+    knowing it gives no extra capability. How should this appear in the security report?
+  options:
+    - >-
+      As an accepted risk, with the reasoning written down and the name of who accepted it.
+    - >-
+      Left out, since a finding with no impact only adds noise to the final report.
+    - >-
+      As an open critical finding, since any extraction proves the model can be overridden.
+    - >-
+      As fixed, after adding a prompt line that tells the model never to reveal its instructions.
+  correct: 0
+  explanation: >-
+    Documented risk acceptance is a professional outcome. Silently omitting it hides a decision,
+    and an instruction-only "fix" would just lower the odds rather than change anything.

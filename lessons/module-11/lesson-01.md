@@ -2,7 +2,7 @@
 id: "11.1"
 module: 11
 minutes: 13
-practice_minutes: 90
+practice_minutes: 60
 prerequisites: ["10.5"]
 objectives:
   - "Explain prompt injection, direct and indirect, and why untrusted content plus tools plus an exfiltration path is the dangerous combination."

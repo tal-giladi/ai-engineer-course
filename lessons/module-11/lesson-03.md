@@ -2,7 +2,7 @@
 id: "11.3"
 module: 11
 minutes: 11
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["11.2"]
 objectives:
   - "Handle PII and sensitive output: detection, redaction, filtering, and what to log versus what never to log."

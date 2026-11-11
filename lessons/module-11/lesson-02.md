@@ -2,7 +2,7 @@
 id: "11.2"
 module: 11
 minutes: 12
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["11.1"]
 objectives:
   - "Design tool permissions on least-privilege lines, with sandboxing and approval gates for consequential actions."

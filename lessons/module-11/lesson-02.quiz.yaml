@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    Your multi-tenant agent's `lookup_order` tool takes a `tenant_id` argument, and the tool adds
+    it to the WHERE clause. The system prompt tells the model to always pass the current user's
+    tenant. Under an assume-compromise review, what is wrong?
+  options:
+    - >-
+      Nothing serious, as long as the tool also logs every tenant_id it receives for later audit.
+    - >-
+      The model controls the filter; it belongs in the credential or a row-level policy.
+    - >-
+      The prompt wording is too weak and should state the rule in capitals near the end as well.
+    - >-
+      The tenant_id should be hashed before it is passed, so the model cannot guess other tenants.
+  correct: 1
+  explanation: >-
+    If the attacker chooses the next tool call, they choose the tenant_id too. A filter enforced by
+    the credential or a row-level policy is a control; one the model passes as an argument is a
+    suggestion.
+- id: q2
+  question: >-
+    A file-reading tool checks that the requested path string starts with `/data/docs/` before
+    opening it. A pentest still reads `/etc/passwd`. What change actually closes this?
+  options:
+    - >-
+      Reject any path that contains the word "etc" or "passwd" before it reaches the file system.
+    - >-
+      Ask the model to only request paths under the docs folder and to refuse anything outside it.
+    - >-
+      Resolve the path to an absolute one first, then confirm it sits inside the base folder.
+    - >-
+      Add a per-run rate limit on the tool so that only a few files can be read by any single run.
+  correct: 2
+  explanation: >-
+    A string prefix check is defeated by `../`. Resolving to an absolute path and checking
+    containment is the boundary; keyword blocklists and rate limits only narrow the damage.
+- id: q3
+  question: >-
+    You added an approval gate on every `send_email` call. After a week, reviewers approve in about
+    two seconds each and two bad emails got through. What is the best redesign?
+  options:
+    - >-
+      Trigger only on unusual recipients or high value, and show arguments plus reasoning.
+    - >-
+      Add a second approver to every email so two people must click before anything is sent out.
+    - >-
+      Remove the gate and rely on the recipient allowlist, since humans were not adding anything.
+    - >-
+      Show a shorter prompt, "Agent wants to send an email — approve?", so reviewers decide faster.
+  correct: 0
+  explanation: >-
+    A gate that fires constantly is approved reflexively, so it only looks like a control. Making it
+    conditional keeps it rare enough to read, and showing reasoning lets a human catch errors the
+    arguments hide.
+- id: q4
+  question: >-
+    Every tool in your agent now has host allowlists, resolved paths and rate limits. A red-team
+    run still leaks session data: the answer contains a citation link with data in its query
+    string, which the user clicks. What does this show?
+  options:
+    - >-
+      The host allowlist is misconfigured, since every outbound URL should have been checked there.
+    - >-
+      The rate limit on fetch_url is too high, so the model had enough calls left to build the link.
+    - >-
+      The read-only credential leaked, because only a write could put session data into a URL.
+    - >-
+      The tool boundary is not the only one; the browser fetched it, so filter the output too.
+  correct: 3
+  explanation: >-
+    No tool was involved, so no tool control applied. A model-composed link exfiltrates through the
+    user's browser, which is why output filtering is a separate layer.

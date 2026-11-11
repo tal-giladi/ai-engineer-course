@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    A customer reports being charged nine times for one refund. Your agent loop retries failed
+    tool calls three times, the HTTP client retries three times, and the refund API timed out
+    once. What is the right fix?
+  options:
+    - >-
+      Lower every layer to two retries, so the worst case drops from nine charges to four.
+    - >-
+      Pick one layer to own retries and add an idempotency key from the trace ID and step.
+    - >-
+      Stop retrying timeouts entirely, since a timeout means the refund API rejected the call.
+    - >-
+      Add jitter to the backoff, so the retried refund calls stop arriving at the same instant.
+  correct: 1
+  explanation: >-
+    Layered retries multiply, and a timed-out side effect may have succeeded. One retry owner plus
+    an idempotency key stable across retries and resumes stops the duplicates.
+- id: q2
+  question: >-
+    During a chaos test, availability stays at 100% while the primary provider is down, because
+    traffic moves to the local tier. No alert fires. What is the missing piece?
+  options:
+    - >-
+      Quality measured per tier, and an alert when traffic is served below the primary tier.
+    - >-
+      Nothing; 100% availability during a provider outage means the fallback chain did its job.
+    - >-
+      A shorter timeout on the primary tier, so the switch to the local tier happens faster.
+    - >-
+      A retry of each failed primary call before falling back, so fewer requests leave the tier.
+  correct: 0
+  explanation: >-
+    A fallback that lowers quality is an incident nobody notices, because there is no error. Running
+    the eval suite on every tier and alerting on traffic below the primary makes it visible.
+- id: q3
+  question: >-
+    An injected prompt drives one tenant's agent into a fetch loop, and cost per request jumps six
+    times within minutes. Which control stops the spend fastest once an engineer is looking?
+  options:
+    - >-
+      A code fix to the loop detection, pushed through the normal CI and deploy pipeline.
+    - >-
+      A monthly budget alert on total spend, so finance can review the bill before it posts.
+    - >-
+      A larger per-run budget, so the loop finishes sooner and the run releases its slot.
+    - >-
+      A feature flag that disables fetch_url for that agent, effective without a deploy.
+  correct: 3
+  explanation: >-
+    A deploy during an incident means more minutes of spend. A kill switch in config or a flag
+    store, granular to one tool, takes effect in seconds, and a monthly total only reports after the fact.
+- id: q4
+  question: >-
+    A provider sometimes takes 20 seconds to return errors, and those failures consume the whole
+    latency budget before the fallback even starts. What should you add?
+  options:
+    - >-
+      Retries with a longer backoff cap, so the provider has time to recover before each attempt.
+    - >-
+      A token bucket that tracks quota, so requests are shaped before the rate limit is reached.
+    - >-
+      A circuit breaker that fails fast to the next tier after repeated failures, then probes.
+    - >-
+      A larger request timeout, so slow responses are allowed to succeed rather than fail early.
+  correct: 2
+  explanation: >-
+    After N consecutive failures the breaker opens and sends traffic straight to the next tier, then
+    retries a single probe after a cooldown. Longer timeouts and retries only spend more of the
+    budget failing.

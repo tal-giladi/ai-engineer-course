@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    Your agent redacts emails and API keys from every prompt before it goes to the provider. An
+    audit of the trace store still finds dozens of full API keys. What most likely happened?
+  options:
+    - >-
+      The provider stored the keys and echoed them back, so they arrived with the model responses.
+    - >-
+      The regex missed most key formats, so detection must be replaced with a named-entity model.
+    - >-
+      Users pasted keys into answers, which bypass redaction because outputs are never scanned.
+    - >-
+      Redaction ran only on the provider path, so traces captured the raw input before it ran.
+  correct: 3
+  explanation: >-
+    Redacting only on the way to the provider strips secrets before sending them out and keeps them
+    in full at home. Redaction has to happen at capture for every store.
+- id: q2
+  question: >-
+    Two tenants ask nearly the same question about their contracted rate limit. Tenant B gets
+    tenant A's figure with a citation B cannot open, and nothing is logged as an error. Which fix
+    addresses the cause?
+  options:
+    - >-
+      Add tenant, permission scope, filters and corpus version to the semantic cache key.
+    - >-
+      Raise the cache similarity threshold from 0.97 to 0.99 so fewer near-matches are served.
+    - >-
+      Shorten the cache retention to a few minutes so cross-tenant hits become far less likely.
+    - >-
+      Add a grounding check that confirms the answer is supported by the retrieved documents.
+  correct: 0
+  explanation: >-
+    An embedding-only key lets one tenant's answer serve another's similar query. The key must
+    include everything that affects what the answer should be; a higher threshold or shorter
+    retention only makes the leak rarer.
+- id: q3
+  question: >-
+    A team wants to fine-tune on last quarter's production traces. They already filter out failed
+    runs and duplicates. What should they add before training, and why?
+  options:
+    - >-
+      Nothing more, since a model trained on many examples will not reproduce any single one exactly.
+    - >-
+      A sample of only 10% of the traces, because a smaller dataset holds proportionally less PII.
+    - >-
+      A secret and PII scan, because whatever enters the weights cannot be deleted from them later.
+    - >-
+      A retention job on the dataset, so the training data expires after 30 days like the traces.
+  correct: 2
+  explanation: >-
+    Content in a training set is baked into weights, which is functionally permanent and cannot meet
+    a deletion request. Scanning for secrets before training is the only point of control.
+- id: q4
+  question: >-
+    Your agent streams answers to users, and you now need to filter outputs for secrets and for
+    URLs that do not point to retrieved documents. What is the sound approach?
+  options:
+    - >-
+      Buffer every full answer before sending, since a filter on partial text cannot catch anything.
+    - >-
+      Filter per chunk with a small lookahead buffer, and write down the gap this approach leaves.
+    - >-
+      Skip output filtering for streamed answers, since tool-level controls already cover URLs.
+    - >-
+      Run the filter after the stream ends and send a correction message if something leaked.
+  correct: 1
+  explanation: >-
+    You cannot fully validate a response you have already started sending. Per-chunk filtering with
+    lookahead, or holding the first tokens until a fast check passes, is a deliberate trade-off whose
+    gap you write down.
