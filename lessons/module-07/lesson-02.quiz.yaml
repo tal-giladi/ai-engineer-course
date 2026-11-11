@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    Your approval node logs an audit row, then calls interrupt() to ask a human to approve an email.
+    After the human answers and you resume with Command(resume=...), the audit table has two rows for
+    the same approval. Why?
+  options:
+    - >-
+      The checkpointer writes state twice per node, once on pause and once on resume.
+    - >-
+      Command(resume=...) starts a new thread, so the run replays from the first step.
+    - >-
+      The interrupt fired twice because the response_schema rejected the first human answer.
+    - >-
+      On resume the node re-runs from the top, so code before interrupt() runs again.
+  correct: 3
+  explanation: >-
+    interrupt() returns the resume value instead of pausing the second time, but everything above it
+    executes again. Put side effects after the interrupt, in the next node, or make them idempotent.
+- id: q2
+  question: >-
+    A refund tool succeeds at step 9, then the process crashes before the checkpoint for that step
+    is written. The run is resumed from the last checkpoint. What do you need so the customer is not
+    refunded twice?
+  options:
+    - >-
+      An idempotency key from the thread ID and step index, checked by the refund tool.
+    - >-
+      A static interrupt_before on the refund node so a human confirms every resume.
+    - >-
+      A shorter checkpoint interval so the state is always saved before the tool can run.
+    - >-
+      A retry policy of zero on the refund node so the framework never re-runs it.
+  correct: 0
+  explanation: >-
+    Resumability means a side effect that ran before its checkpoint will run again. The tool must
+    recognise a repeated key and return the prior result; this bug only exists once runs can resume.
+- id: q3
+  question: >-
+    A 15-step agent gave a wrong version number at the end. You suspect a bad search result early in
+    the run, not the model's reasoning. What is the quickest way to confirm it?
+  options:
+    - >-
+      Re-run the same task a few times and compare where the trajectories start to differ.
+    - >-
+      Rewind to the step with the search, edit in the right chunk, and resume from there.
+    - >-
+      Add an interrupt after every search so a human can check the results on the next run.
+    - >-
+      Read the final state, since it holds every tool result and shows which one was wrong.
+  correct: 1
+  explanation: >-
+    Agent bugs are causal: a bad result at step 3 drives a wrong answer at step 15. Time travel with
+    get_state_history and update_state lets you change one thing and re-run, a controlled
+    experiment instead of hoping non-determinism reproduces the failure.
+- id: q4
+  question: >-
+    You want a human to approve or correct an email before it is sent, and approvals can take hours.
+    A colleague proposes compile(interrupt_before=["send_email"]). What do you do instead?
+  options:
+    - >-
+      Keep interrupt_before but raise the worker timeout so the process waits for the human.
+    - >-
+      Use interrupt_after on the drafting node so the draft is saved before the pause.
+    - >-
+      Call interrupt() in an approval node with a response_schema, and resume with Command.
+    - >-
+      Skip the checkpointer and keep the pending email in a queue until someone answers.
+  correct: 2
+  explanation: >-
+    Static breakpoints are meant for debugging. interrupt() inside a node, with a checkpointer,
+    persists the pause so the process can exit, and a Pydantic response_schema validates the
+    human's answer, including an edited recipient or body.

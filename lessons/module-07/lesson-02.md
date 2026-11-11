@@ -2,7 +2,7 @@
 id: "07.2"
 module: 7
 minutes: 13
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["07.1"]
 objectives:
   - "Use checkpointing, interrupts, and human-in-the-loop approval for consequential actions."

@@ -1,0 +1,75 @@
+- id: q1
+  question: >-
+    You are about to connect a third-party "web search" MCP server to an agent that also has a
+    filesystem server. Its version is pinned. Which check catches a tool description that tells the
+    model to read a credentials file and pass it in a search parameter?
+  options:
+    - >-
+      Running it over stdio instead of HTTP, so it cannot reach the network on its own.
+    - >-
+      Giving the search server a read-only credential, so it cannot change any files.
+    - >-
+      Relying on the protocol, which rejects descriptions that reference other tools.
+    - >-
+      Reading every tool description at the pinned version before you connect it.
+  correct: 3
+  explanation: >-
+    Tool descriptions are untrusted text that enters the model's context, and nothing in the
+    protocol validates them. A five-minute review of the descriptions is the specific control for
+    injection through the tool catalogue.
+- id: q2
+  question: >-
+    Your MCP server should let the host show the corpus index, a list of sections and document
+    counts, when the application decides it is relevant. The model should not decide when to fetch
+    it. Which primitive fits?
+  options:
+    - >-
+      A tool, since every capability the model can see must be exposed as a tool call.
+    - >-
+      A resource, since the host application decides what to include in context.
+    - >-
+      A prompt, since a reusable template is what the host injects into context.
+    - >-
+      A tool with a "do not call" clause, so the model sees it but leaves it alone.
+  correct: 1
+  explanation: >-
+    The three primitives differ by who controls invocation: tools by the model, resources by the
+    host application, prompts by the user. Reference data the application selects is a resource.
+- id: q3
+  question: >-
+    You built your retrieval server with the mcp 2.x SDK, and your LangGraph agent uses
+    langchain-mcp-adapters 0.3.2, which requires mcp<2. Installing both into one environment fails.
+    What do you do?
+  options:
+    - >-
+      Pin the server to mcp<2 too, since 2.x servers cannot answer 2025-11-25 clients.
+    - >-
+      Drop the adapter and call the server's HTTP endpoint directly from your own agent code.
+    - >-
+      Use separate environments for server and agent; 2.x servers serve older clients too.
+    - >-
+      Downgrade the server's transport to HTTP+SSE so the older client can still connect.
+  correct: 2
+  explanation: >-
+    Servers on the mcp 2.x SDK serve the 2026-07-28 revision and every earlier one, so the adapter's
+    2025-11-25 client still works. The conflict is only about packages, so separate virtual
+    environments solve it.
+- id: q4
+  question: >-
+    You plan to run your MCP server remotely behind a load balancer with several replicas, on the
+    2026-07-28 revision. A colleague worries about routing each client to the same replica. Why is
+    that not needed?
+  options:
+    - >-
+      The protocol is stateless: no handshake or session ID; each request carries its version.
+    - >-
+      Streamable HTTP keeps one long-lived stream per client, so the balancer pins it automatically.
+    - >-
+      The Mcp-Session-Id header lets any replica load the session state from a shared session store.
+    - >-
+      Servers must implement ping, so the balancer can detect and drain replicas holding sessions.
+  correct: 0
+  explanation: >-
+    Since 2026-07-28 there is no initialize handshake and no Mcp-Session-Id; requests carry their
+    protocol version and client capabilities. Any replica can answer any request, and cross-call
+    state travels as server-minted handles in tool arguments.

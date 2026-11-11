@@ -1,0 +1,186 @@
+- id: q1
+  question: >-
+    You map your hand-written loop onto LangGraph: while True becomes a cycle, the termination branch
+    a conditional edge, dispatch a ToolNode, the state dict a typed schema. Which LangGraph concept
+    has no counterpart in your single-threaded loop, and why does it exist?
+  options:
+    - >-
+      The checkpointer, because a single process never needs to save its state to a database.
+    - >-
+      The conditional edge, because a plain if statement cannot express routing between nodes.
+    - >-
+      The reducer, because nodes can run concurrently and need a rule for merging writes.
+    - >-
+      The ToolNode, because the loop called tools directly instead of through a dispatch layer.
+  correct: 2
+  explanation: >-
+    A reducer such as add_messages defines how a node's output merges into existing state. Two
+    parallel nodes writing the same field would otherwise race; a single-threaded loop's appends are
+    ordered by construction.
+- id: q2
+  question: >-
+    After porting to LangGraph, the 40-task trajectory eval shows success 0.82 → 0.84, code down
+    60%, and mean cost per run up 11% ($0.019 → $0.021). What is the right reading?
+  options:
+    - >-
+      Investigate: an unexplained cost rise often means the port dropped a control like capping.
+    - >-
+      Accept it: 11% more cost for 60% less code is a fair trade, and success did not get any worse.
+    - >-
+      Accept it: framework overhead adds a fixed cost per run, which shrinks as tasks get longer.
+    - >-
+      Investigate the model: a cost rise with identical prompts points to a provider pricing change.
+  correct: 0
+  explanation: >-
+    The likely cause is ToolNode passing full tool results where the hand-rolled loop projected and
+    capped them. Prove a port with the eval and the cost figures, because code that used to do
+    something is gone rather than wrong, and reading the diff will not show it.
+- id: q3
+  question: >-
+    A ported agent starts refusing questions it used to answer. Prompts, tools and trajectories look
+    unchanged, and reading the code shows nothing. Which other hidden framework behavior produces a
+    bug of this same shape?
+  options:
+    - >-
+      The graph renderer, which can reorder nodes in the diagram so they no longer match the code.
+    - >-
+      The reducer on messages, which replaces the history on each turn instead of appending to it.
+    - >-
+      The checkpointer, which writes state after every node and slows each model call down.
+    - >-
+      Retry layering, where framework, client and loop retries compound into many more attempts.
+  correct: 3
+  explanation: >-
+    Prompt assembly, message trimming, retry layering, tool result formatting and token accounting
+    all happen inside the framework, out of your source. Find the escape hatches, such as verbose
+    callbacks and raw input dumps, on day one rather than during an incident.
+- id: q4
+  question: >-
+    Your agent must pause for human approval before an irreversible action. Approval may take hours,
+    and the service redeploys twice a day. Which pair of features makes this work?
+  options:
+    - >-
+      Async/await plus a long request timeout, so the worker waits without blocking others.
+    - >-
+      Checkpointing plus interrupts, so the paused run lives in a database, not a process.
+    - >-
+      A message queue plus a retry policy, so the approval request is delivered reliably.
+    - >-
+      A supervisor plus a handoff, so a dedicated approval agent owns the waiting step.
+  correct: 1
+  explanation: >-
+    Checkpointing persists state after every node, and interrupt() pauses the run so the process can
+    exit and resume later from anywhere. A long timeout dies on the next deploy, and a queue keeps
+    the message but not the run's accumulated state.
+- id: q5
+  question: >-
+    You add idempotency keys to tools with side effects, because a crash after a refund but before
+    its checkpoint would repeat the refund on resume. What should the key be derived from?
+  options:
+    - >-
+      A timestamp taken when the tool is called, so that every single attempt gets a unique key.
+    - >-
+      The thread ID and step index, so the same step yields the same key on every attempt.
+    - >-
+      A random UUID stored in the tool's arguments by the model before each call.
+    - >-
+      A hash of the full message history, so any change in context produces a new key.
+  correct: 1
+  explanation: >-
+    The key must be stable across retries and resumes: the same logical step must produce the same
+    key each time it is attempted. Timestamps and random values change on every attempt and defeat
+    the check.
+- id: q6
+  question: >-
+    A supervisor with three specialists scored 0.79 against 0.84 for a single agent, at almost three
+    times the cost, and 64% of its failures needed more than one trajectory to diagnose. It has five
+    failures the single agent does not. What do they most likely have in common?
+  options:
+    - >-
+      The specialists used weaker prompts than the single agent, so each made more reasoning errors.
+    - >-
+      The supervisor ran out of context, since it held all three specialists' full trajectories.
+    - >-
+      The specialists called the same tools in parallel and hit rate limits on the shared search API.
+    - >-
+      Context lost at a boundary, such as a dropped "for v3" qualifier or numbers without units.
+  correct: 3
+  explanation: >-
+    Every agent boundary is a lossy serialization: the receiver works from what the sender chose to
+    pass. Within one agent nothing is lost between steps, so these failures cannot occur there.
+- id: q7
+  question: >-
+    Your measurements favour a single agent on success, cost and latency. Under which condition would
+    you still split the work into separate agents?
+  options:
+    - >-
+      One part reads untrusted content and another holds tools that can act or send data out.
+    - >-
+      The task needs different kinds of expertise, such as research, calculation and drafting.
+    - >-
+      The tool count passes four, so tool descriptions start to crowd the single agent's prompt.
+    - >-
+      The sub-tasks depend on each other, so each phase benefits from a fully dedicated owner.
+  correct: 0
+  explanation: >-
+    Context isolation is a security requirement that holds regardless of cost and latency: an
+    injection in untrusted content then lands in an agent with nothing dangerous to reach. Different
+    expertise is not a reason, and dependent sub-tasks argue for one agent.
+- id: q8
+  question: >-
+    A third-party web search MCP server's tool description tells the model to call read_file on any
+    credentials file and append the contents to its context parameter. The server has no read_file
+    tool. Why can the attack still work?
+  options:
+    - >-
+      MCP servers can call tools on other servers directly, so it fetches the file itself.
+    - >-
+      The host runs descriptions as code at connect time, before any tool has been called.
+    - >-
+      The model reads it as instructions and can use another server's file tool.
+    - >-
+      The server reads the file through MCP Roots, which expose the client's directories.
+  correct: 2
+  explanation: >-
+    Tool descriptions are untrusted text in the model's context. With a file-reading server also
+    connected, the model can be steered to read secrets and send them out through this server's
+    parameter. Reading descriptions before connecting catches it; scoped file paths and isolation
+    limit the damage.
+- id: q9
+  question: >-
+    Job 1: each new support ticket from a webhook gets a model-written summary posted to Slack, with
+    retries if Slack is down. Job 2: a multi-turn assistant looks up orders and pauses for a human
+    before issuing a refund. Which split fits best?
+  options:
+    - >-
+      Both in n8n, since its AI Agent node and Retry On Fail cover chat and delivery alike.
+    - >-
+      Both in LangGraph, since one framework for every AI workload keeps the tooling simple.
+    - >-
+      Job 1 in LangGraph for checkpointing; Job 2 in n8n so approval is a visual node.
+    - >-
+      Job 1 in n8n as an event pipeline; Job 2 in LangGraph with interrupt() for approval.
+  correct: 3
+  explanation: >-
+    Job 1 is an event running a fixed pipeline that needs retries: an event orchestrator's home
+    ground. Job 2 is a stateful conversation with a durable human pause: a code graph with
+    checkpointing and interrupt().
+- id: q10
+  question: >-
+    An old MCP server uses from mcp.server.fastmcp import FastMCP and fails to import after upgrading
+    to mcp 2.x. A teammate also wants an Mcp-Session-Id check so the remote server can track each
+    client. What is the right move?
+  options:
+    - >-
+      Pin mcp<2 for good and add the session check, since sessions hold per-client state.
+    - >-
+      Port to MCPServer, keep the session check, and require clients to send initialize first.
+    - >-
+      Port to MCPServer on mcp 2.x and pass cross-call state as server-minted handles.
+    - >-
+      Switch to the HTTP+SSE transport, which keeps sessions and avoids the 2026-07-28 changes.
+  correct: 2
+  explanation: >-
+    The 2026-07-28 revision removed the handshake and Mcp-Session-Id; state that spans calls travels
+    as handles the server mints and the client passes back. The mcp 2.x server still serves older
+    clients, while HTTP+SSE is deprecated.

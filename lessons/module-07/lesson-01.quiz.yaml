@@ -1,0 +1,74 @@
+- id: q1
+  question: >-
+    You ported your Module 6 agent to LangGraph. On the same 40-task trajectory eval, success is
+    within noise, but mean cost per run rose 11%. Tools and prompts are unchanged. Where do you look
+    first?
+  options:
+    - >-
+      At the LangGraph version, since newer releases send a longer built-in system prompt.
+    - >-
+      At ToolNode, which may pass full tool results where your loop projected and capped them.
+    - >-
+      At the conditional edge, since an extra hop between nodes adds a model call to every run.
+    - >-
+      Nowhere yet, because a cost change with unchanged success is inside the eval's noise band.
+  correct: 1
+  explanation: >-
+    ToolNode decides how tool results become messages, so the capping and projection from Lesson
+    6.1 can silently disappear in a port. Restoring the projection inside the tool functions brought
+    cost back; the eval caught what reading the diff would not.
+- id: q2
+  question: >-
+    A ported agent starts refusing questions it used to answer. Trajectories look normal, and the
+    prompts and tools are unchanged. Reading the graph code shows nothing wrong. What is the most
+    useful next step?
+  options:
+    - >-
+      Revert to the hand-rolled loop, since the framework's behavior cannot be inspected directly.
+    - >-
+      Rewrite the refusal policy in the system prompt so it is shorter and harder to drop.
+    - >-
+      Add more refusal examples to the eval set to measure how often the regression happens.
+    - >-
+      Turn on verbose callbacks and dump the literal messages the framework sends to the model.
+  correct: 3
+  explanation: >-
+    The cause is in what the framework assembles, not in your code. In the lesson's example, message
+    trimming was cutting part of the system prompt on long conversations, and only the literal model
+    input showed it.
+- id: q3
+  question: >-
+    In your LangGraph port, two nodes can run in parallel and both write to the messages field of
+    state. What prevents one write from overwriting the other?
+  options:
+    - >-
+      A reducer such as add_messages, which defines how each node's output merges into state.
+    - >-
+      The checkpointer, which saves after every node and so serializes writes to the same field.
+    - >-
+      The conditional edge, which routes control so only one node writes to state at a time.
+    - >-
+      Nothing in the graph; you have to add a lock around the field inside each node's code.
+  correct: 0
+  explanation: >-
+    Reducers are the one genuinely new idea in the mapping. Because nodes can run concurrently, each
+    field needs a defined merge rule; your single-threaded loop never needed one.
+- id: q4
+  question: >-
+    Every new support ticket must be summarized by a model and posted to Slack, and delivery has to
+    retry when Slack is down. Your team also runs a multi-turn refund assistant. Which orchestration
+    choice fits the ticket job?
+  options:
+    - >-
+      LangGraph, because it already runs the refund assistant and has per-node retry policies.
+    - >-
+      Apache Burr, because its actions declare state reads and writes, which helps with retries.
+    - >-
+      An event orchestrator such as n8n: an event starts a fixed pipeline that needs retries.
+    - >-
+      A code graph with an interrupt, so a human can approve each summary before it is posted.
+  correct: 2
+  explanation: >-
+    The unit of work is an event running a mostly fixed pipeline with one model call, where retries
+    and an audit trail matter more than reasoning. Code graphs fit conversations whose state evolves
+    over many model calls.

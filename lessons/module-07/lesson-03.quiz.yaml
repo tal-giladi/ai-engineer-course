@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    A teammate proposes a supervisor with three specialists: one looks up docs, one does the
+    calculation, one checks the changelog. The calculation needs the docs result, and the changelog
+    check needs both. What is the strongest objection?
+  options:
+    - >-
+      The sub-tasks are dependent, so coordination is pure overhead and every boundary loses context.
+    - >-
+      Three specialists are too few for a supervisor; the pattern pays off from five specialists upward.
+    - >-
+      Specialists need different models, and mixing model providers makes the eval results unreliable.
+    - >-
+      A supervisor cannot call specialists in sequence, so it would run all three in parallel and fail.
+  correct: 0
+  explanation: >-
+    The deciding question is independence. With sequentially dependent sub-tasks there is nothing to
+    parallelize, and every handoff adds model calls and a lossy serialization of context.
+- id: q2
+  question: >-
+    In a supervisor design, the docs specialist answers for v2 although the user asked about v3. The
+    specialist's own answer is correct for the instruction it received. What kind of failure is this?
+  options:
+    - >-
+      A retrieval failure in the docs specialist, fixed by reranking its search results.
+    - >-
+      A reasoning failure in the specialist, fixed by a stronger model for that agent only.
+    - >-
+      A critic failure, fixed by adding a reviewer agent that checks the final answer.
+    - >-
+      A serialization loss at the boundary: the supervisor dropped "for v3" from the task.
+  correct: 3
+  explanation: >-
+    Across an agent boundary only what the sender chose to pass survives. This failure cannot happen
+    in a single agent, because there is no boundary at which to lose the qualifier.
+- id: q3
+  question: >-
+    A task asks to compare rate limits, auth and error handling across three API versions. Each
+    version can be looked up without the others. What do you expect from three parallel workers plus
+    a merge, compared with one agent?
+  options:
+    - >-
+      Lower cost and lower latency, because each worker carries a smaller context window.
+    - >-
+      Higher cost but much lower p95 latency, as independent lookups run concurrently.
+    - >-
+      The same latency but higher success, because each worker specializes in one version.
+    - >-
+      Lower success, because the merge step must reconcile three separate partial answers.
+  correct: 1
+  explanation: >-
+    Parallel workers is the only pattern with a clean latency argument. In the lesson's example it
+    cost 31% more but was 2.6 times faster, and success rose slightly because each context held one
+    version.
+- id: q4
+  question: >-
+    One agent reads untrusted web pages and also has a tool that sends email to any address. Your
+    single-agent version beats a split design on success, cost and latency. Should you still split it?
+  options:
+    - >-
+      No. The measured comparison favours one agent, so splitting would only add boundary losses.
+    - >-
+      No. Give the agent a stronger system prompt telling it to ignore instructions in web pages.
+    - >-
+      Yes. Isolate the agent reading untrusted content from the tool that can exfiltrate data.
+    - >-
+      Yes. Different kinds of expertise, reading and writing, always justify separate agents.
+  correct: 2
+  explanation: >-
+    Context isolation as a security requirement is the strongest reason to split. An injection in
+    retrieved content then lands in an agent with nothing dangerous to reach, whatever the cost
+    numbers say.
