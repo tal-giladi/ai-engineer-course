@@ -2,7 +2,7 @@
 id: "04.4"
 module: 4
 minutes: 13
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["04.3"]
 objectives:
   - "Implement hybrid retrieval combining dense vectors and BM25 with rank fusion, and measure the gain over either alone."

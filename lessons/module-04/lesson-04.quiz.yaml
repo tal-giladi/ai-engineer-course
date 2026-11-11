@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    A user searches for `batch_upsert_v2 timeout`. Dense retrieval returns chunks about other upsert
+    functions and general timeouts, but not the one that names `batch_upsert_v2`. Why?
+  options:
+    - >-
+      The chunks are too large, so the function name is diluted inside a vector covering many topics.
+    - >-
+      The vector store is post-filtering and drops the chunk that names the function after search.
+    - >-
+      Embeddings compress meaning and give rare exact tokens like identifiers weak representations.
+    - >-
+      The query prefix is missing, and missing prefixes mainly hurt code identifiers in queries.
+  correct: 2
+  explanation: >-
+    Dense retrieval is lossy by design: it keeps meaning and discards surface form, so rare tokens
+    get weak, unstable vectors. BM25 scores exact term overlap weighted by rarity, which is why it
+    wins on identifiers.
+- id: q2
+  question: >-
+    You have a dense ranking scored by cosine similarity and a BM25 ranking with its own scores. A
+    colleague proposes averaging the two raw scores per document. What do you do instead?
+  options:
+    - >-
+      Use reciprocal rank fusion on rank positions, since the two score scales are unrelated.
+    - >-
+      Average them, but first multiply BM25 by ten so that both scores fall in a similar range.
+    - >-
+      Take the higher of the two scores per document, which sidesteps the averaging problem.
+    - >-
+      Normalize both, tune weights once on the golden set, and then freeze them for production.
+  correct: 0
+  explanation: >-
+    Cosine scores cluster in a narrow band while BM25 is unbounded and corpus-dependent, so raw
+    scores are not comparable. RRF uses only rank, needs no tuning, and does not drift as the corpus
+    grows, unlike weights tuned once.
+- id: q3
+  question: >-
+    Hybrid retrieval scores 0.88 on paraphrase queries where dense alone scores 0.91, but 0.88
+    overall versus 0.72 for dense. A colleague says hybrid hurts paraphrase queries, so it should be
+    dropped. What is the best reply?
+  options:
+    - >-
+      Agree, and route each query type to its best retriever so that every group gets its maximum.
+    - >-
+      Agree, because losing on paraphrase queries shows that the fusion step is net harmful here.
+    - >-
+      Disagree, because the paraphrase dip is noise and hybrid beats dense on every query group.
+    - >-
+      Disagree: real traffic is mixed and cannot be routed in advance, and hybrid wins overall.
+  correct: 3
+  explanation: >-
+    Hybrid loses a few points to each specialist on its home ground and wins substantially overall,
+    because you cannot tell in advance which kind of query will arrive.
+- id: q4
+  question: >-
+    Your corpus is prose HR policies. Query logs show users write natural questions and almost never
+    search codes or identifiers. Hybrid adds 2 points of recall and roughly doubles retrieval work.
+    What is the right call?
+  options:
+    - >-
+      Adopt hybrid anyway, since any recall gain is worth it when generation dominates latency.
+    - >-
+      Decline hybrid and record why: on this corpus it has not earned its cost on the numbers.
+    - >-
+      Adopt hybrid, but switch to weighted score fusion so that the two-point gain gets larger.
+    - >-
+      Decline hybrid, and replace dense retrieval with BM25 alone to bring latency down further.
+  correct: 1
+  explanation: >-
+    Hybrid must earn its place per corpus and per stratum. With no exact-token traffic and a tiny
+    gain, declining it is the correct answer and a good decision record.

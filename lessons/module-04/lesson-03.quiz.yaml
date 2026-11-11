@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    A query filtered to one tenant, about 5% of the corpus, asks for k=10 and gets back 1 or 2
+    results. Filtered recall is far below unfiltered recall, and nothing logs an error. What is the
+    most likely cause?
+  options:
+    - >-
+      The embedding model is weak on this tenant's vocabulary and needs to be re-benchmarked.
+    - >-
+      The ef_search setting is too low, so the ANN graph is not being searched deeply enough.
+    - >-
+      The tenant's documents were chunked too small, so their vectors are embedded imprecisely.
+    - >-
+      The filter runs after the top-k vector search, so most of the top 10 get thrown away.
+  correct: 3
+  explanation: >-
+    Post-filtering takes the top 10 from the whole corpus and then discards non-matching results, so
+    a 5% filter leaves about half a result on average. Fewer results than requested is the tell-tale
+    sign.
+- id: q2
+  question: >-
+    You use pgvector with an indexed WHERE clause for the filter and believe you are pre-filtering.
+    How do you confirm it?
+  options:
+    - >-
+      Trust the indexed WHERE clause, because pgvector always applies the filter before the search.
+    - >-
+      Run EXPLAIN ANALYZE on the filtered query to see whether the planner filters first or last.
+    - >-
+      Raise hnsw.ef_search and check that filtered queries now run faster than unfiltered ones do.
+    - >-
+      Compare unfiltered recall against exact search on a sample and confirm it is at least 0.95.
+  correct: 1
+  explanation: >-
+    The Postgres planner may scan the vector index first and apply the WHERE clause afterwards,
+    which is post-filtering by another name. Only the actual query plan tells you which happened.
+- id: q3
+  question: >-
+    Your retrieval evaluation looks weak. On a sample, you compare ANN results against exact search
+    and get an ANN recall of 0.82. What is the first move?
+  options:
+    - >-
+      Benchmark two more embedding models, since a weak model is what shows up as low ANN recall.
+    - >-
+      Rebuild the index from a different chunking strategy to give the graph better input vectors.
+    - >-
+      Turn up ef_search at query time until ANN recall against exact search reaches about 0.95.
+    - >-
+      Migrate to a purpose-built store, since low ANN recall means pgvector has hit its ceiling.
+  correct: 2
+  explanation: >-
+    ANN recall is a dial you control, not a fixed property. ef_search trades latency for
+    thoroughness at query time without re-indexing, so turn it up before blaming the embedding
+    model.
+- id: q4
+  question: >-
+    You have 4,200 chunks, Postgres already runs in the stack, and chunks join to document metadata
+    stored there. Filtered p95 is 38 ms on pgvector and 8 ms on Qdrant. What goes in the decision
+    record?
+  options:
+    - >-
+      pgvector, with written thresholds for moving to Qdrant if scale or filtered latency grows.
+    - >-
+      Qdrant, because filtered latency is nearly five times lower and that gap widens with scale.
+    - >-
+      Qdrant, since a dedicated store stops vector search competing with transactional workload.
+    - >-
+      pgvector for now, with a plan to migrate to Qdrant later once the team has spare capacity.
+  correct: 0
+  explanation: >-
+    At this scale both are fast enough, and one fewer stateful system with joins and no dual-write
+    problem is worth more than 30 ms. A good record states concrete switching conditions, made cheap
+    by the VectorStore interface.

@@ -1,0 +1,184 @@
+- id: q1
+  question: >-
+    A team benchmarks three embedding models on API docs whose chunks average 780 tokens. The
+    leaderboard leader (max 512 tokens) scores recall@5 0.71, a mid-ranked asymmetric model (max
+    8192) scores 0.86, and a small fast model (max 512) scores 0.74. What is most likely going on?
+  options:
+    - >-
+      The leaderboard leader is contaminated, so after any fix only its score will fall further.
+    - >-
+      Two models truncate chunks at 512 tokens; shorter chunks lift those two but not the third.
+    - >-
+      The asymmetric model is missing its prefixes, so adding them widens its lead over the others.
+    - >-
+      The small model has too few dimensions, so after a fix only the 1024-dimension model improves.
+  correct: 1
+  explanation: >-
+    Models silently truncate input past their limit, so two of the three never saw the last third
+    of each chunk. With chunks under 480 tokens both rise by double digits while the 8192-token
+    model barely moves, and the ranking changes.
+- id: q2
+  question: >-
+    A team runs an asymmetric embedding model without its required `query: ` and `passage: `
+    prefixes. Every query returns results and nobody has complained. Why is this a particularly
+    dangerous bug?
+  options:
+    - >-
+      Every query raises an error, so the bug is loud but blocks the whole retrieval pipeline.
+    - >-
+      Recall falls only on long documents, so tests built from short documents never reveal it.
+    - >-
+      It only inflates index size, so retrieval quality looks the same while storage doubles.
+    - >-
+      Recall drops with no error and plausible results, so teams blame the wrong component.
+  correct: 3
+  explanation: >-
+    Missing prefixes cost roughly 13 to 16 points of recall@5 with no signal at all. Without a
+    controlled comparison nobody notices, and teams spend days on the model, the chunking or the
+    corpus instead.
+- id: q3
+  question: >-
+    Your corpus is markdown API documentation and your baseline is fixed-size chunking at 1,000
+    characters with 200 overlap, recall@5 0.61. Which single change is likely to give the largest
+    jump, and why?
+  options:
+    - >-
+      Structure-aware splitting on headings, so each chunk covers one section's topic.
+    - >-
+      Recursive character splitting, since paragraph breaks are the best boundary in any corpus.
+    - >-
+      More overlap between fixed-size chunks, so text cut at a boundary appears in both chunks.
+    - >-
+      Semantic splitting, since embedding similarity finds topic boundaries better than markup.
+  correct: 0
+  explanation: >-
+    Documents already encode their semantics in headings, and fixed-size splitting cuts tables and
+    separates headings from their content. Respecting those boundaries gave the largest single jump,
+    about 17 points; semantic splitting only tied it at higher cost.
+- id: q4
+  question: >-
+    A chunk reads, in full, "This is not supported in v3." It retrieves poorly for queries that name
+    the feature it is about. Which pair of fixes addresses this, with the right cost for each?
+  options:
+    - >-
+      Larger chunks, which cost nothing, and semantic splitting, which costs one embedding pass.
+    - >-
+      A bigger embedding model, which costs latency, and more overlap, which costs extra storage.
+    - >-
+      Contextual headers, a few tokens a chunk, and small-to-big, needing neighbour metadata.
+    - >-
+      A reranker, one model call per query, and query rewriting, one more model call per query.
+  correct: 2
+  explanation: >-
+    The chunk has no subject, so its vector sits near generic "not supported" text. A heading path
+    prepended before embedding gives it one; small-to-big keeps the precise chunk for retrieval and
+    expands to neighbours for generation, which needs prev_id and next_id at index time.
+- id: q5
+  question: >-
+    A query filtered to `section == "v3 API"`, which is 5% of the corpus, asks for k=10 and returns
+    1.4 results on average. Recall falls from 0.86 to 0.41. No error appears anywhere. What is
+    happening?
+  options:
+    - >-
+      The ANN index is under-tuned, so raising ef_search will bring back the missing results.
+    - >-
+      The filter matches very little, so 1.4 results is simply all the v3 content there is.
+    - >-
+      The filter runs after a corpus-wide top 10, so most of those results are discarded.
+    - >-
+      The v3 chunks embed poorly, so a better embedding model would lift them into the top 10.
+  correct: 2
+  explanation: >-
+    This is post-filtering: the top 10 are drawn from the whole corpus and then filtered, so about
+    half a result survives. Nothing failed, so nothing errors; the system just returns fewer results
+    than requested.
+- id: q6
+  question: >-
+    The same post-filtering happens in a multi-tenant system where the filter is the tenant ID.
+    Beyond the drop in recall, why does it matter?
+  options:
+    - >-
+      The search touched other tenants' documents first, so the filter is a security boundary.
+    - >-
+      Post-filtering forces a separate index per tenant, which multiplies the storage costs.
+    - >-
+      It only matters for quality, since discarded results never reach the user in any case.
+    - >-
+      Tenants with larger corpora get more results back, which makes per-tenant usage billing inaccurate.
+  correct: 0
+  explanation: >-
+    In a multi-tenant system the filter is a permissions boundary. A post-filter means retrieval ran
+    across other tenants' data before discarding it, which Lesson 11.3 treats as a security concern,
+    not just a quality bug.
+- id: q7
+  question: >-
+    You suspect pgvector is post-filtering a filtered query even though the WHERE column is indexed.
+    How do you verify it?
+  options:
+    - >-
+      Check that the WHERE column has an index, since with one pgvector always filters first.
+    - >-
+      Compare unfiltered ANN recall against exact search and confirm it is above about 0.95.
+    - >-
+      Raise k from 10 to 200 and check that the filtered query now returns ten or more results.
+    - >-
+      Run EXPLAIN ANALYZE to see if the planner scans the vector index before it filters.
+  correct: 3
+  explanation: >-
+    The planner may choose to scan the vector index first and apply the WHERE clause afterwards,
+    which is post-filtering by another name. Read the actual plan; assumption is not verification.
+- id: q8
+  question: >-
+    Your corpus is 40k documents, your team already operates Postgres, and chunks must join to
+    document metadata for permission filtering. Which vector store is the better default?
+  options:
+    - >-
+      Qdrant, because purpose-built stores are faster on filtered search at any corpus size.
+    - >-
+      pgvector: one system, transactional consistency and SQL joins to the permission data.
+    - >-
+      Both, with a routing layer that sends filtered queries to Qdrant and the rest to Postgres.
+    - >-
+      Neither, because 40k documents is small enough for exact search with no vector index.
+  correct: 1
+  explanation: >-
+    40k documents is well within pgvector's range, and permission filtering is a SQL join instead
+    of denormalized payload kept in sync. One fewer stateful system and no dual-write problem decide
+    it, with switching conditions written down.
+- id: q9
+  question: >-
+    The query "Why does the batch endpoint return 413?" finds the correct chunk at rank 19 under
+    dense retrieval. The team has tried three chunking strategies and two embedding models, and the
+    rank barely moves. What fixes it?
+  options:
+    - >-
+      Add BM25 next to dense retrieval and fuse with RRF, since 413 is an exact token.
+    - >-
+      Try a fourth chunking strategy that isolates every error code into a chunk of its own.
+    - >-
+      Switch to a higher-dimensional embedding model so that 413 separates from 412 and 414.
+    - >-
+      Raise k to 20 so that the chunk at rank 19 always makes it into the model's context.
+  correct: 0
+  explanation: >-
+    Embeddings give rare tokens like 413 weak representations, close to 412 and 414, so no chunking
+    or embedding change fixes it. BM25 scores exact terms weighted by rarity and puts the chunk at
+    rank 1; RRF fusion lands it at rank 2.
+- id: q10
+  question: >-
+    After adding hybrid retrieval, overall recall@10 rises from 0.72 to 0.88, but paraphrase queries
+    drop from 0.91 to 0.88. What should go into the evaluation report?
+  options:
+    - >-
+      Revert to dense only, since a drop on any query group means the fusion step is mistuned.
+    - >-
+      Report the aggregate only, since the small paraphrase dip is within normal run-to-run noise.
+    - >-
+      Keep hybrid and report per query type, showing the gain sits in exact-token queries.
+    - >-
+      Switch to weighted score fusion tuned once on this set to remove the paraphrase dip.
+  correct: 2
+  explanation: >-
+    Hybrid gives up a few points to each specialist on its home ground and wins overall because
+    traffic is mixed. Reporting per query type shows where the gain came from: exact-token queries
+    moved from 0.44 to 0.91.

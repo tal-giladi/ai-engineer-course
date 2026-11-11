@@ -1,0 +1,75 @@
+- id: q1
+  question: >-
+    A team picks the top leaderboard model for its API docs. Chunks average 780 tokens and the
+    model's maximum input is 512. Retrieval returns plausible results but misses answers that sit
+    late in long sections. What do you check first?
+  options:
+    - >-
+      Switch to a model with more dimensions, since 1024 is too few for technical API documentation.
+    - >-
+      Add a passage prefix to documents, since leaderboard models are always asymmetric retrievers.
+    - >-
+      Compare the chunk token-length distribution against the model's 512-token input limit.
+    - >-
+      Re-run the comparison on a newer leaderboard release to rule out benchmark contamination.
+  correct: 2
+  explanation: >-
+    Models silently truncate input beyond their maximum length, so the tail of each 780-token chunk
+    is invisible to retrieval. Checking chunk lengths against the limit takes minutes and comes
+    before blaming anything else.
+- id: q2
+  question: >-
+    An asymmetric embedding model's card says to use `query: ` on queries and `passage: ` on
+    documents. To keep things simple, an engineer puts `query: ` on both sides. What will the team
+    most likely see?
+  options:
+    - >-
+      Recall drops noticeably, with no error and results that still look entirely plausible.
+    - >-
+      The embedding call fails, because the model rejects documents that carry a query prefix.
+    - >-
+      No measurable change, because prefixes only matter for symmetric sentence-similarity models.
+    - >-
+      A small recall gain, because matching prefixes put queries and documents in the same space.
+  correct: 0
+  explanation: >-
+    Missing or mismatched prefixes cost double-digit recall while producing no error and
+    normal-looking results. That silence is why the lesson calls it the most common silent
+    misconfiguration in the retrieval stack.
+- id: q3
+  question: >-
+    Two candidates both reach recall@5 of 0.85 on your golden set. Model A has a 13 MB index and
+    embeds 340 chunks/s; model B has a 6 MB index and embeds 1,100 chunks/s. The corpus re-indexes
+    every night. Which do you choose?
+  options:
+    - >-
+      A, because its higher dimensionality will generalize better as the corpus keeps growing.
+    - >-
+      A, because a longer maximum sequence length makes it the safer choice whatever the chunks are.
+    - >-
+      Either one, since equal recall means the choice does not matter, so pick the higher-ranked one.
+    - >-
+      B, because it ties on recall and is smaller and much faster for the nightly re-index.
+  correct: 3
+  explanation: >-
+    When recall ties, operational numbers decide: index size and embedding throughput matter when
+    the corpus is re-indexed regularly. Dimensions are not a quality proxy, and the reasoning
+    belongs in the decision record.
+- id: q4
+  question: >-
+    A colleague says benchmarking embedding models on your own golden set is wasted effort, because
+    MTEB already tested hundreds of models across many tasks. What is the best reply?
+  options:
+    - >-
+      Agree, because MTEB includes retrieval tasks, so its top model is a safe default for any corpus.
+    - >-
+      Use MTEB to shortlist three, then decide on your golden set, because its tasks are not yours.
+    - >-
+      Ignore MTEB completely, since contamination makes every public benchmark score meaningless.
+    - >-
+      Use only MTEB's retrieval subset, which already matches technical docs closely enough to decide.
+  correct: 1
+  explanation: >-
+    Leaderboards average over tasks that are not yours, can be inflated by contamination, and know
+    nothing about your corpus. They are good for cutting hundreds of candidates to a few; your own
+    golden set makes the decision.

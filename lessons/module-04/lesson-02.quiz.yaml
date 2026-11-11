@@ -1,0 +1,74 @@
+- id: q1
+  question: >-
+    A chunk reads only "Streaming responses are not available for this endpoint." It sits under the
+    heading path API Reference > Batch Endpoints > Limitations. The query "can batch endpoints
+    stream?" does not retrieve it. What is the cheapest effective fix?
+  options:
+    - >-
+      Make chunks much larger so that every chunk always contains its whole parent document.
+    - >-
+      Prepend the document title and heading path to each chunk's text before embedding it.
+    - >-
+      Switch to semantic splitting so the chunk boundary falls exactly on the topic change.
+    - >-
+      Use a larger embedding model whose vectors carry more surrounding context per sentence.
+  correct: 1
+  explanation: >-
+    Contextual headers tell the embedding what the chunk is about, so it lands near batch-endpoint
+    content instead of generic streaming text. It costs a few tokens per chunk and one line of code.
+- id: q2
+  question: >-
+    Your corpus is markdown docs with reliable headings. Structure-aware splitting scores recall@5
+    0.78; semantic splitting scores 0.79 and needs an embedding pass over the whole corpus at index
+    time. What do you conclude?
+  options:
+    - >-
+      Adopt semantic splitting, because it scored highest and the index-time cost is only paid once.
+    - >-
+      Adopt semantic splitting, since it is the documented best practice for every RAG corpus type.
+    - >-
+      Go back to fixed-size chunks, since the gap between the two is too small to mean anything.
+    - >-
+      Keep structure-aware: semantic buys about nothing here and costs a full embedding pass.
+  correct: 3
+  explanation: >-
+    Where documents carry reliable structure, semantic splitting roughly ties structure-aware at
+    much higher index cost. It earns its place on unstructured text with no markup, which is why you
+    measure instead of following "best practice".
+- id: q3
+  question: >-
+    After adopting your best chunking strategy, one golden-set query still fails. You check and find
+    the relevant chunk is retrieved, but at rank 19. What do you do next?
+  options:
+    - >-
+      Treat it as a ranking failure and stop running chunking experiments against this query.
+    - >-
+      Try two more chunking strategies, since the chunk being found means chunking is nearly right.
+    - >-
+      Shrink the chunk size further so that the relevant chunk embeds more precisely than before.
+    - >-
+      Relabel the golden-set item, because a chunk found at rank 19 already counts as retrieved.
+  correct: 0
+  explanation: >-
+    A chunk that is retrieved but ranked low is a ranking failure, not a chunking one, and
+    re-chunking will not fix it. Separating "never retrieved" from "retrieved but ranked low" saves
+    you a wasted week.
+- id: q4
+  question: >-
+    Your 200-token chunks retrieve sharply, but the model often lacks enough context to answer from
+    them. A teammate wants 1,500-token chunks. What resolves the tension instead of compromising on
+    it?
+  options:
+    - >-
+      Raise chunk size to 1,500 tokens so each chunk carries enough context to answer from directly.
+    - >-
+      Keep 200-token chunks and raise k to 30 so the model sees far more chunks in every request.
+    - >-
+      Embed and retrieve small chunks, then expand to neighbours or the parent before generating.
+    - >-
+      Index both 200- and 1,500-token chunks and let the model choose which set to answer from.
+  correct: 2
+  explanation: >-
+    Small-to-big decouples the two needs: embed small for precise retrieval, generate from big for
+    context. It relies on prev_id, next_id and parent metadata, which is why you add it at index
+    time.
