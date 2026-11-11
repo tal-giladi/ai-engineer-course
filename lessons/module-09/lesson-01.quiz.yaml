@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    Your fine-tuned documentation assistant gives correct, well-formed answers, but wraps clear facts
+    in three clauses of hedging. A teammate proposes adding 300 more SFT examples with direct answers
+    as targets. Why is that a weak fix?
+  options:
+    - >-
+      SFT needs thousands of examples to change tone, so 300 more is far too few to have any visible effect.
+    - >-
+      SFT data cannot contain short answers, because the loss favors longer target sequences.
+    - >-
+      An SFT target says "produce this", not "this beats the hedged one", so no direction is learned.
+    - >-
+      Hedging is a knowledge problem, so the fix belongs in retrieval rather than in training.
+  correct: 2
+  explanation: >-
+    An SFT example has one target and no comparison, and the hedged answer is also a plausible output
+    of the kind the model already makes. A preference pair with the direct answer chosen and the
+    hedged one rejected teaches directness as a direction that generalizes.
+- id: q2
+  question: >-
+    You want to train confidence calibration. One pair has chosen "Batch endpoints do not support
+    streaming. See api/batch.md#limitations." and rejected a longer, uncited, hedged answer that also
+    gets the fact wrong. What will the model most likely learn from pairs like this?
+  options:
+    - >-
+      Whichever difference is easiest to detect, most likely brevity, rather than calibration.
+    - >-
+      Calibration, because hedging is the most visible difference between the two answers.
+    - >-
+      Citation discipline, since a link appears in every chosen answer and in no rejected one.
+    - >-
+      Factual accuracy, because DPO weights correctness above every stylistic difference in a pair.
+  correct: 0
+  explanation: >-
+    When chosen and rejected differ on several axes at once, the model cannot tell which one you meant
+    and latches onto the easiest surface feature. A good pair keeps correctness, citation and length
+    matched and varies only the hedging.
+- id: q3
+  question: >-
+    Before running DPO for answer completeness, your audit shows chosen answers average 142 words and
+    rejected answers 71 words. What do you do?
+  options:
+    - >-
+      Proceed, since complete answers are naturally longer and the ratio reflects the real dimension.
+    - >-
+      Add "be concise" to the training prompt so the model does not pick up the length difference.
+    - >-
+      Lower the learning rate so the length signal is absorbed more slowly than the completeness one.
+    - >-
+      Regenerate rejected answers at matched length so pairs differ only in completeness; re-audit.
+  correct: 3
+  explanation: >-
+    A 2:1 ratio trains "longer is better" into the weights. The data is the signal, so the fix is in
+    the data: length-matched pairs with a ratio near 0.9-1.1, checked again before training.
+- id: q4
+  question: >-
+    You label 400 preference pairs with your Lesson 3.4 judge, which agrees with humans 86% of the
+    time. What does that number mean for the trained model?
+  options:
+    - >-
+      Nothing for DPO, because the noise from wrong labels averages out across many pairs.
+    - >-
+      Roughly 14% of the labels are likely wrong, and the model will learn those faithfully too.
+    - >-
+      The model will end up about 86% accurate on the target task, since it copies the judge's labels.
+    - >-
+      It only matters for RLHF, where the judge is used directly as the trained reward model.
+  correct: 1
+  explanation: >-
+    Judge-labeled preference data inherits the judge's agreement rate as its quality ceiling. That is
+    why the judge calibration in Lesson 3.4 was load-bearing, and why a human spot-check of a sample
+    is part of building the pairs.

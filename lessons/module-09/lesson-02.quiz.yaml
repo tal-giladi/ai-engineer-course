@@ -1,0 +1,88 @@
+- id: q1
+  question: >-
+    A colleague sets up DPO by copying the Lesson 8.3 SFT config: learning rate 2e-4, three epochs,
+    starting from the base model with no adapter. What is the main problem?
+  options:
+    - >-
+      Nothing major, since DPO and SFT share a training loop and work well with the same settings.
+    - >-
+      DPO needs an SFT checkpoint, about 40 times lower learning rate, and usually one epoch.
+    - >-
+      Three epochs is too few, because preference data needs more passes than SFT data does.
+    - >-
+      The base model has no reference, so DPO must be swapped for RLHF with a reward model.
+  correct: 1
+  explanation: >-
+    DPO refines behavior rather than teaching a task, so it runs on an SFT checkpoint. Preference
+    tuning nudges: around 5e-6 and one epoch, because an SFT learning rate wrecks the model and
+    preference data overfits fast.
+- id: q2
+  question: >-
+    Two DPO runs on the same task. Run B has a reward margin of 2.98 and reward accuracy of 0.99;
+    Run A has 1.24 and 0.89. KL is similar. Which step decides which model is better?
+  options:
+    - >-
+      Compare the final loss of the two runs, since it combines all three of the other metrics.
+    - >-
+      Pick Run B, because a higher margin and accuracy at similar KL means it learned a cleaner preference.
+    - >-
+      Re-run both with a higher beta and keep whichever still has the larger reward margin.
+    - >-
+      Read outputs from both on the same held-out prompts at checkpoints, against pre-DPO outputs.
+  correct: 3
+  explanation: >-
+    Reward hacking produces better training metrics and a worse model, so the curves can actively
+    reassure you while quality drops. Only reading sampled outputs shows whether the model learned
+    the target quality or a shortcut such as length.
+- id: q3
+  question: >-
+    A beta sweep on audited data gives: 0.03 has the biggest hedging gain (+0.26) but outputs repeat
+    and sometimes truncate; 0.1 gives +0.21 with clean outputs; 0.3 gives +0.06. Which do you ship?
+  options:
+    - >-
+      Beta 0.1, because it gets most of the gain while sampled outputs stay coherent.
+    - >-
+      Beta 0.03, because it has the largest gain and the best reward margin of the three.
+    - >-
+      Beta 0.3, because the tightest leash is the only setting with no risk of drift at all.
+    - >-
+      None yet; re-run 0.03 for two epochs so its coherence problems have time to settle.
+  correct: 0
+  explanation: >-
+    Low beta is a loose leash: the model moves furthest and drifts into degradation, visible only in
+    samples. High beta is safe and barely changes anything; 0.1 is the usable middle.
+- id: q4
+  question: >-
+    A DPO run finishes with reward margin barely above zero, KL near zero, and sampled outputs that
+    look the same as before training. What is the most likely cause?
+  options:
+    - >-
+      Reward hacking, because the model has found a shortcut that hides its real change from the metrics.
+    - >-
+      Drift, because the policy has moved so far that the metrics can no longer track its behavior.
+    - >-
+      Under-training, because beta is too high or the learning rate is too low for the model to move.
+    - >-
+      A length confound, because the pairs differ in length and that cancels out the target signal.
+  correct: 2
+  explanation: >-
+    Under-training is the one failure the metrics do show: margin flat, KL near zero, outputs
+    unchanged. Drift shows a sharp KL climb, and reward hacking shows excellent metrics with worse
+    outputs.
+- id: q5
+  question: >-
+    You have no SFT checkpoint for a new task, memory on your GPU is tight, and you want one training
+    stage. Which approach fits best?
+  options:
+    - >-
+      DPO from the base model, since a reference copy costs very little when there is no SFT adapter.
+    - >-
+      ORPO from the base model, since it folds SFT and preference into one stage with no reference.
+    - >-
+      RLHF, since a separate reward model avoids holding a frozen reference copy in GPU memory.
+    - >-
+      SFT alone, since preference tuning is only worth doing after a task has shipped once already.
+  correct: 1
+  explanation: >-
+    ORPO needs no reference model, roughly halving memory, and trains directly from a base model on
+    preference data. DPO is the better choice when you already have an SFT checkpoint you trust.

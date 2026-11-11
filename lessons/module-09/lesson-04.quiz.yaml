@@ -1,0 +1,88 @@
+- id: q1
+  question: >-
+    You will serve an extraction adapter and a scope-router adapter, and you expect to iterate on both
+    every few weeks. How do you deploy them?
+  options:
+    - >-
+      Keep them unmerged on one base with multi-LoRA, so rollback is just a config change.
+    - >-
+      Merge each into its own full model, since merged models serve faster and are simpler.
+    - >-
+      Merge both adapters into a single model, so one artifact holds both behaviors at once.
+    - >-
+      Merge the extraction adapter only, and keep the router separate because it is smaller.
+  correct: 0
+  explanation: >-
+    One base in memory can serve many adapters with per-request selection, and swapping or rolling
+    back an adapter does not need a redeploy. Merging suits a single fine-tune where simplicity
+    matters more.
+- id: q2
+  question: >-
+    A teammate reports 0.94 held-out accuracy for the bf16 checkpoint and then deploys the AWQ 4-bit
+    version, citing that 4-bit is near-free for extraction. What is wrong with the release?
+  options:
+    - >-
+      AWQ is for CPU and local use, so the serving stack should use GGUF on the GPU.
+    - >-
+      Nothing, since extraction tasks have wide margins and quantization will not move their accuracy.
+    - >-
+      The reported number describes a different model; the quantized artifact needs its own eval.
+    - >-
+      The adapter was trained with QLoRA, so it must be served in 4-bit to match training.
+  correct: 2
+  explanation: >-
+    A quantized model is a different model from the one you trained. Extraction often loses little,
+    but that has to be measured on the artifact you serve, not assumed.
+- id: q3
+  question: >-
+    On the same hardware, AWQ 4-bit takes extraction accuracy from 0.94 to 0.93 and agent multi-step
+    task success from 0.84 to 0.76. The platform team proposes "quantize every model to 4-bit". What
+    do you say?
+  options:
+    - >-
+      Agree, because a one-point drop shows the method is safe for every model you run.
+    - >-
+      Decide per model by measuring: quantize extraction, keep the reasoning model in bf16.
+    - >-
+      Decline, because any measurable quality loss means no model should be quantized.
+    - >-
+      Agree, but move the reasoning model to 8-bit, since 8-bit is always free of quality cost.
+  correct: 1
+  explanation: >-
+    Quantization cost is task-dependent: narrow extraction has wide margins, while multi-step reasoning
+    compounds errors across steps. It is a per-model measurement, not a policy.
+- id: q4
+  question: >-
+    An adapter's version record lists its base model by a floating tag rather than an exact commit.
+    What can go wrong?
+  options:
+    - >-
+      vLLM refuses to load adapters whose base model is named by a tag instead of a commit.
+    - >-
+      Rollback becomes impossible, because the previous adapter version can no longer be located at all.
+    - >-
+      The datasheet link stops resolving, because datasheets are keyed to the base commit.
+    - >-
+      The base can change underneath, silently breaking the adapter and blocking reproduction.
+  correct: 3
+  explanation: >-
+    Adapters are tied to specific base weights. A floating tag means a base update can break the
+    adapter without warning, and you cannot reproduce the training run.
+- id: q5
+  question: >-
+    Your base model's deprecation is announced. Your dataset lives in a teammate's Colab drive and the
+    hyperparameters are in a Slack thread. What is the real issue?
+  options:
+    - >-
+      The adapter can keep running on the deprecated base, so there is no need to act soon.
+    - >-
+      Retraining needs a new datasheet, so the old dataset cannot be reused at all for the new base model.
+    - >-
+      The re-training chain is not reproducible, so a two-to-five-day job turns into a scramble.
+    - >-
+      Deprecation only affects merged models; unmerged adapters move to a new base unchanged.
+  correct: 2
+  explanation: >-
+    Deprecation means re-running the whole chain: dataset, retraining, re-evaluation, re-quantizing,
+    canary. With the dataset versioned, the training script runnable and the eval automated it takes
+    days; without them it takes much longer.

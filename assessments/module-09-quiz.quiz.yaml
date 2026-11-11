@@ -1,0 +1,181 @@
+- id: q1
+  question: >-
+    Two answers to the same question are both correct and well-formatted. One hedges through three
+    clauses; the other is direct. What can supervised fine-tuning learn from these two answers, and
+    what can preference tuning learn that SFT cannot?
+  options:
+    - >-
+      SFT learns which is better if you label the direct one; preference tuning only adds speed.
+    - >-
+      SFT learns nothing from correct answers; preference tuning is needed whenever both are right.
+    - >-
+      SFT can imitate one target; a chosen/rejected pair teaches that direct beats hedged.
+    - >-
+      SFT learns to hedge less if both are used as targets; preference tuning only fixes facts.
+  correct: 2
+  explanation: >-
+    An SFT example is one target with no comparison, so nothing in it says one answer is better. A
+    preference pair expresses a direction, chosen over rejected, which generalizes to new inputs and
+    is why preference tuning fixes hedging, verbosity and calibration.
+- id: q2
+  question: >-
+    A preference set for answer completeness has chosen answers averaging 142 words and rejected
+    answers 71 words. The team runs DPO without changing the data. What do you expect?
+  options:
+    - >-
+      The model mostly learns "longer is better"; length, latency and cost rise while quality falls.
+    - >-
+      The model learns completeness cleanly, since complete answers are expected to be longer anyway.
+    - >-
+      Training fails to converge, because pairs with very different lengths produce unstable gradients.
+    - >-
+      The model learns brevity, because DPO pushes rejected answers down more than chosen ones up.
+  correct: 0
+  explanation: >-
+    Length is the easiest correlate of "chosen" in this data, so it dominates. In the worked case,
+    length rose 94%, cost 71%, and judge-measured quality fell two points while completeness barely
+    moved.
+- id: q3
+  question: >-
+    For the same length-confounded preference set (ratio 2.00, target dimension completeness), where
+    does the fix belong?
+  options:
+    - >-
+      In the training config: raise beta so the model cannot move far enough to learn length.
+    - >-
+      In the prompt: add a length limit during training so the model ignores the difference.
+    - >-
+      In post-processing: truncate outputs at serving time to the average chosen answer length.
+    - >-
+      In the data: regenerate rejected answers at matched length and re-audit before training.
+  correct: 3
+  explanation: >-
+    In preference tuning the data is the signal, and no hyperparameter or prompt fixes a confounded
+    signal. Length-matched pairs with a ratio near 0.9-1.1 isolate completeness.
+- id: q4
+  question: >-
+    Two DPO runs: Run A ends at reward margin 1.24, reward accuracy 0.89, KL 0.31. Run B ends at
+    2.98, 0.99 and 0.29. Run B's pairs were built before any confound audit. What is the right
+    reading?
+  options:
+    - >-
+      Run B is better, since it beats Run A on every metric while keeping KL slightly lower.
+    - >-
+      Run B may be reward hacking a confound; read both runs' sampled outputs to settle it.
+    - >-
+      Run A is under-trained, since its reward accuracy never got close to the 1.0 ceiling.
+    - >-
+      Neither can be judged until both are re-run with beta 0.03 to make the gap clearer.
+  correct: 1
+  explanation: >-
+    Margin and accuracy measure how well the model separates chosen from rejected in your data, so a
+    model that learns a confound such as length scores higher. Reading outputs on the same held-out
+    prompts is the check that tells the cases apart.
+- id: q5
+  question: >-
+    You have an SFT checkpoint you are happy with and want to fix a hedging problem. GPU memory is
+    limited but adequate. Which approach do you choose?
+  options:
+    - >-
+      ORPO from the base model, because it needs no reference model and so saves memory.
+    - >-
+      DPO on the SFT checkpoint, so beta tunes the preference without disturbing the task.
+    - >-
+      RLHF with a trained reward model, because it gives the highest-fidelity signal.
+    - >-
+      More SFT with better direct examples, because the checkpoint already knows the task well.
+  correct: 1
+  explanation: >-
+    With a good checkpoint, ORPO's one-stage advantage buys nothing and discards your SFT work. DPO
+    gives independent control, RLHF is the heavy setup DPO was derived to avoid, and SFT cannot
+    express relative quality. ORPO is the answer when memory is tight or you start from scratch.
+- id: q6
+  question: >-
+    A team distils a frontier classifier on production tickets. They skip filtering because "the
+    teacher is 94% accurate". The student scores 0.90 and is confidently wrong on the same kinds of
+    tickets the teacher gets wrong. Which distillation condition did they break?
+  options:
+    - >-
+      Narrow task, because a classifier that mislabels some tickets is covering too many categories.
+    - >-
+      Production input match, because the teacher's errors show the inputs were not real tickets.
+    - >-
+      Enough volume, because a student copies teacher errors only when it has too few examples.
+    - >-
+      Teacher filtering, because the student was trained to reproduce the teacher's mistakes.
+  correct: 3
+  explanation: >-
+    Unfiltered teacher errors are distilled into the student, which reproduces them confidently.
+    Use the judge, a verification step or human review on a sample, and expect to discard 5-15%.
+- id: q7
+  question: >-
+    A routed distillation sweep: 0% escalated = 0.92 at $180 a month, 5% = 0.930 at $385, 12% = 0.940
+    at $672, 25% = 0.942 at $1,160, 50% = 0.943 at $2,140. The teacher alone is 0.94 at $4,100. A
+    reviewer asks why you chose 12% and not 25%. What is the answer?
+  options:
+    - >-
+      12% matches the teacher; 25% buys 0.002 accuracy for about $488 more a month.
+    - >-
+      25% would cost more than running the teacher alone once GPU serving is counted.
+    - >-
+      12% is the standard rate, since about one in eight inputs is unusual in practice.
+    - >-
+      25% would push p95 latency above the teacher's, which removes the speed benefit.
+  correct: 0
+  explanation: >-
+    12% is the knee of the swept curve: it recovers the full gap to the teacher, and beyond it each
+    extra point of routing buys almost no accuracy for hundreds of dollars. The threshold comes from
+    the curve, not from a round number.
+- id: q8
+  question: >-
+    In the same project, an ablation shows the student trained on labels alone reaches 0.87, while
+    the student trained on the teacher's reasoning plus labels reaches 0.92. How does this affect the
+    routing design?
+  options:
+    - >-
+      It does not, because routing can always reach teacher parity at the same escalation rate.
+    - >-
+      It shows the reasoning student is memorizing, so the labels-only student is safer to ship.
+    - >-
+      Without reasoning, far more traffic must escalate to reach parity, eroding the saving.
+    - >-
+      It means the teacher is the weak link, so a stronger teacher should replace it first.
+  correct: 2
+  explanation: >-
+    A five-point gap at the student means a much higher escalation rate to match the teacher, which
+    eats into the cost saving. The ablation changes the economics of the design, not just the score.
+- id: q9
+  question: >-
+    Your routed student has been in production for four months. Which signal is the earliest sign
+    that it needs retraining?
+  options:
+    - >-
+      A drop in the teacher's own accuracy on the weekly sample of escalated tickets.
+    - >-
+      A rise in p95 latency on the student path compared with the first month in production.
+    - >-
+      A rising escalation rate, meaning inputs are drifting away from the training data.
+    - >-
+      A rise in GPU memory use, meaning the student is handling longer and longer inputs.
+  correct: 2
+  explanation: >-
+    The escalation rate tracks how often the student is unsure. A steady rise means the input
+    distribution has drifted, which warns you before quality metrics degrade.
+- id: q10
+  question: >-
+    On the same hardware, AWQ 4-bit moves extraction accuracy from 0.94 to 0.93 and multi-step
+    reasoning success from 0.84 to 0.76. The team evaluated both models in bf16 before release. What
+    is the right policy?
+  options:
+    - >-
+      Measure each served artifact: quantize extraction, keep the reasoning model in bf16.
+    - >-
+      Quantize both, since an average loss of under five points is acceptable for the savings.
+    - >-
+      Keep both in bf16, since the bf16 evaluations are the only results that were approved.
+    - >-
+      Quantize both and rely on the bf16 evals, because quantization does not change behavior.
+  correct: 0
+  explanation: >-
+    Quantization cost is task-dependent: extraction has wide margins, while reasoning compounds error
+    across steps. A quantized model is a different model, so evaluate the artifact you actually serve.

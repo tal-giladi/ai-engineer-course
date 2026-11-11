@@ -1,0 +1,90 @@
+- id: q1
+  question: >-
+    A team distils ticket classification using 6,000 clean example tickets the team wrote. The
+    student matches the teacher on a held-out split of those tickets, then drops sharply in
+    production. What went wrong?
+  options:
+    - >-
+      The student was too small; an 8B model cannot hold a four-way classification task.
+    - >-
+      They used too few examples; distillation needs tens of thousands of examples, not a few thousand.
+    - >-
+      The teacher was not given reasoning, so the student only learned a surface mapping.
+    - >-
+      Inputs did not match production; real tickets are messy, so sample them from telemetry.
+  correct: 3
+  explanation: >-
+    Distilling on imagined inputs is the most commonly violated condition. Real traffic has typos,
+    mixed languages, truncated pastes and fragments, so the inputs should be sampled from telemetry,
+    deliberately including the messy ones.
+- id: q2
+  question: >-
+    An escalation sweep gives: 0% routed = 0.92 at $180 a month, 5% = 0.930 at $385, 12% = 0.940 at
+    $672, 25% = 0.942 at $1,160. The teacher scores 0.94. Which threshold do you choose?
+  options:
+    - >-
+      25%, because it is the only setting that clearly beats the teacher on accuracy.
+    - >-
+      12%, because it matches the teacher and more routing buys almost nothing per dollar.
+    - >-
+      5%, because it keeps the most saving while getting most of the way to the teacher.
+    - >-
+      0%, because a two-point gap is within noise and routing adds real operational burden.
+  correct: 1
+  explanation: >-
+    12% is the knee: it recovers the full gap, and going to 25% buys 0.002 accuracy for about $488 more
+    a month. The threshold comes from the swept curve, not from a round number.
+- id: q3
+  question: >-
+    Your routed student has escalated about 12% of tickets for months. Over the last six weeks the
+    escalation rate has crept up to 19%, while weekly accuracy checks still look fine. What does it
+    tell you?
+  options:
+    - >-
+      The teacher has become stricter, so the threshold should be lowered to bring the rate back.
+    - >-
+      The routing works as intended, since more escalation means the system is being careful.
+    - >-
+      The input distribution has drifted from training, an early sign the student needs retraining.
+    - >-
+      Ticket volume has grown, and escalation rates rise with volume even when inputs are unchanged.
+  correct: 2
+  explanation: >-
+    A rising escalation rate means the student is less confident on what it now sees, which is input
+    drift. It is an early warning that comes before quality metrics degrade.
+- id: q4
+  question: >-
+    Your manager approves a distillation project using a hosted frontier model as teacher. What should
+    you check before generating any teacher outputs?
+  options:
+    - >-
+      Whether the provider's terms allow its outputs to train another model, recorded with a date.
+    - >-
+      Whether the provider exposes logits, since behavioral distillation needs the full distribution.
+    - >-
+      Whether the teacher's monthly bill can absorb generation, which is usually the largest cost.
+    - >-
+      Whether the student shares the teacher's tokenizer, since outputs cannot transfer otherwise.
+  correct: 0
+  explanation: >-
+    Providers differ on training use and their terms change. If they prohibit it, use a permissively
+    licensed open-weights teacher, another provider, or do not distil. Behavioral distillation does
+    not need logits, and generation is usually cheap.
+- id: q5
+  question: >-
+    Training the student on teacher labels alone gives 0.87; training on the teacher's reasoning plus
+    the label gives 0.92. The teacher is at 0.94. What does this change?
+  options:
+    - >-
+      Nothing much, since routing closes any gap and the escalation threshold can stay exactly the same.
+    - >-
+      It shows the labels-only student is overfitting, so it needs fewer epochs, not reasoning.
+    - >-
+      Including reasoning is worth keeping; without it, far more traffic must route to the teacher.
+    - >-
+      Reasoning should be dropped to save tokens, since 0.87 is already within routing range.
+  correct: 2
+  explanation: >-
+    The student learns the procedure, not just the mapping. A five-point gap means a much higher
+    escalation rate to reach teacher parity, which erodes the cost saving, so the ablation changes
+    the economics of the design.
