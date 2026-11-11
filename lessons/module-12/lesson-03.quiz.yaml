@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    You are opening a project deep-dive and have five minutes before the interviewer starts
+    probing. Which opening uses that time best?
+  options:
+    - >-
+      A tour of the stack: framework, vector store, embedding model, serving setup, and tracing tool.
+    - >-
+      A live walkthrough of the code, starting from the entry point and following one request through.
+    - >-
+      Problem, architecture with reasons, trade-offs, evaluation numbers, next improvements.
+    - >-
+      The results table first, then the features in order of how impressive each one was to build.
+  correct: 2
+  explanation: >-
+    The five-part structure leads with the problem, gives reasons rather than names, states trade-offs
+    as trade-offs, and backs it all with measurements. A technology tour gives the interviewer nothing
+    to probe except "why".
+- id: q2
+  question: >-
+    You say you used a cross-encoder reranker. The interviewer asks why, and you explain that
+    retrieval was finding the answer but ranking was burying it. They ask: "Why not just re-chunk
+    the documents?" Which rung is this, and what answers it?
+  options:
+    - >-
+      Rung 2, the "why"; answered by restating the precision problem in more detail with an example.
+    - >-
+      Rung 3, "why not the alternative"; answered by the comparison in your decision record.
+    - >-
+      Rung 4, "what broke"; answered by describing the latency cost the reranker added at p95.
+    - >-
+      Rung 5, "how do you know"; answered by quoting the faithfulness gain from your eval report.
+  correct: 1
+  explanation: >-
+    Asking about an alternative is rung 3, where most candidates fail because they never considered
+    one. Decision records with alternatives and evidence exist to answer exactly this.
+- id: q3
+  question: >-
+    Mid-round, the interviewer asks how your system's refusal accuracy changed after you added
+    query rewriting. You never measured it. What is the strongest response?
+  options:
+    - >-
+      Give your best estimate with confidence, since hesitating signals you do not know your system.
+    - >-
+      Redirect to a metric you did measure, such as faithfulness, and explain why it matters more.
+    - >-
+      Say rewriting should not affect refusals, since it only changes how retrieval queries are phrased.
+    - >-
+      Say you did not measure it, then how you would: run the out-of-scope stratum and compare.
+  correct: 3
+  explanation: >-
+    "I don't know" followed by a concrete way to find out is a strong answer. A confident guess
+    invites a probe you cannot survive, and deflecting reads as evasion.
+- id: q4
+  question: >-
+    You are preparing your stories. Which of these is the strongest one to bring into the round?
+  options:
+    - >-
+      "Recall 0.94, precision 0.38: retrieval found it, ranking buried it, so I added a reranker."
+    - >-
+      "We moved to LangGraph because it has checkpointing and interrupts, which our agent needed."
+    - >-
+      "Our faithfulness went from 0.71 to 0.89 over the course of the project after many changes."
+    - >-
+      "We built hybrid retrieval with reranking, an agent loop, full tracing, and a two-tier CI gate."
+  correct: 0
+  explanation: >-
+    The diagnosed failure shows reading a metric vector, localizing the fault, and picking the fix
+    that matches it. A number with no mechanism or a list of features gives the next probe nowhere to go.

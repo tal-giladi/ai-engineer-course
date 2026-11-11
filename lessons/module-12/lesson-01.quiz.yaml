@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    You have one free weekend before you start applying. Your capstone works on your machine, the
+    README says "AI agent with RAG", and you have a half-built voice input feature. What is the best
+    use of the weekend?
+  options:
+    - >-
+      Finish the voice input, since a visible new capability is what makes a reviewer remember you.
+    - >-
+      Add a web UI so reviewers can try the system in a browser instead of reading about it.
+    - >-
+      Make it runnable from a clean clone and write up the architecture, results and limitations.
+    - >-
+      Refactor the code for readability, since reviewers will judge the quality of the source first.
+  correct: 2
+  explanation: >-
+    Completeness and evidence beat capability: a reviewer cannot evaluate a feature they cannot run,
+    and undocumented work is invisible. The voice feature is scope creep at exactly the stage where
+    it stalls projects.
+- id: q2
+  question: >-
+    You ran the clean-clone test once, found a missing environment variable and an undocumented
+    model download, and fixed both. The setup now works for you from a fresh directory. What should
+    you do next?
+  options:
+    - >-
+      Run the clean-clone test again, then watch someone else follow the README without helping.
+    - >-
+      Move on to the eval report, since the setup path has now been verified from a clean directory.
+    - >-
+      Add a troubleshooting section listing every error you hit, so reviewers can recover by themselves.
+    - >-
+      Pin every dependency version in the requirements file, which covers anything else you missed.
+  correct: 0
+  explanation: >-
+    The first pass reveals fixes that introduce new assumptions, so you run it twice. Then a person
+    without your machine and your memory finds the steps you still skip without noticing.
+- id: q3
+  question: >-
+    Your definition-of-done check shows four gaps: the CPU-only path does not work, there is no
+    multi-modal input, the security regression suite has never been run green, and the system is
+    untested above a few thousand documents. Which triage is right?
+  options:
+    - >-
+      Fix the multi-modal input and the scale testing, since those are the gaps a reviewer will ask about.
+    - >-
+      Fix all four before applying, because a reviewer will treat any remaining gap as unfinished work.
+    - >-
+      Document all four as known limitations, since honesty about gaps counts more than closing them.
+    - >-
+      Fix the CPU-only path and the security suite; document multi-modal and scale as limitations.
+  correct: 3
+  explanation: >-
+    Anything under Runs is must-fix and Evidence is usually must-fix, because a system nobody can
+    start is invisible. Missing features and untested areas are accept-and-document items.
+- id: q4
+  question: >-
+    You want two of your standalone exercises to sit beside the spine project in your portfolio.
+    You did the RAG triage, the vulnerable-agent exercise, and two other retrieval exercises.
+    Which pair adds the most?
+  options:
+    - >-
+      The two retrieval exercises, since they go deeper into the same area as the spine project.
+    - >-
+      The RAG triage and the vulnerable-agent exercise, each with a short README and its numbers.
+    - >-
+      All four exercises with full documentation, since more projects show more range overall.
+    - >-
+      None of them; one deep project reads as more focused and any extras only dilute it for a reviewer.
+  correct: 1
+  explanation: >-
+    The spine system is the depth; promoted exercises should show different skills. Diagnosis and
+    security thinking are both rare in portfolios, and a short README with the result is enough.

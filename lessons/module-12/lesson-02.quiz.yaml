@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    Your README results section says "Significantly improved retrieval quality with structure-aware
+    chunking." You never recorded a before-and-after number for that change. What should you do?
+  options:
+    - >-
+      Keep it but soften it to "improved retrieval quality", since a modest claim needs no number.
+    - >-
+      Move it to the eval report instead, where a reviewer expects to find the detailed claims.
+    - >-
+      Support it with a sample answer from before and after, since a demo is stronger than a metric.
+    - >-
+      Measure recall before and after the change, or delete the claim from the README entirely.
+  correct: 3
+  explanation: >-
+    Every claim carries a number or gets deleted. "Improved retrieval quality" is noise; a recall
+    figure with the change that caused it is evidence.
+- id: q2
+  question: >-
+    You are assembling `eval-report.md`. One entry records semantic caching that cut latency but
+    dropped faithfulness on near-miss queries, so you tightened the threshold. A friend suggests
+    removing it to keep the report clean. What is the right call?
+  options:
+    - >-
+      Remove it, since a reviewer should see the final configuration rather than the dead ends.
+    - >-
+      Keep it; it shows your evaluation is real and that you act on what it tells you.
+    - >-
+      Keep only the final threshold and its numbers, and drop the earlier faithfulness regression.
+    - >-
+      Move it to an appendix so the main report reads as a clean sequence of steady improvements.
+  correct: 1
+  explanation: >-
+    The reverted and corrected entries are the strongest pages in the repository: direct evidence
+    that the evaluation catches regressions and that you change course when it does.
+- id: q3
+  question: >-
+    Your model card for the fine-tuned answer model lists the base model, hyperparameters, data
+    provenance and eval results. A reviewer has a few minutes. Which missing sections most hurt how
+    professional it reads?
+  options:
+    - >-
+      Intended use, out-of-scope use, and limitations, which show you understand what you built.
+    - >-
+      Training hardware, run duration and loss curves, which show the training was done carefully.
+    - >-
+      A full list of every hyperparameter sweep, so the reviewer can reproduce the chosen setting.
+    - >-
+      A comparison against leaderboard scores, so the reviewer can place the model among others.
+  correct: 0
+  explanation: >-
+    Intended use, out-of-scope use and limitations are the sections reviewers look for to judge
+    whether you understand the artifact. Their absence reads as unawareness.
+- id: q4
+  question: >-
+    Your `adr-vector-store.md` states the choice of pgvector, the alternatives, and the benchmark
+    you ran. What single addition most turns it from a preference into a decision?
+  options:
+    - >-
+      A link to the vendor documentation for each alternative so the reviewer can check the details.
+    - >-
+      A short summary of community opinion showing that pgvector is a widely accepted default choice.
+    - >-
+      The conditions under which you would revisit it, such as a corpus size limit.
+    - >-
+      A code sample showing how the store is called, so the reviewer sees the decision in practice.
+  correct: 2
+  explanation: >-
+    Stating when you would revisit a choice shows you know its limits. It also answers in advance
+    the interviewer's "why not the alternative" probe.

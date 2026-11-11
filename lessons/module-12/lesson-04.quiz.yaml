@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    The prompt is "Design an assistant for our support team's knowledge base." You have five
+    minutes of clarifying questions. Which pair, asked early, most signals that you have shipped
+    systems like this before?
+  options:
+    - >-
+      Which framework the team already uses, and which vector database they would prefer to run.
+    - >-
+      What failure rate is acceptable, and what each request or month is allowed to cost.
+    - >-
+      How many engineers will maintain it, and which cloud provider hosts their existing services.
+    - >-
+      Whether they want streaming responses, and whether the interface should be chat or search.
+  correct: 1
+  explanation: >-
+    The accuracy bar and the cost ceiling are the two questions people who have only built demos do
+    not think to ask. Framework and database choices come after requirements, never before.
+- id: q2
+  question: >-
+    Your cost arithmetic comes out at about $57k a month for 100k requests a day, and the client
+    mentioned a budget of a few thousand a month. What is the strongest next move in the round?
+  options:
+    - >-
+      Note the cost as a risk for later and continue with the failure modes so the design stays complete.
+    - >-
+      Say token prices fall quickly, so the gap will likely close on its own before the system launches.
+    - >-
+      Ask the interviewer to raise the budget, since the quality bar requires the design as drawn.
+    - >-
+      Turn the number into a change: route simple queries to a cheap small model and escalate the rest.
+  correct: 3
+  explanation: >-
+    The round tests producing a number and then turning it into an architectural decision. Routing
+    the simple majority to a much cheaper model is the kind of change that number should drive.
+- id: q3
+  question: >-
+    In a design round for an internal docs assistant, some documents are restricted to specific
+    teams. A candidate proposes retrieving the top results and then dropping any the user may not
+    see. What is wrong with that?
+  options:
+    - >-
+      Post-filtering silently collapses recall, and the search still touches restricted documents.
+    - >-
+      Nothing is wrong with it; post-filtering is the standard approach and only adds a little latency.
+    - >-
+      It works for retrieval, but the restricted documents should be moved to a separate deployment.
+    - >-
+      The filter belongs in the prompt, so the model can decide which retrieved text the user may see.
+  correct: 0
+  explanation: >-
+    Permission filters must be pre-filters. Post-filtering can leave few or no results the user may
+    see, and it is a permissions boundary enforced in the wrong place.
+- id: q4
+  question: >-
+    The interviewer adds a curveball: "We'd also like the docs assistant to file tickets
+    automatically." Anyone can edit the wiki. Which response addresses the new risk best?
+  options:
+    - >-
+      Add a line to the system prompt telling the model never to file tickets because of document text.
+    - >-
+      Keep one agent, but log every ticket it files so a human can review them at the end of each week.
+    - >-
+      Split it: a read-only retrieval agent passes a summary to an action agent that holds the tool.
+    - >-
+      Move ticket filing to a stronger model, since better models are less likely to follow injected text.
+  correct: 2
+  explanation: >-
+    Untrusted content plus a tool that acts is the risk chain. Separating the context that reads
+    documents from the one that can act keeps injected text away from the ticket tool; approval
+    gates, scoped credentials and idempotency keys come on top.

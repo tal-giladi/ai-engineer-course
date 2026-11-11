@@ -1,0 +1,176 @@
+- id: q1
+  question: >-
+    Two capstones, four minutes each. A's README lists multi-agent orchestration, voice input, web
+    search, PDF parsing and a Slack integration; setup fails on an undocumented environment
+    variable, and there is no evaluation or diagram. B has a one-line description, a demo GIF, a
+    diagram, a results table, four limitations, and runs in three minutes. Which gets the callback?
+  options:
+    - >-
+      A, because its feature range shows more ambition, and setup issues are easy to fix in a call.
+    - >-
+      Neither, because a reviewer reads the source code first and the README only confirms what it shows.
+    - >-
+      B, because the reviewer can run it and check its claims; A is dropped at about 90 seconds.
+    - >-
+      A and B equally, since four minutes is too short to judge either, so both go to a call.
+  correct: 2
+  explanation: >-
+    Completeness and evidence beat capability. A reviewer cannot evaluate a feature they cannot run
+    or verify a claim with no number, so A loses at setup while B ends with a specific question.
+- id: q2
+  question: >-
+    You have limited time before applying. Options: add a web UI, write the eval report from your
+    running log, add multi-modal document support, or run the clean-clone test and fix what
+    breaks. Which has the highest return?
+  options:
+    - >-
+      The clean-clone test, since a reviewer who cannot start the system forms no opinion of it.
+    - >-
+      The eval report, since it is the differentiating artifact and the work behind it is already done.
+    - >-
+      The web UI, since a reviewer who can click through the system will understand it much faster.
+    - >-
+      Multi-modal support, since it adds a capability that most other portfolio projects do not have.
+  correct: 0
+  explanation: >-
+    The eval report is a close second, but a broken setup means the reviewer moves on with no
+    opinion at all. Multi-modal support is scope creep at exactly the stage where it kills projects.
+- id: q3
+  question: >-
+    Candidate - "We used hybrid retrieval." Interviewer - "Why?" Candidate - "Dense retrieval
+    missed queries with error codes and function names." Interviewer - "Why not just use a better
+    embedding model?" Candidate - "I think hybrid is just the standard approach." What failed?
+  options:
+    - >-
+      Rung 2, the "why", because the explanation about error codes was too vague to be convincing.
+    - >-
+      Rung 4, "what broke", because the candidate never mentioned what hybrid retrieval cost them.
+    - >-
+      Rung 5, "how do you know", because the candidate gave no numbers for any of their claims here.
+    - >-
+      Rung 3, "why not the alternative", because the alternative was never actually compared.
+  correct: 3
+  explanation: >-
+    Rung 3 is where most candidates fail: they adopted a default without evaluating an alternative,
+    so there is nothing to say. Decision records such as the embedding-model ADR exist to answer it.
+- id: q4
+  question: >-
+    Same probe, "Why not just use a better embedding model instead of hybrid?" Which answer
+    survives it?
+  options:
+    - >-
+      "Hybrid is what most production RAG systems use today, so we simply followed the established best practice."
+    - >-
+      "We benchmarked three on our corpus; the best hit 0.44 recall@10 on exact tokens versus 0.94 for BM25."
+    - >-
+      "We picked the top model on the public leaderboard, so a better one was not really available."
+    - >-
+      "A better model would have cost more per query, and we had a fixed budget for embeddings."
+  correct: 1
+  explanation: >-
+    It shows the alternative was tried, gives the numbers, and implies the mechanism: rare tokens
+    like error codes sit near each other in embedding space, so no embedding model closes that gap.
+- id: q5
+  question: >-
+    You can tell one short story to open the technical part of the interview. Which one
+    demonstrates the most?
+  options:
+    - >-
+      "We built a RAG system with hybrid retrieval, reranking, and an agent loop on top of it."
+    - >-
+      "We got faithfulness from 0.71 to 0.89 over the project by making a long series of changes."
+    - >-
+      "Recall 0.94, precision 0.38: retrieval found it and ranking buried it, so I reranked."
+    - >-
+      "I used LangGraph because it has checkpointing and interrupts, which made the agent durable."
+  correct: 2
+  explanation: >-
+    It reads a metric vector, localizes the failure to ranking, and picks the matching fix. The
+    others are a technology tour, a number with no mechanism, or a feature list stopping at rung 2.
+- id: q6
+  question: >-
+    "Design an AI assistant for our internal engineering documentation." You have listed users,
+    query volume, latency target, corpus size and format, and data sensitivity. Which two
+    questions still missing would most signal production experience?
+  options:
+    - >-
+      Which LLM provider they use today, and whether they have a preferred vector database.
+    - >-
+      Whether answers should stream, and whether the interface is a chat window or a search box.
+    - >-
+      How many engineers will maintain it, and whether they have an on-call rotation for it.
+    - >-
+      What accuracy bar they need and what happens when wrong, and the cost ceiling.
+  correct: 3
+  explanation: >-
+    The accuracy bar and the cost ceiling are the two questions people who have only built demos
+    do not ask. "Who can write to the corpus?" is also strong, since it is the injection-surface question.
+- id: q7
+  question: >-
+    The client says some documents are restricted to specific teams. Which set of design changes
+    does that requirement call for?
+  options:
+    - >-
+      Pre-filters in retrieval, scope in cache keys, and a scoped retrieval credential.
+    - >-
+      A note in the system prompt listing restricted teams, so the model withholds those documents.
+    - >-
+      Post-filtering of retrieved chunks by team, plus a larger top-k so enough results survive it.
+    - >-
+      A separate deployment for each team, each with its own copy of the full documentation index.
+  correct: 0
+  explanation: >-
+    Tenant scoping touches retrieval filters, cache keys and credentials. Post-filtering silently
+    collapses recall, and a shared cache without scope serves one team's answer to another.
+- id: q8
+  question: >-
+    The client adds: "Wrong answers are annoying, but confident wrong answers about security
+    procedures are dangerous." What does this change in your evaluation plan specifically?
+  options:
+    - >-
+      Raise the overall faithfulness threshold in CI so that every topic is held to a stricter bar.
+    - >-
+      Make security procedures their own stratum with a hard CI floor that can never regress.
+    - >-
+      Remove security topics from the golden set and route those questions to a human team instead.
+    - >-
+      Increase online sampling from 10% to 50% so more security answers are reviewed after release.
+  correct: 1
+  explanation: >-
+    An aggregate threshold can hide a regression on one small stratum. A dedicated stratum with a
+    hard floor means refusal accuracy on security topics can never drop, whatever the aggregate says.
+- id: q9
+  question: >-
+    In a 40-minute design round, a candidate spends 30 minutes on architecture, 8 on requirements,
+    2 on failure modes, and none on evaluation or cost. What is the most important correction?
+  options:
+    - >-
+      Spend even longer on requirements, since every later section depends on getting them right.
+    - >-
+      Spend the extra time on failure modes, since that is the section interviewers probe most.
+    - >-
+      Keep the split; deep architecture shows strength, and evaluation can be left to follow-ups.
+    - >-
+      Cut architecture to about 15 minutes and give evaluation about 5 and cost about 3.
+  correct: 3
+  explanation: >-
+    Evaluation and cost are the two steps most candidates skip and the cheapest differentiators.
+    Thirty minutes on architecture is over-indexing on the part that is most comfortable to discuss.
+- id: q10
+  question: >-
+    Mid-round: "We'd also like it to file tickets automatically." You have split retrieval and
+    action into separate contexts and added an approval gate and a scoped credential. Which control
+    is still missing, and is not a security control at all?
+  options:
+    - >-
+      A larger context window for the action agent, so it sees the full documents behind each summary.
+    - >-
+      Streaming the ticket text back to the user so they can watch it being written in real time.
+    - >-
+      An idempotency key on ticket creation, so retries and resumes do not file duplicate tickets.
+    - >-
+      A stronger model for the action agent, since it makes fewer mistakes when filling ticket fields.
+  correct: 2
+  explanation: >-
+    Once the system can retry and resume, a write action without an idempotency key files
+    duplicates. Naming it shows you are reasoning about the whole system, not reciting a checklist.
