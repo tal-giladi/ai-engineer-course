@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    Your client supports three profiles. Someone switches production to a profile without
+    constrained decoding, and a week later validation failures spike with no obvious cause. Which
+    design choice from the lesson would have made the cause visible at once?
+  options:
+    - >-
+      Removing the prompt-only fallback so the client can only run on backends with rung 3.
+    - >-
+      Logging a warning on every fallback and recording the rung used in each CallRecord.
+    - >-
+      Raising the repair budget on weaker profiles so they reach the same validation rate.
+    - >-
+      Detecting capability once at startup and caching it for every profile in the process.
+  correct: 1
+  explanation: >-
+    Degrade explicitly, never silently. A logged warning plus the rung stored per call lets you
+    tie the failure spike directly to the profile change.
+- id: q2
+  question: >-
+    Two schemas describe the same ticket data, and both are enforced with constrained decoding, so
+    format failures are zero for both. One is nested with a free-text classification field; the
+    other is flat with enums and field descriptions. What result should you expect?
+  options:
+    - >-
+      Identical accuracy, because constrained decoding makes every enforced schema equivalent.
+    - >-
+      The nested version scores higher, because grouping related fields helps the model reason.
+    - >-
+      The flat one is faster, but accuracy is the same since the prompt text did not change at all.
+    - >-
+      The flat, enum-based version scores clearly higher on field accuracy with the same prompt.
+  correct: 3
+  explanation: >-
+    The schema is serialized into the model's context, so it acts as part of the prompt. In the
+    lesson's example the flat, described, enum-based schema scored 94% against 71%.
+- id: q3
+  question: >-
+    A Pydantic schema has a reasoning field placed after the label field. A reviewer suggests
+    moving it before the label. Why does the order matter?
+  options:
+    - >-
+      Generation is sequential, so reasoning written first can inform the label that follows.
+    - >-
+      JSON Schema validates fields in order, so an early failure stops the validation step sooner.
+    - >-
+      Putting reasoning first makes the output shorter, because the label needs fewer tokens.
+    - >-
+      Providers reject schemas where a long free-text field follows a short enum field.
+  correct: 0
+  explanation: >-
+    The model writes fields in order. Reasoning placed first lets the answer depend on it; placed
+    after, it is a justification written once the answer is already fixed.
+- id: q4
+  question: >-
+    Your service calls a hosted API, and every output must match a schema. Also, end_date must be
+    after start_date. Which setup follows the lesson's decision rule?
+  options:
+    - >-
+      Move to self-hosted vLLM, so constrained decoding can enforce both the schema and the date rule.
+    - >-
+      Keep prompt-only JSON and add a strict parser, since hosted models comply most of the time.
+    - >-
+      Native structured outputs for the schema, plus a validator and retry for the date rule.
+    - >-
+      Tool-call shaping alone, with the date rule written into the tool's description text.
+  correct: 2
+  explanation: >-
+    On a hosted API, use the provider's native structured outputs for shape. A cross-field rule
+    like date order is not JSON Schema, so it belongs in a validator with a bounded retry.

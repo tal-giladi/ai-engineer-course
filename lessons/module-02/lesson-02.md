@@ -2,7 +2,7 @@
 id: "02.2"
 module: 2
 minutes: 13
-practice_minutes: 75
+practice_minutes: 90
 prerequisites: ["02.1"]
 objectives:
   - "Define a typed contract between model and application using JSON Schema and Pydantic, and enforce it with schema-constrained generation."

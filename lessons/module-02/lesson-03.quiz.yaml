@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    An extraction call fails validation and the response has finish_reason == "length". Your loop
+    is about to send the same request again with the validation error attached. What should it do
+    instead?
+  options:
+    - >-
+      Retry once with the error attached, since a truncated output is a classic repairable case.
+    - >-
+      Retry with a higher temperature so the model picks a shorter wording on the next attempt.
+    - >-
+      Fall back to a default object for this record so the batch can finish without errors.
+    - >-
+      Treat it as terminal and fix the cause: raise max_tokens or shorten the request.
+  correct: 3
+  explanation: >-
+    A truncated output was cut by the token limit, and an identical retry is cut the same way.
+    Classify it as terminal and change max_tokens or the request; retrying is pure waste.
+- id: q2
+  question: >-
+    Your invoice extractor shows a 50% repair rate. Almost all repairs come from purchase orders,
+    which have no total, while the schema requires invoice_total. What is the right fix?
+  options:
+    - >-
+      Raise the repair budget to 4, since a model given feedback usually finds the total.
+    - >-
+      Change the schema so a missing total can be stated, e.g. a required nullable field.
+    - >-
+      Switch to a stronger model for purchase orders so it can infer a total from the order lines.
+    - >-
+      Add an instruction to the repair prompt telling the model to estimate the total amount.
+  correct: 1
+  explanation: >-
+    The schema asks for a field the input cannot supply, which is a bug in your code. A repair
+    loop hides it behind a bill; the fix is a schema that can express "not present".
+- id: q3
+  question: >-
+    The repair budget is exhausted for a sentiment call. A teammate suggests returning
+    Sentiment(label="neutral", confidence=0.0) so the caller never sees an error. What is wrong
+    with this?
+  options:
+    - >-
+      Nothing serious, since a confidence of 0.0 tells every caller that the label is unreliable.
+    - >-
+      It is fine as long as the default is logged, because the log can be reviewed later on.
+    - >-
+      It brings back the silent wrong value; return a typed failure and write a dead letter.
+    - >-
+      Neutral is the wrong default; the most common label in the training data should be used.
+  correct: 2
+  explanation: >-
+    A fabricated object looks like a real result in the database, which is the Lesson 2.1 silent
+    failure again. Return a typed failure the caller can handle and keep the payload as a dead letter.
+- id: q4
+  question: >-
+    Your recovery table for 1,000 records shows: attempt 2 recovers 130 of 153 failures, attempt 3
+    recovers 14 of 23, and attempts 4 and 5 together recover 1 record while costing 23k tokens.
+    All 8 final failures were refusals, truncations or a missing field. What budget fits the data?
+  options:
+    - >-
+      A budget of 2, with terminal failures classified out before the first repair.
+    - >-
+      A budget of 5, since attempts 4 and 5 still recover a record that would be lost.
+    - >-
+      No repairs at all, since 84.7% of records already succeed on the first attempt.
+    - >-
+      A budget of 3, plus a fourth attempt reserved for records that were refusals earlier.
+  correct: 0
+  explanation: >-
+    Marginal recovery collapses after attempt 3 while tokens per attempt keep rising. The 8 final
+    failures were terminal from the start, so classifying them first means they never enter the loop.

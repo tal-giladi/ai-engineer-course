@@ -1,0 +1,178 @@
+- id: q1
+  question: >-
+    A sentiment classifier parses model output with response.strip().lower() and compares it to
+    "positive". The model returns "The sentiment appears mixed, leaning positive". Someone proposes
+    a regex that takes the last word. What is wrong with that fix?
+  options:
+    - >-
+      Nothing serious; it handles this case and the remaining ones can be patched as they appear.
+    - >-
+      It is slow at scale, so a plain string comparison should be kept for high-volume traffic.
+    - >-
+      It turns an unhandled case into a confident wrong value that looks correct downstream.
+    - >-
+      Regex cannot match word boundaries reliably, so it will miss outputs ending in punctuation.
+  correct: 2
+  explanation: >-
+    The model expressed uncertainty and the parser now records certainty. Before the patch the
+    value fell through; after it, an ambiguous case is stored as a clean, wrong positive.
+- id: q2
+  question: >-
+    A ticket classifier sends about 5% of inputs to a default category because of parsing quirks.
+    The team watches error rates closely and sees nothing for months. Why?
+  options:
+    - >-
+      A wrong value that parses cleanly never raises, so error-rate monitoring cannot see it.
+    - >-
+      5% is below the alert threshold most teams set, so a lower threshold would have caught it.
+    - >-
+      The parser logs each failure at debug level, which production logging configs filter out.
+    - >-
+      The model only misbehaves on rare inputs, which the monitoring sample happened to skip.
+  correct: 0
+  explanation: >-
+    A crash tells you where and when. A silent wrong value produces a row that looks like a correct
+    one, so dashboards render, tests pass on clean fixtures and error rates stay flat.
+- id: q3
+  question: >-
+    Two schemas for the same extraction task are both enforced with constrained decoding, so format
+    failures are 0% for both. Version A has a free-text classification field; version B uses
+    Literal["billing", "technical", "account", "other"]. B is far more accurate on that field. Why?
+  options:
+    - >-
+      Constrained decoding is faster with enums, so the model has more of its budget for content.
+    - >-
+      Free text fails validation more often, and those failures were retried into wrong values.
+    - >-
+      Enums let the provider skip the schema in the prompt, which leaves more room for context.
+    - >-
+      Any string is valid for a free-text field, so the model can invent categories unchecked.
+  correct: 3
+  explanation: >-
+    Constrained decoding cannot help when every string is valid. An enum is enforceable and
+    self-documenting, and it removes the whole class of invented categories.
+- id: q4
+  question: >-
+    In the same comparison, version B also places a reasoning field before category and adds the
+    description "high only if the customer is currently blocked" to urgency. Which statement about
+    these two changes is correct?
+  options:
+    - >-
+      Both only help readability for engineers, since the model never sees field descriptions.
+    - >-
+      Reasoning first lets the answer build on it; the description guides its own field.
+    - >-
+      Reasoning helps only if placed after the answer, where it can check the chosen category.
+    - >-
+      The description helps, but field order has no effect because JSON objects are unordered.
+  correct: 1
+  explanation: >-
+    Generation is sequential, so reasoning written first conditions the answer. The schema,
+    including descriptions, is serialized into the context, so a description is prompt text placed
+    right at the point of decision.
+- id: q5
+  question: >-
+    You instrument a repair loop over 1,000 records. Attempt 1 succeeds on 847, attempt 2 recovers
+    130 of 153, attempt 3 recovers 14 of 23, attempt 4 recovers 1 of 9 and attempt 5 recovers 0 of
+    8. Attempts 4 and 5 cost 23k tokens. What budget do you set?
+  options:
+    - >-
+      Two repairs: attempt 3 adds 1.4%, and attempts 4 and 5 add 0.1% at rising token cost.
+    - >-
+      Five repairs, because every recovered record avoids a failure that a user would have seen.
+    - >-
+      Three repairs, because three is the common default in retry libraries and is easy to defend.
+    - >-
+      One repair, because attempt 2's recovery rate is almost the same as that of attempt 1.
+  correct: 0
+  explanation: >-
+    The budget comes from marginal recovery, not convention. After attempt 3 recovery collapses
+    while tokens per attempt grow, because each repair carries more context.
+- id: q6
+  question: >-
+    Your extractor's schema requires invoice_total. Some inputs are purchase orders, which have no
+    total, and those fail validation on every attempt. How should the repair loop treat them?
+  options:
+    - >-
+      As retryable, because the validation error tells the model exactly which field is missing.
+    - >-
+      As retryable with a stronger model, because a better model can usually find hidden totals.
+    - >-
+      As retryable up to the budget, then fill the total with 0 so the record is still usable.
+    - >-
+      As terminal, and as a sign of a schema bug: the field must be able to say "not present".
+  correct: 3
+  explanation: >-
+    Retrying cannot produce a field the input does not contain; it only hides your bug behind a
+    bill. A high repair rate concentrated on one input type usually means the schema is wrong.
+- id: q7
+  question: >-
+    Which of these validation failures is the best candidate for a repair attempt with the error
+    fed back to the model?
+  options:
+    - >-
+      The model replies "I can't help with that request." instead of returning the object.
+    - >-
+      The output stops mid-object and the response has finish_reason == "length".
+    - >-
+      A field error: urgency should be 'low', 'medium' or 'high' (got 'critical').
+    - >-
+      The input simply does not state a priority, so the model keeps guessing different values.
+  correct: 2
+  explanation: >-
+    An out-of-enum value with a clear valid neighbour is retryable: the error text tells the model
+    what to fix. Refusals, truncation and genuinely ambiguous inputs are terminal.
+- id: q8
+  question: >-
+    Your team ships a prompt change. Two weeks later monthly spend is up 40% and nobody can explain
+    it. Which telemetry field lets you answer this with one GROUP BY query?
+  options:
+    - >-
+      call_site, so you can see which endpoint is responsible for the higher monthly cost.
+    - >-
+      prompt_version, so you can compare tokens in and cost per call between the versions.
+    - >-
+      request_id, so you can trace individual expensive requests back to their full prompts.
+    - >-
+      attempt, so you can see whether the repair loop started retrying more after the change.
+  correct: 1
+  explanation: >-
+    Grouping by prompt_version turns "spend rose in March" into "spend rose when answer:3 shipped,
+    which raised average input tokens". That is a decision about the change, not a mystery.
+- id: q9
+  question: >-
+    Layout A starts with "Session: {session_id} | Date: {today}", then instructions, tools and four
+    few-shot examples. Layout B has the same content but moves the session and date line below the
+    examples. On a backend with prefix caching, what do you expect?
+  options:
+    - >-
+      Similar hit rates, because the cache matches on content rather than on its position.
+    - >-
+      A slightly higher hit rate on A, because the session line helps group related requests.
+    - >-
+      A high hit rate on B and none on A, with lower input cost and TTFT on B as a result.
+    - >-
+      A high hit rate on both, because the instructions, tools and examples are the same each time.
+  correct: 2
+  explanation: >-
+    The cache needs a byte-identical prefix. In A the varying line sits at the top, so the
+    cacheable prefix is zero tokens; in B the stable block leads and can be reused.
+- id: q10
+  question: >-
+    Your extraction service calls a hosted provider's API. Every output must match a 9-field
+    schema, and invoice_date must not be later than due_date. Both format failures and date-order
+    violations reach production today. Which design fits best?
+  options:
+    - >-
+      Native structured outputs for the schema, plus a validator with a bounded repair loop.
+    - >-
+      Self-host on vLLM so constrained decoding can enforce both the schema and the date rule.
+    - >-
+      Keep prompt-only JSON and raise the repair budget to 5, since each repair fixes most failures.
+    - >-
+      Tool-call shaping, with the date rule encoded as a JSON Schema minimum on due_date.
+  correct: 0
+  explanation: >-
+    On a hosted API the provider's native structured outputs give the strongest shape guarantee.
+    Date order is a cross-field rule JSON Schema cannot express, so it belongs in a validator with
+    a bounded, classified repair loop.

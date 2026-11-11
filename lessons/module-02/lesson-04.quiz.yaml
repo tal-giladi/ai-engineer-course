@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    Your system prompt starts with "Session: {session_id} | Date: {today}", followed by
+    instructions, tool definitions and few-shot examples, then retrieved context and the question.
+    The provider supports prefix caching, but your cache hit rate is 0%. What change fixes it?
+  options:
+    - >-
+      Move the session ID and date to after the instructions, tools and few-shot examples.
+    - >-
+      Remove the few-shot examples, since they make the prompt too long for the cache to hold.
+    - >-
+      Put the user's question first, since it is the part most likely to repeat across users.
+    - >-
+      Turn on the provider's cache marker, since automatic caching skips system prompts.
+  correct: 0
+  explanation: >-
+    The cache needs a byte-identical prefix. A value that changes per request at the top makes
+    everything below it a miss; order the prompt from most stable to least stable.
+- id: q2
+  question: >-
+    You reorder a prompt so the stable part leads, then measure on three backends. Two show large
+    drops in input cost and TTFT. The third, which has no prefix caching, shows no change at all.
+    What is the right conclusion?
+  options:
+    - >-
+      Revert the reorder on the third backend, since a change with no effect only adds complexity.
+    - >-
+      The third backend is misconfigured, since every backend gains from a stable prefix order.
+    - >-
+      Keep the ordering everywhere, since it never hurts; keep caching behind a capability check.
+    - >-
+      Ask the third backend for explicit caching anyway, since it may still cache some requests.
+  correct: 2
+  explanation: >-
+    The ordering is free and universal, so apply it unconditionally. The caching mechanism differs
+    by backend and sits behind the capability seam, where requesting it on a backend without it raises.
+- id: q3
+  question: >-
+    You want to improve an answer prompt. You clarify the instruction, add two few-shot examples
+    and tighten the output format, then run the evaluation once. The score rises four points.
+    What is the problem?
+  options:
+    - >-
+      Four points is within noise, so the evaluation should simply be re-run a few more times.
+    - >-
+      Few-shot examples always raise quality, so the gain proves nothing about the other two.
+    - >-
+      The prompt version was not bumped, so the new score cannot be stored against the old one.
+    - >-
+      You cannot tell which change helped; one may have hurt while the others carried it.
+  correct: 3
+  explanation: >-
+    Prompt changes interact and are not monotonic; an example can lower quality. Change one thing
+    per evaluation run, version each change, and keep what wins.
+- id: q4
+  question: >-
+    Monthly spend on the RAG answer call rose 40% after a prompt change, and nobody can say why.
+    What makes this a one-query investigation?
+  options:
+    - >-
+      Comparing git blame on the prompt string with the date the spend started to climb.
+    - >-
+      A prompt_version field in every call record, so you can group tokens and cost by version.
+    - >-
+      A dashboard of total daily spend, so you can see exactly which day the cost started rising.
+    - >-
+      Logging the full prompt text on every call, so you can search the logs for differences.
+  correct: 1
+  explanation: >-
+    With the version stamped in telemetry, grouping by prompt_version shows which version raised
+    input tokens and cost. That turns a mystery into a decision about whether the change is worth it.

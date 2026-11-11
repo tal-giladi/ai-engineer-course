@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    A ticket extractor has run for three months. Error-rate dashboards are flat at zero, and the
+    unit tests pass. A manual review of 100 tickets finds 8 with a wrong priority or category.
+    Why did nothing flag them earlier?
+  options:
+    - >-
+      The tests use clean fixture strings, so they would only fail if the model API went down.
+    - >-
+      Error-rate monitoring samples too few requests to catch a defect that affects only 8%.
+    - >-
+      The parser turned odd outputs into clean wrong values, so nothing ever raised an error.
+    - >-
+      The model became less accurate over time, and dashboards track latency, not accuracy.
+  correct: 2
+  explanation: >-
+    Prose parsing usually fails silently: a wrong value parses cleanly and looks like a correct
+    row. Monitoring on error rates cannot see a failure that never errors.
+- id: q2
+  question: >-
+    A sentiment parser compares the model's text to "positive". The model sometimes writes "The
+    sentiment appears mixed, leaning positive". A teammate proposes taking the last word with a
+    regex. What is the main problem with this fix?
+  options:
+    - >-
+      It turns a case that used to fall through into a confident and wrong positive label.
+    - >-
+      It is slower than string comparison and will add noticeable latency at high volume.
+    - >-
+      It misses capitalised outputs like "Positive", so a lower() call is still needed first.
+    - >-
+      It only works for English, so inputs in other languages would still need their own regex.
+  correct: 0
+  explanation: >-
+    The model expressed uncertainty and the patched parser records certainty. Each patch encodes
+    an assumption about the output, and some patches turn an unhandled case into a wrong answer.
+- id: q3
+  question: >-
+    After four parser patches, your team asks why the fixes keep breaking. Which explanation from
+    the lesson best accounts for it?
+  options:
+    - >-
+      Regexes are too weak for natural language, so a proper NLP parsing library is needed.
+    - >-
+      The patches were tested on too few examples, so a bigger fixture set would stabilise them.
+    - >-
+      The model is deliberately varying its format, which a lower temperature would switch off.
+    - >-
+      The output distribution shifts with prompt edits, model updates and unusual inputs.
+  correct: 3
+  explanation: >-
+    A parser encodes assumptions about a distribution that keeps moving. A schema encodes
+    requirements about the value, which do not move, so the fix is a contract, not a better parser.
+- id: q4
+  question: >-
+    You switch the classifier to a Pydantic model with label as Literal["positive", "negative",
+    "neutral"], and every response now validates. A furious complaint comes back as "positive"
+    with a confident rationale. What does this tell you?
+  options:
+    - >-
+      The schema is too loose, and adding a confidence range would have rejected this output.
+    - >-
+      The schema fixed the shape problem, but a valid object can still hold a wrong answer.
+    - >-
+      Validation must have been skipped for this call, since a valid object is a correct one.
+    - >-
+      The Literal type is not strict enough, so the model was still free to pick any label it liked.
+  correct: 1
+  explanation: >-
+    A schema guarantees shape, not correctness. A perfectly shaped object can carry a wrong label
+    and an invented rationale; checking content is a different problem with different tools.
