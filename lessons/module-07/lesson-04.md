@@ -13,6 +13,8 @@ The Model Context Protocol is the same argument one layer up, for tools. Without
 
 MCP appears by name in AI engineering job postings, and it is worth knowing on those grounds alone. It is worth knowing on the merits because it changes what "adding a capability" costs.
 
+**Which version this lesson teaches.** This lesson teaches the **2026-07-28** revision of the MCP specification, the newest as of 2026-11-11, and points out where the previous revision (**2025-11-25**), still what most deployed clients speak, behaves differently. Key Concept 5 lists the changes. Code is checked against the Python `mcp` SDK 2.3.0 and `langchain-mcp-adapters` 0.3.2.
+
 ---
 
 ## Key Concept 1: The model
@@ -33,7 +35,9 @@ Servers expose three primitive types, and the distinction matters:
 
 The three-way split by *who controls invocation* is the part people miss, and it is the design insight. A tool the model calls freely, a resource the application chooses to include, and a prompt the user triggers are genuinely different things with different security properties.
 
-**Transports:** stdio for local servers (the host spawns a subprocess and speaks over stdin/stdout — simple, no network, no auth needed) and HTTP for remote ones (network-accessible, needs authentication and transport security).
+**Transports:** stdio for local servers (the host spawns a subprocess and speaks over stdin/stdout — simple, no network, no auth needed) and Streamable HTTP for remote ones (network-accessible, needs authentication and transport security). The older HTTP+SSE transport is deprecated; do not build new servers on it.
+
+**Since 2026-07-28 the protocol is stateless.** There is no connection handshake and no protocol session: every request carries its protocol version and client capabilities, and a server advertises what it supports through a required `server/discover` method. That makes a remote MCP server an ordinary stateless HTTP service you can put behind a load balancer.
 
 ---
 
@@ -42,17 +46,20 @@ The three-way split by *who controls invocation* is the part people miss, and it
 The immediate practical value: capability without integration.
 
 ```python
+from langchain.agents import create_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 client = MultiServerMCPClient({
     "filesystem": {"command": "npx",
-                   "args": ["-y", "@modelcontextprotocol/server-filesystem", "/data"],
+                   "args": ["-y", "@modelcontextprotocol/server-filesystem@2.3.0", "/data"],
                    "transport": "stdio"},
     "postgres": {"url": "http://localhost:8931/mcp", "transport": "streamable_http"},
 })
 tools = await client.get_tools()
-graph = create_agent(model, tools)          # they are just tools now
+agent = create_agent(model, tools)          # they are just tools now
 ```
+
+**Version check (2026-11-11).** `langchain-mcp-adapters` 0.3.2 requires `mcp<2`, so this client speaks the 2025-11-25 revision. That works against current servers, because servers built on the `mcp` 2.x SDK serve both the 2026-07-28 revision and every earlier one. The practical consequence: **keep your MCP server and your LangChain agent in separate virtual environments**, since one environment cannot hold both `mcp>=2` and `mcp<2`.
 
 Your agent gains filesystem and database capabilities without you writing either integration. The tools arrive with schemas and descriptions already written.
 
@@ -65,9 +72,10 @@ That last clause is also the security problem, and it is not hypothetical — se
 The more valuable direction for your portfolio. Your spine project's retrieval becomes available to *anything*.
 
 ```python
-from mcp.server.fastmcp import FastMCP
+# pip install "mcp[cli]==2.3.0"   — speaks 2026-07-28 and older revisions
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("product-docs")
+mcp = MCPServer("product-docs")
 
 @mcp.tool()
 def search_docs(query: str, section: str | None = None) -> str:
@@ -83,8 +91,10 @@ def index_summary() -> str:
     return render_index()
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")        # or transport="streamable-http", port=9000
 ```
+
+If you copy server code from older tutorials: in `mcp` 2.x, `from mcp.server.fastmcp import FastMCP` no longer works — the class is `MCPServer` in `mcp.server.mcpserver`, transport options (`host`, `port`, `stateless_http`) moved from the constructor to `run()`, and `mcp.get_context()` was replaced by a `ctx: Context` parameter on the tool. Pinning `mcp<2` keeps old code running but stays on the 2025-11-25 revision.
 
 Two things to carry over deliberately:
 
@@ -120,6 +130,29 @@ The model reads that as instructions in its context, exactly like any other text
 - **Apply the isolation rule.** A server providing access to untrusted content should not sit in the same agent as tools that can exfiltrate — the legitimate multi-agent case from Lesson 7.3.
 - **Prefer local stdio over remote HTTP** for anything sensitive, and require authentication on remote servers.
 - **Write down why you trust each server.** One line each. It forces the question to be asked.
+
+---
+
+## Key Concept 5: What the 2026-07-28 revision changed
+
+Much MCP material you will read — and many servers you will connect — describe the 2025 protocol: an `initialize` handshake, a session identified by an `Mcp-Session-Id` header, and servers that can call back into the client. The 2026-07-28 revision removes most of that. *Read from the specification changelog on 2026-11-11.*
+
+| Area | Before (2025-11-25) | Since 2026-07-28 |
+|---|---|---|
+| Connection | `initialize` / `notifications/initialized` handshake | No handshake. Each request carries protocol version and client capabilities in `_meta`; servers **must** implement `server/discover` |
+| Sessions | `Mcp-Session-Id` header on Streamable HTTP | Removed. Cross-call state uses server-minted handles passed as ordinary tool arguments |
+| Change notifications | HTTP GET stream, `resources/subscribe` | One `subscriptions/listen` stream; the client opts in to the change types it wants |
+| Server asks the client for input | Server-initiated requests (`roots/list`, `sampling/createMessage`, `elicitation/create`) | Multi round-trip requests: the server returns `resultType: "input_required"` and the client retries with the answers |
+| Removed | — | `ping`, `logging/setLevel`, SSE stream resumption (`Last-Event-ID`) |
+| Deprecated (still work, at least 12 months) | — | **Roots, Sampling, Logging**; the HTTP+SSE transport |
+| Long-running tasks | Experimental, in core | Moved to an official extension, `io.modelcontextprotocol/tasks` |
+
+What this means for the engineering in this lesson:
+
+- **Remote servers get simpler to operate.** No session affinity means any replica can answer any request, and a dropped stream is simply retried as a new request.
+- **Do not build on the deprecated features.** Pass the directories a server may touch as server configuration or tool parameters (not Roots), call your model provider directly (not Sampling), and log to stderr or OpenTelemetry (not MCP Logging). For a filesystem server, a fixed allowed root in its configuration is also the safer design (Key Concept 4).
+- **`tools/list` is now cacheable.** Results carry a freshness hint (`ttlMs`), and servers should return tools in a deterministic order — which also keeps the tool block of your prompt stable for prefix caching (Lesson 2.4).
+- **Expect mixed versions for a while.** Clients and servers negotiate the version; check which revision each side of every connection actually speaks before you debug behaviour.
 
 ---
 
@@ -167,6 +200,8 @@ Caught in five minutes by reading the descriptions before connecting. Not caught
 
 **7. Add the descriptions to your regression suite.** A test asserting the tool descriptions of consumed servers match a recorded hash. It fails when a server updates its descriptions — which is precisely when you want to look.
 
+**8. Check the protocol revision on both sides (15 minutes).** Run your server with `mcp` 2.3.0 over Streamable HTTP and point the MCP Inspector (`npx @modelcontextprotocol/inspector@2.14.0`, built on the v2 TypeScript SDK) at it. Record which protocol version the Inspector and your LangChain client each negotiate, and add both to `docs/mcp-trust.md` next to each server. **You know it worked when** the same server process answers both the Inspector and your LangChain client (which negotiates 2025-11-25), and `docs/mcp-trust.md` names the revision for every connection.
+
 ---
 
 ## Visual Aid
@@ -182,6 +217,19 @@ Caught in five minutes by reading the descriptions before connecting. Not caught
 - **Building a server makes your capability portable.** Your retrieval becomes usable from any MCP host, including the coding agent you already use — a strong ten-minute portfolio demonstration.
 - **An MCP server is code you are running, and its tool descriptions are untrusted text entering the model's context.** Pin versions, read descriptions before connecting, scope credentials, and record why you trust each server.
 - **Isolate untrusted-content servers from tools that can exfiltrate** — the legitimate multi-agent case, and the primary defense in Lesson 11.1.
+- **Know which revision you speak.** Since 2026-07-28 MCP is stateless (no handshake, no `Mcp-Session-Id`, `server/discover` required) and Roots, Sampling, and Logging are deprecated; the `mcp` 2.x Python SDK serves both eras, while clients pinned to `mcp<2` still speak 2025-11-25.
+
+---
+
+## Sources
+
+Checked 2026-11-11.
+
+- MCP specification 2026-07-28, key changes: https://modelcontextprotocol.io/specification/2026-07-28/changelog — checked 2026-11-11
+- MCP specification 2025-11-25 (previous revision): https://modelcontextprotocol.io/specification/2025-11-25 — checked 2026-11-11
+- MCP Python SDK v2 release notes (2026-07-28 support, v1.x maintenance) and migration guide: https://github.com/modelcontextprotocol/python-sdk/releases and https://py.sdk.modelcontextprotocol.io/migration/ — checked 2026-11-11 (`mcp` 2.3.0)
+- langchain-mcp-adapters (0.3.2, requires `mcp<2`): https://github.com/langchain-ai/langchain-mcp-adapters — checked 2026-11-11
+- Filesystem MCP server: https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem — checked 2026-11-11 (2.3.0)
 
 ---
 

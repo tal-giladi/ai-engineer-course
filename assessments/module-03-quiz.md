@@ -1,6 +1,6 @@
 # Module 3 Quiz — Evaluation Foundations
 
-**10 questions · ~35 min plus the practical**
+**11 questions · ~37 min plus the practical**
 
 This is the most heavily probed module in interviews. The questions are weighted accordingly.
 
@@ -122,7 +122,20 @@ State precisely what this licenses you to claim, and one thing it does **not**.
 
 ---
 
-## Q10 — Practical
+## Q10 — Multiple choice
+
+You move your eval suite into Promptfoo with two suites: **refusal** (out-of-scope questions such as pricing, where a wrong answer invents facts for customers) and **tone** (answers should be friendly). On the unchanged system, refusal passes 98–100% of items run to run and tone passes 88–93%.
+
+Which pair of `PROMPTFOO_PASS_RATE_THRESHOLD` settings is best?
+
+A. 95 for both suites, since one shared threshold keeps the gate consistent and easy to explain
+B. 100 for both suites, which is Promptfoo's default and the only setting that cannot let a regression through
+C. 98 for refusal and 85 for tone, set by what a failure costs and kept below each suite's normal noise
+D. 90 for refusal and 98 for tone, since tone failures are seen by every user while refusals are rare
+
+---
+
+## Q11 — Practical
 
 Take the supplied mediocre summarizer in `exercises/m3-summarizer-eval/`. It has a specific weakness.
 
@@ -224,7 +237,13 @@ Pairwise comparison with reasoning before the verdict.
 
 **Full credit** requires naming the scope conditions (this set, this judge, this version), not just the number.
 
-## Q10 — Practical rubric
+## Q10 — **C**
+
+A pass-rate threshold is a decision set by what a failure costs, and it must sit below the rate the unchanged system already scores, or the gate flaps. Refusal failures invent facts for customers, so that suite gets a near-zero tolerance that the system still meets on no change (98); tone failures are cheap, and the suite's normal range starts at 88, so 85 catches real drops without firing on noise.
+
+**A** fails the tone suite on no change at all (it runs 88–93) and is too loose for refusal. **B** flaps on tone every run and gets disabled. **D** inverts the costs: a rare but expensive failure deserves the tighter bound, and 98 for tone is above its normal range.
+
+## Q11 — Practical rubric
 
 | Criterion | Full credit |
 |---|---|

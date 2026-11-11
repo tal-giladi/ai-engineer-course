@@ -1,6 +1,6 @@
 # Module 7 Quiz — Agent Architectures: LangGraph & MCP
 
-**8 questions · ~30 min plus the practical**
+**10 questions · ~34 min plus the practical**
 
 ---
 
@@ -100,7 +100,33 @@ You connect a third-party MCP server. One of its tool descriptions reads:
 
 ---
 
-## Q8 — Practical
+## Q8 — Multiple choice
+
+A team has two new jobs. Job 1: every new support ticket from a webhook gets a model-written summary posted to Slack, and delivery must retry if Slack is down. Job 2: an assistant holds a multi-turn conversation with a customer, looks up orders, and pauses for a human before issuing a refund.
+
+Which split fits best?
+
+A. Both in n8n, because its AI Agent node and built-in Retry On Fail cover chat and delivery alike
+B. Both in LangGraph, because one framework for every AI workload keeps the team's tooling simple
+C. Job 1 in LangGraph for its checkpointing; Job 2 in n8n so the approval step is a visual node
+D. Job 1 in n8n as an event-triggered pipeline; Job 2 in LangGraph with `interrupt()` for the refund approval
+
+---
+
+## Q9 — Multiple choice
+
+You maintain an MCP server written two years ago with `from mcp.server.fastmcp import FastMCP`. After `pip install -U mcp` it fails to import, and a teammate wants to add an `Mcp-Session-Id` check so a remote server can track each client's session.
+
+What is the right move?
+
+A. Pin `mcp<2` permanently and add the session check, since sessions are how remote MCP servers keep per-client state
+B. Port to `MCPServer` from `mcp.server.mcpserver` on `mcp` 2.x and pass any cross-call state as server-minted handles in tool arguments
+C. Port to `MCPServer`, keep the session check, and require clients to send `initialize` before calling any tool
+D. Switch the server to the HTTP+SSE transport, which keeps sessions and avoids the 2026-07-28 changes entirely
+
+---
+
+## Q10 — Practical
 
 Rebuild your Module 6 research agent as a LangGraph graph with a human approval gate before publication. Demonstrate approve-and-resume across a process restart, resume-after-crash, and one time-travel debug session.
 
@@ -189,7 +215,19 @@ None of these can occur within a single agent, because there is no boundary at w
 
 **Would have limited the damage:** capability scoping and path restrictions on the file-reading tool (so credentials files are outside its allowed root), plus context isolation — a server providing untrusted content should not share an agent with tools that can read sensitive files.
 
-## Q8 — Practical rubric
+## Q8 — **D**
+
+Job 1 is an event (a webhook) running a fixed pipeline whose main need is retries and an audit trail: an event orchestrator's home ground. Job 2 is a multi-turn, stateful conversation with a durable human pause: a code graph with checkpointing and `interrupt()` (Lessons 7.1 and 7.2).
+
+**A** gives up typed, inspectable, rewindable state for the conversation. **B** works but hand-builds triggers and delivery retries an orchestrator gives you. **C** inverts the rule: the stateless job gets the state machine and the stateful job loses it.
+
+## Q9 — **B**
+
+`mcp` 2.x renamed the server class (`MCPServer` in `mcp.server.mcpserver`) and speaks the 2026-07-28 revision, which removed protocol sessions and the `Mcp-Session-Id` header; state that must span calls is carried in explicit handles the server mints and the client passes back as tool arguments. The 2.x server still serves older clients.
+
+**A** freezes the server on the old revision and builds on a mechanism the current spec removed. **C** reintroduces a handshake that 2026-07-28 clients no longer send. **D** moves to a transport that is deprecated, and it does not stop clients from speaking the new revision.
+
+## Q10 — Practical rubric
 
 | Criterion | Full credit |
 |---|---|

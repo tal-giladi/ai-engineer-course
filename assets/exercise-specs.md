@@ -52,7 +52,7 @@ The other five `exercises/` paths referenced in the lessons (`m2-invoice-extract
 
 ---
 
-## `m3-summarizer-eval` — Lesson 3.2 practice; Module 3 quiz Q10
+## `m3-summarizer-eval` — Lesson 3.2 practice; Module 3 quiz Q11
 
 **Purpose:** a system with a *specific* weakness that a naive metric hides.
 
@@ -110,7 +110,7 @@ Include a TCO worksheet template.
 
 ---
 
-## `m10-latency-halving` — Module 10 quiz Q9
+## `m10-latency-halving` — Module 10 quiz Q10
 
 **Purpose:** trace-driven optimization with a mandatory revert.
 

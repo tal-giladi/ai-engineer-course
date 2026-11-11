@@ -93,6 +93,24 @@ This is not ceremony. Ports lose things — a budget check that no longer fires,
 
 ---
 
+## Key Concept 5: Code graph or visual event orchestrator
+
+LangGraph is not the only kind of orchestrator you will be asked about, and it is not always the right one. *Versions checked 2026-11-11.* Two families solve different problems:
+
+**Code-first state graphs — LangGraph 1.2, Apache Burr 0.43.** State, nodes, and transitions are Python. Built for **multi-turn, stateful agents**: a conversation or task whose state evolves over many model calls, with checkpointing, resumption, and human-in-the-loop pauses (Lesson 7.2). Burr, now an Apache incubating project, is the lighter alternative: `@action` functions that declare what state they read and write, wired with `ApplicationBuilder().with_actions(...).with_transitions(...)`. Note the package rename: `pip install "apache-burr[start]"`; the old `burr` package stops at 0.42.0.
+
+**Visual event orchestrators — n8n 2.x.** Workflows drawn as nodes in a UI, started by **events**: a webhook, a schedule, a new row, an incoming email. Each node has built-in **Retry On Fail** and an **On Error** policy (stop, continue, or route to an error output), and a failed execution can start a separate error workflow. n8n speaks MCP in both directions: the **MCP Client Tool** sub-node lets its AI Agent node call tools on an MCP server, and the **MCP Server Trigger** exposes n8n workflows as MCP tools to other agents.
+
+**The decision rule:**
+
+- The unit of work is **a conversation or an open-ended task** — many model calls, branching on what the model decides, state that must survive pauses for a human → **code graph**.
+- The unit of work is **an event that runs a mostly fixed pipeline** — something arrives, a few steps run (one of which may call a model), the result goes somewhere, and you need retries and an audit trail more than reasoning → **event orchestrator**.
+- **Both is normal.** An n8n workflow can receive the webhook, retry the delivery, and call your LangGraph agent (or its MCP server, Lesson 7.4) as one step.
+
+Two warnings. A visual workflow hides its logic from code review and from your eval suite unless you export and version it, so put the exported JSON in git. And an agent built as a visual loop gives up exactly what Lesson 7.2 is about — typed state you can inspect, rewind, and test.
+
+---
+
 ## Worked Example 1: The port, measured
 
 Same tools, same prompts, same 40-task trajectory eval.
@@ -139,6 +157,23 @@ The generalizable finding, and the one worth carrying into an interview: **the f
 
 **7. Render the graph** and put the diagram in your README.
 
+**8. Classify five workloads (15 minutes).** For each, choose **code graph** (LangGraph / Burr) or **event orchestrator** (n8n), and write one sentence naming the deciding property:
+
+1. A support assistant that holds a multi-turn conversation, looks things up, and pauses for a human before issuing a refund.
+2. Every new Zendesk ticket is summarized by a model and posted to a Slack channel; delivery must retry if Slack is down.
+3. A nightly job pulls yesterday's sales CSV, asks a model for a three-line commentary, and emails it.
+4. A research agent that decides which sources to read next based on what it has found, running for up to 15 steps.
+5. A webhook from your CI posts eval results; if the gate failed, open a ticket with the failing strata.
+
+**You know it worked when** your answers match the reference below and each sentence names the property (conversation and evolving state, or event plus fixed pipeline), not the tool's popularity.
+
+<details>
+<summary>Reference classification</summary>
+
+1 → code graph (multi-turn state, human-in-the-loop pause). 2 → event orchestrator (event-triggered, fixed steps, retries). 3 → event orchestrator (schedule-triggered, fixed pipeline). 4 → code graph (model-driven branching over evolving state). 5 → event orchestrator (webhook, fixed routing; no reasoning loop).
+
+</details>
+
 ---
 
 ## Visual Aid
@@ -154,6 +189,20 @@ The generalizable finding, and the one worth carrying into an interview: **the f
 - **The framework hides the exact prompt, the trimming policy, the retry layering, tool result formatting, and token accounting.** Find the escape hatches on day one.
 - **Prove the port with your trajectory eval.** Ports silently drop optimizations and controls; the eval catches what reading the diff does not.
 - **A considered position on frameworks is an interview asset.** Write it down while the port is fresh.
+- **Code graph for stateful conversations, event orchestrator for triggered pipelines.** LangGraph or Burr when state evolves over many model calls with human pauses; n8n when an event runs a mostly fixed pipeline that needs retries — and often both together.
+
+---
+
+## Sources
+
+Versions checked 2026-11-11.
+
+- LangGraph overview and graph API: https://docs.langchain.com/oss/python/langgraph/overview — checked 2026-11-11 (langgraph 1.2.20, released 2026-11-05)
+- Apache Burr (incubating), install and API: https://github.com/apache/burr — checked 2026-11-11 (apache-burr 0.43.0)
+- n8n node settings (Retry On Fail, On Error): https://docs.n8n.io/workflows/components/nodes/ — checked 2026-11-11 (n8n 2.47.4)
+- n8n error workflows (Error Trigger): https://docs.n8n.io/flow-logic/error-handling/ — checked 2026-11-11
+- n8n MCP Client Tool: https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/ — checked 2026-11-11
+- n8n MCP Server Trigger: https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/ — checked 2026-11-11
 
 ---
 

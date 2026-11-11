@@ -46,29 +46,44 @@ One argument. Four properties follow:
 
 ## Key Concept 2: Interrupts
 
-An interrupt pauses execution at a defined boundary and returns control to the caller.
+An interrupt pauses execution at a defined point and returns control to the caller. *API checked against LangGraph 1.2.20 on 2026-11-11.* You call `interrupt()` inside the node that needs a human, and resume with `Command(resume=...)`:
 
 ```python
-graph = builder.compile(
-    checkpointer=checkpointer,
-    interrupt_before=["send_email", "issue_refund"],
-)
+from pydantic import BaseModel
+from langgraph.types import interrupt, Command
 
-state = graph.invoke(input, config)
-if state.next == ("send_email",):
+class Approval(BaseModel):
+    approved: bool
+    edited_to: str | None = None          # edit-and-continue (Key Concept 3)
+
+def approve_email(state: State):
+    decision = interrupt(
+        {"action": "send_email", "args": state["draft"], "reasoning": state["why"]},
+        response_schema=Approval,          # optional, new in 1.2: typed, validated resume value
+    )
+    return {"approved": decision.approved,
+            "draft": decision.edited_to or state["draft"]}
+
+graph = builder.compile(checkpointer=checkpointer)
+
+result = graph.invoke(input, config)
+if "__interrupt__" in result:
     # process can now exit entirely
-    pending = graph.get_state(config)
-    await queue_for_approval(pending.values, thread_id=config["thread_id"])
+    pending = result["__interrupt__"][0]
+    await queue_for_approval(pending.value, thread_id=config["configurable"]["thread_id"])
 ```
 
 The run is now *paused state in a database*, not a blocked process. Approval arrives an hour later, from a different process, possibly a different machine:
 
 ```python
-graph.update_state(config, {"approved": True})
-result = graph.invoke(None, config)      # resumes from the interrupt
+result = graph.invoke(Command(resume={"approved": True}), config)   # resumes the paused node
 ```
 
-`interrupt_before` gates an action; `interrupt_after` reviews a result before it flows onward. Together they cover approval, review, and mid-run correction.
+`interrupt()` returns the resume value into the node, so the human's answer is ordinary state. With `response_schema=` set to a Pydantic model, the resume value is validated and an invalid answer raises without saving anything, so it can be answered again; with a plain JSON Schema `dict`, the schema is only shown to clients and nothing is validated.
+
+**One rule that changes how you write the node: on resume, the node re-runs from its first line.** `interrupt()` then returns the resume value instead of pausing. Anything before the `interrupt()` call executes twice, so keep side effects after it or in the next node, or make them idempotent (Key Concept 5).
+
+**Static breakpoints are for debugging.** `compile(interrupt_before=[...])` and `interrupt_after=[...]` still exist, but LangGraph's documentation says they are not recommended for human-in-the-loop workflows; use them to step through a graph node by node while debugging.
 
 This is what Lesson 6.5 wanted and could not express.
 
@@ -78,9 +93,9 @@ This is what Lesson 6.5 wanted and could not express.
 
 **Approve / reject.** The gate from Lesson 6.5, now durable. Show arguments *and* reasoning — that requirement has not changed and it is still the part that makes the gate meaningful.
 
-**Edit and continue.** More useful than approve/reject and often overlooked. The human corrects an argument — a recipient, an amount, a query — and the run continues with the corrected state. `update_state` before resuming.
+**Edit and continue.** More useful than approve/reject and often overlooked. The human corrects an argument — a recipient, an amount, a query — and the run continues with the corrected state: the correction arrives as the resume value (`edited_to` above) and the node writes it into state.
 
-**Review and steer.** `interrupt_after` on a planning node lets a human adjust the plan before execution, which is far cheaper than letting a bad plan run and correcting after.
+**Review and steer.** An `interrupt()` in a review node placed right after planning lets a human adjust the plan before execution, which is far cheaper than letting a bad plan run and correcting after.
 
 **Escalation on a signal.** Interrupt conditionally: on low confidence, on high value, on an unusual tool. Better than gating a whole tool class, because it preserves the "gates must be rare" property from Lesson 6.5 while still catching the cases that matter.
 
@@ -95,8 +110,8 @@ history = list(graph.get_state_history(config))
 # pick the checkpoint just before things went wrong
 target = history[7]
 
-graph.update_state(target.config, {"findings": corrected_findings})
-result = graph.invoke(None, target.config)      # re-runs from step 7
+new_config = graph.update_state(target.config, {"findings": corrected_findings})
+result = graph.invoke(None, new_config)         # re-runs from step 7 with the edit
 ```
 
 Why it matters: agent bugs are almost always **causal**, not local. A wrong answer at step 15 originates from a bad tool result at step 3 that the model reasoned confidently from (Lesson 6.2). Without time travel you re-run the whole task and hope the non-determinism reproduces it. With it, you rewind to step 3, change one thing, and see whether the outcome changes — an actual controlled experiment.
@@ -120,7 +135,7 @@ The operational reality, which is easy to skip and expensive to skip.
 
 **Sensitivity.** Checkpoints contain the full conversation — user input, retrieved documents, tool results. That is PII and possibly customer data, in a new store, with the same protection requirements as your primary database. Lesson 11.3 audits this; note it now.
 
-**Resume semantics.** A node that already executed a side effect and then crashed will re-execute on resume. **Idempotency keys on tools with side effects are not optional once you have resumability.** This is ordinary distributed-systems discipline and it arrives here for the first time.
+**Resume semantics.** A node that already executed a side effect and then crashed will re-execute on resume — and so will any code before an `interrupt()` call, every time the node is resumed. **Idempotency keys on tools with side effects are not optional once you have resumability.** This is ordinary distributed-systems discipline and it arrives here for the first time.
 
 ---
 
@@ -129,13 +144,13 @@ The operational reality, which is easy to skip and expensive to skip.
 **Approve and resume.**
 
 ```
-step 6  → interrupt_before: send_email
+step 6  → approve_email: interrupt({action: send_email, ...})
           process exits. State persisted, thread_id=req_8f3a.
 
         [47 minutes pass. Service redeployed twice.]
 
-        approval received → update_state({approved: True})
-        → invoke(None, config)
+        approval received
+        → invoke(Command(resume={approved: True}), config)
 
 step 7  send_email executed
 step 8  → COMPLETED
@@ -189,7 +204,7 @@ This bug did not exist before checkpointing, because there was no resume. **Ever
 
 **1. Add a checkpointer.** Postgres-backed, using `request_id` as the thread ID.
 
-**2. Convert your approval gate to `interrupt_before`.** The process must be able to exit while awaiting approval. Verify by actually killing it.
+**2. Convert your approval gate to `interrupt()`.** Call it inside an approval node with `response_schema=` set to a Pydantic model of the decision, and resume with `Command(resume=...)`. The process must be able to exit while awaiting approval. Verify by actually killing it, then resume with an invalid answer (a missing field) and confirm it is rejected and can be answered again.
 
 **3. Demonstrate approve-and-resume** across a process restart. Record the elapsed time and confirm no work was lost.
 
@@ -207,7 +222,7 @@ This bug did not exist before checkpointing, because there was no resume. **Ever
 
 ## Visual Aid
 
-*A horizontal timeline of an agent run. Steps 1–15 as ticks, with a small database icon under each labeled "checkpoint." At step 6 a red pause bar labeled `interrupt_before: send_email`, with a dashed box beneath reading "process exits — state lives in Postgres — 47 minutes, 2 deploys," then a green resume arrow. Below the main timeline, a second branch line splits off at step 3 with a curved "rewind" arrow, annotated "time travel: edit state, re-run" and leading to an alternate short timeline ending in a green "correct answer at step 12." A small red warning icon sits at step 9 with the label "side effect + resume = idempotency key required."*
+*A horizontal timeline of an agent run. Steps 1–15 as ticks, with a small database icon under each labeled "checkpoint." At step 6 a red pause bar labeled `interrupt(): approve send_email`, with a dashed box beneath reading "process exits — state lives in Postgres — 47 minutes, 2 deploys," then a green resume arrow. Below the main timeline, a second branch line splits off at step 3 with a curved "rewind" arrow, annotated "time travel: edit state, re-run" and leading to an alternate short timeline ending in a green "correct answer at step 12." A small red warning icon sits at step 9 with the label "side effect + resume = idempotency key required."*
 
 ---
 
@@ -215,9 +230,19 @@ This bug did not exist before checkpointing, because there was no resume. **Ever
 
 - **Checkpointing makes runs durable, resumable, inspectable, and rewindable** for the cost of one compile argument and a database. Use `request_id` as the thread ID so telemetry, traces, and checkpoints share one key.
 - **Interrupts turn approval from a blocked process into persisted state.** The process exits; the run resumes hours later from anywhere.
-- **Edit-and-continue is more useful than approve/reject,** and `interrupt_after` on a planning node is cheaper than correcting a bad plan post-execution.
+- **Edit-and-continue is more useful than approve/reject,** and an `interrupt()` in a review node after planning is cheaper than correcting a bad plan post-execution. Use `interrupt()` + `Command(resume=...)` for human-in-the-loop; keep static `interrupt_before`/`interrupt_after` for debugging, and remember the paused node re-runs from its first line on resume.
 - **Time travel is the best debugging tool in agent development** because agent bugs are causal, not local. Rewind, edit one thing, re-run: a controlled experiment instead of a re-run and a hope.
 - **Resumability creates an idempotency requirement.** A side effect that ran before the checkpoint will run again on resume. And checkpoints are a new PII store with a retention policy you must write.
+
+---
+
+## Sources
+
+Checked 2026-11-11.
+
+- LangGraph interrupts (`interrupt()`, `Command(resume=...)`, static interrupts for debugging, re-execution on resume): https://docs.langchain.com/oss/python/langgraph/interrupts — checked 2026-11-11
+- LangGraph 1.2.20 source, `langgraph/types.py` (`interrupt(value, *, response_schema=None)`): https://pypi.org/project/langgraph/1.2.20/ — checked 2026-11-11
+- LangGraph persistence and time travel: https://docs.langchain.com/oss/python/langgraph/persistence — checked 2026-11-11
 
 ---
 

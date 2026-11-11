@@ -103,6 +103,35 @@ Three lines. They will save you a debugging session that would otherwise take a 
 
 ---
 
+## Key Concept 4: The local-first dev loop
+
+The seam has a second payoff that you can use from today: **build and debug against a model on your own machine, then change only the base URL, key, and model name for production.** Every prompt iteration, parser bug, and retry-loop mistake you make in development is then free, offline, and private.
+
+*Versions checked 2026-11-11.* Two local servers cover almost everyone:
+
+- **Ollama 0.40.x** (any OS). Serves an OpenAI-compatible API at `http://localhost:11434/v1` — `/v1/chat/completions` and `/v1/responses` (stateless only) — and an Anthropic-compatible `/v1/messages` at `http://localhost:11434`. The API key is required by the SDKs but ignored by the server.
+- **mlx-lm 0.32.x** on Apple Silicon. `mlx_lm.server --model <hf-repo>` serves an OpenAI-style `/v1/chat/completions` on port 8080. Its own docs say it is not for production; it is for exactly this loop.
+
+```
+# .env.dev — the only file that differs from production
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama            # required by the SDK, ignored by Ollama
+LLM_MODEL=qwen3.5:4b
+```
+
+The current small open-weights models that run on a laptop (as of 2026-11-11): **Qwen3.5** 0.8B / 2B / 4B / 9B, **Gemma 4** E2B / E4B, **Ministral 3** 3B / 8B, and **IBM Granite 4.2** 3B / 8B. All are in the Ollama library (`qwen3.5:4b`, `gemma4:e4b`, `ministral-3:8b`, `granite4.2:8b`).
+
+**Be honest about what they are.** On reasoning, instruction-following, and tool-use benchmarks, the best of these match frontier models from 2024 — but those numbers are mostly vendor-reported on the model cards. Independent measurement shows where they fall short: Artificial Analysis (2026-04-13) found that even the sub-32B open models that reach GPT-5-level intelligence scores lag badly on factual knowledge and hallucinate far more, because knowledge recall scales with parameter count. Under 10B the gap is wider. They are good enough to exercise your code paths; they are not a preview of your production quality.
+
+**What local development does not tell you:**
+
+- **Provider-specific behaviour.** Ollama's compatibility endpoints do not support `tool_choice` or Anthropic-style prompt caching, and accept some parameters without honouring them (on `/v1/messages`, the thinking `budget_tokens` is accepted but not enforced). Structured-output enforcement also differs from the hosted provider's strict mode. Your capability flags (Key Concept 3) should say so for the `dev` profile.
+- **Latency.** A laptop's time-to-first-token and throughput say nothing about a hosted API under load. Measure latency on the production profile (Lesson 1.4).
+- **Caching economics.** Cost per request on a hosted provider depends on cache hits you cannot observe locally (Lesson 2.4).
+- **Quality.** A prompt tuned on a 4B model is not tuned for the production model, and a prompt that works on the production model may fail locally. **Evaluations that gate a change run on the production model** (Lesson 3.5); the local model is for development speed, not for evidence.
+
+---
+
 ## Worked Example: The same call, three backends
 
 ```python
@@ -139,6 +168,15 @@ Without the capability check, most SDKs will accept the extra keyword, the serve
 
 **4. Record what differed.** Note the token counts for the identical prompt across backends. They will not match, and understanding why is Lesson 1.3.
 
+**5. Set up the local-first loop (15 minutes).** Install Ollama 0.40.x (or mlx-lm 0.32.x on a Mac), then:
+
+```bash
+ollama pull qwen3.5:4b
+ollama serve            # skip if the Ollama app is already running
+```
+
+Add a `dev` profile pointing at `http://localhost:11434/v1` with model `qwen3.5:4b` and capability flags set to what Ollama actually supports. Run your portability test against `dev` and against your production profile, with no code change between them. **You know it worked when** the only diff between the two runs is the environment file, and your capability test raises `UnsupportedCapability` on `dev` for prompt caching. Then write one line in your README: *"Local model is for development; all gating evals run on the production model."*
+
 ---
 
 ## Visual Aid
@@ -154,6 +192,20 @@ Without the capability check, most SDKs will accept the extra keyword, the serve
 - **Three tiers of portability:** genuinely portable (messages, sampling, streaming), portable-in-name (tokenization, system prompt weight, tool-calling quality), and not portable (caching, structured output enforcement, reasoning params, safety filtering).
 - **Unsupported capabilities must raise, never no-op.** A silently dropped parameter produces a working system with a wrong cost model and no error to find.
 - **This seam pays off repeatedly:** your fine-tuned model in Module 9, your vLLM server in Module 10, and your provider fallback chain in Module 11 all plug in here without touching application code.
+- **Develop locally, gate on production.** Ollama or mlx-lm with a small open model makes the dev loop free and offline; it tells you nothing about provider-specific features, latency, caching, or production quality, so evals still run on the production model.
+
+---
+
+## Sources
+
+Versions and endpoints checked 2026-11-11.
+
+- Ollama, OpenAI compatibility (endpoints, supported and unsupported fields): https://docs.ollama.com/api/openai-compatibility — checked 2026-11-11 (Ollama v0.40.16, released 2026-11-09)
+- Ollama, Anthropic compatibility (`/v1/messages`, unsupported features): https://docs.ollama.com/api/anthropic-compatibility — checked 2026-11-11
+- Ollama model library tags (`qwen3.5`, `gemma4`, `ministral-3`, `granite4.2`): https://ollama.com/library — checked 2026-11-11
+- mlx-lm HTTP server: https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/SERVER.md — checked 2026-11-11 (mlx-lm 0.32.2)
+- Artificial Analysis, "Sub-32B open weights models now offer GPT-5 level intelligence" (2026-04-13): https://artificialanalysis.ai/articles/sub-32b-open-weights — checked 2026-11-11
+- Qwen3.5-9B model card (vendor-reported benchmarks): https://huggingface.co/Qwen/Qwen3.5-9B — checked 2026-11-11
 
 ---
 

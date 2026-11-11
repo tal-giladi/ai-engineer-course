@@ -99,6 +99,41 @@ A repair loop that discards its failures is throwing away the most valuable data
 
 ---
 
+## Key Concept 5: Where the repair loop still belongs, and the library for it
+
+Lesson 2.2 moved shape enforcement into the decoder or the provider. That shrinks this lesson's loop; it does not remove it.
+
+- **With constrained decoding or native structured outputs**, the format failures in the worked example below (malformed JSON, missing fields, bad enum values) mostly disappear. What remains is **semantic validation**: cross-field rules, references that must exist, totals that must add up. Write them as Pydantic validators, and the repair loop handles only those.
+- **On a backend with no enforcement**, the loop still does everything.
+
+You do not have to hand-write the plumbing. **Instructor 1.17** (`pip install "instructor==1.17.0"`, repo `567-labs/instructor`, checked 2026-11-11) wraps a provider client, validates the response against your Pydantic model including its validators, and re-asks with the validation error:
+
+```python
+from datetime import date
+
+import instructor
+from pydantic import BaseModel, model_validator
+
+class Booking(BaseModel):
+    start_date: date
+    end_date: date
+
+    @model_validator(mode="after")
+    def end_after_start(self):
+        if self.end_date <= self.start_date:
+            raise ValueError("end_date must be after start_date")
+        return self
+
+client = instructor.from_provider("openai/<model-id>")
+booking = client.chat.completions.create(
+    response_model=Booking, messages=messages, max_retries=2,
+)
+```
+
+Use the library for the plumbing and keep the engineering: **`max_retries` is only the first of the three budget dimensions.** It does not classify refusals or `finish_reason == "length"` as terminal, does not cap tokens or wall-clock, and does not write your dead letters. Wrap it, classify before calling it again, and record every attempt in `CallRecord`, or you have rebuilt the Lesson 1.4 cost incident with a nicer API.
+
+---
+
 ## Worked Example: Where to stop, from data
 
 An extraction pipeline over 1,000 records, instrumented per attempt with the `attempt` field from Lesson 1.4:
@@ -146,6 +181,8 @@ It must: classify failures as retryable or terminal before repairing; respect al
 
 **5. Check your dead letters.** Read them. If more than a quarter share one cause, you have found a schema bug, not a model problem. Fix it and note the finding.
 
+**6. Re-run with shape enforced (20 minutes).** Switch the adversarial run to rung 3 from Lesson 2.2 (native structured outputs or vLLM `structured_outputs`) and add one semantic validator to your schema. Then implement the same loop once more with Instructor 1.17 inside your `validate_repair_call()` wrapper, keeping your classification and budgets. **You know it worked when** your recovery table shows format failures near zero, the remaining repairs are all semantic, and total tokens are lower than in step 3.
+
 ---
 
 ## Visual Aid
@@ -161,6 +198,18 @@ It must: classify failures as retryable or terminal before repairing; respect al
 - **A budget has three dimensions** — attempts, tokens, wall-clock — and an explicit exhaustion path that is never a default-constructed object.
 - **Set the budget from your own recovery table.** Marginal recovery collapses fast; the tokens per attempt do not.
 - **Dead letters are an asset.** Debugging surface now, evaluation cases in Module 3, fine-tuning candidates in Module 8.
+- **Enforce shape first, repair semantics second.** With native structured outputs or constrained decoding, the repair loop exists for rules a schema cannot express; a library such as Instructor handles the plumbing, but `max_retries` is not a failure budget.
+
+---
+
+## Sources
+
+Checked 2026-11-11.
+
+- Instructor (validation, `max_retries`, `from_provider`): https://github.com/567-labs/instructor — checked 2026-11-11 (Instructor 1.17.0, released 2026-09-09)
+- Pydantic validators: https://docs.pydantic.dev/latest/concepts/validators/ — checked 2026-11-11
+- Anthropic structured outputs (`output_config.format`): https://platform.claude.com/docs/en/build-with-claude/structured-outputs — checked 2026-11-11
+- vLLM structured outputs: https://docs.vllm.ai/en/latest/features/structured_outputs.html — checked 2026-11-11 (vLLM 0.33.0)
 
 ---
 

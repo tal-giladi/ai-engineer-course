@@ -39,7 +39,7 @@ Guarantee: strong on most hosted providers, variable elsewhere. The output arriv
 
 **Mechanism 3 — Constrained decoding.** The sampler itself is restricted at each step to tokens that keep the output valid against a grammar compiled from your schema. Invalid output is not "rejected" — it is *unreachable*.
 
-Guarantee: total, for shape. Available on self-hosted stacks (vLLM with a structured-output backend, llama.cpp grammars) and on some hosted providers under a strict structured-output mode. This is the strongest rung, and the reason your Module 10 self-hosted deployment gains a capability rather than losing one.
+Guarantee: total, for shape. Available on self-hosted stacks (vLLM's `structured_outputs`, Outlines, llama.cpp grammars) and, as of 2026, on all three major hosted APIs through their native structured-output modes (Key Concept 5). This is the strongest rung, and the reason your Module 10 self-hosted deployment gains a capability rather than losing one.
 
 ---
 
@@ -111,6 +111,45 @@ Constrained decoding eliminates parse errors, missing fields, invalid enum value
 
 ---
 
+## Key Concept 5: The tools in 2026, and which one to reach for
+
+*Versions and parameter names checked 2026-11-11.* Three families of tools, matching the rungs above.
+
+**Constrained decoding — when you run the model.** The schema is compiled into a grammar and the sampler cannot leave it.
+
+- **vLLM 0.33.** On the OpenAI-compatible server, send the standard `response_format` with a JSON schema; vLLM-specific constraints (choice, regex, grammar) go in `extra_body={"structured_outputs": {...}}`. Offline, pass `SamplingParams(structured_outputs=StructuredOutputsParams(json=schema))`. The backend is chosen with `--structured-outputs-config.backend` (`auto`, `xgrammar`, or `guidance`; `auto` is the default). **The old `guided_json`, `guided_choice`, `guided_regex`, and `guided_grammar` parameters were removed in vLLM 0.12** — tutorials that use them no longer run.
+- **Outlines 1.3.** A library that applies the same idea to a model you load yourself: `model = outlines.from_transformers(...)`, then `model(prompt, Ticket)` returns output that matches the Pydantic type.
+
+```python
+# vLLM 0.33 OpenAI-compatible server — standard field, enforced by constrained decoding
+resp = client.chat.completions.create(
+    model=MODEL,
+    messages=messages,
+    response_format={"type": "json_schema",
+                     "json_schema": {"name": "ticket", "schema": Ticket.model_json_schema()}},
+)
+```
+
+**Native structured outputs — when a provider runs the model.** You cannot touch the sampler, so you ask the provider to enforce the schema:
+
+| Provider | Parameter (2026-11-11) | Pydantic helper |
+|---|---|---|
+| OpenAI (Responses API) | `text={"format": {"type": "json_schema", "name": ..., "schema": ..., "strict": True}}` | `client.responses.parse(..., text_format=Ticket)` → `response.output_parsed` |
+| Anthropic (GA) | `output_config={"format": {"type": "json_schema", "schema": ...}}` | `client.messages.parse(..., output_format=Ticket)` → `response.parsed_output` |
+| Google Gemini (Interactions API) | `client.interactions.create(..., response_format={"type": "text", "mime_type": "application/json", "schema": ...})` | parse `interaction.output_text` with `Ticket.model_validate_json` |
+
+Two traps in older material: Anthropic's raw-request **`output_format` parameter is deprecated** (it now needs a beta header and returns 400 without it — use `output_config.format`; the `output_format=` argument of the SDK's `parse()` helper is a different thing and is fine), and Gemini examples built on `generationConfig.responseSchema` describe the older `generateContent` path rather than the current Interactions API.
+
+**Validate-and-retry — for rules a schema cannot express.** "`end_date` is after `start_date`", "the cited chunk ID exists", "the total equals the sum of the lines" are not JSON Schema. A library such as **Instructor 1.17** validates the output against your Pydantic validators and re-asks with the error. Lesson 2.3 covers how to bound that loop.
+
+**The decision rule:**
+
+- **You control the inference stack** (vLLM, a model you load) → **constrained decoding**.
+- **You call a hosted API** → **the provider's native structured outputs first**, then **validate-and-retry only for the semantic rules** the schema cannot express.
+- Either way, the capability ladder from Key Concept 2 stays: declare which mechanism each profile supports, and log when you fall back.
+
+---
+
 ## Worked Example 1: The three mechanisms measured
 
 Same extraction task, 200 records, three backends, format-failure rate (output that could not be validated at all):
@@ -178,6 +217,8 @@ class Answer(BaseModel):
 
 **4. Run the schema ablation.** Take one schema, produce a deliberately poor version (nested, free-text, undescribed) and a good one, and measure field accuracy on both with constrained decoding. Report the gap. You are proving to yourself that the schema is part of the prompt.
 
+**5. Wire the current mechanisms into rung 3 (30 minutes).** For your hosted profile, implement `_constrained()` with that provider's native structured outputs from Key Concept 5 (pin the SDK version you used in `requirements.txt`). For a self-hosted profile, use vLLM 0.33's `response_format` or Outlines 1.3. Then search your code and any snippets you copied for `guided_`, a raw `output_format=` request field, or `responseSchema` and replace them. **You know it worked when** the Answer contract above returns zero format failures over 100 records on rung 3 for every profile that declares it, and nothing in your repository still uses a removed or deprecated parameter.
+
 ---
 
 ## Visual Aid
@@ -193,6 +234,20 @@ class Answer(BaseModel):
 - **Schema design is prompt design.** Flat over nested, enums over free strings, required-and-nullable over optional, descriptions on every non-obvious field, and reasoning fields *before* the answer they justify.
 - **Constrained decoding closes the gap between small and large models** on format compliance — a large part of why self-hosting is practical.
 - **Shape is not correctness.** Every constraint can be satisfied by a wrong answer.
+- **Pick the mechanism by who runs the model.** Your own stack → constrained decoding (vLLM `structured_outputs`, Outlines); a hosted API → native structured outputs first, validate-and-retry only for semantic rules.
+
+---
+
+## Sources
+
+Versions and parameter names checked 2026-11-11.
+
+- vLLM structured outputs (`structured_outputs`, `StructuredOutputsParams`, backends, `guided_*` removed in v0.12.0): https://docs.vllm.ai/en/latest/features/structured_outputs.html — checked 2026-11-11 (vLLM 0.33.0)
+- Outlines README and quickstart: https://github.com/dottxt-ai/outlines — checked 2026-11-11 (Outlines 1.3.3)
+- OpenAI Structured Outputs guide (Responses API `text.format`, `responses.parse`): https://developers.openai.com/api/docs/guides/structured-outputs — checked 2026-11-11
+- Anthropic structured outputs (`output_config.format`, GA; `output_format` deprecated): https://platform.claude.com/docs/en/build-with-claude/structured-outputs — checked 2026-11-11
+- Gemini structured output (Interactions API `response_format`): https://aistudio.google.com/docs/structured-output — checked 2026-11-11
+- Instructor: https://github.com/567-labs/instructor — checked 2026-11-11 (Instructor 1.17.0)
 
 ---
 

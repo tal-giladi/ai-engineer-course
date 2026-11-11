@@ -127,14 +127,14 @@ jobs:
       - ruff check . && mypy .
       - pytest tests/unit                       # mocked model calls
       - make eval-smoke                         # 15 items, ~90s, ~$0.04
-      - make eval-gate --tier=smoke             # Lesson 3.5
+      - make eval-gate TIER=smoke             # Lesson 3.5
 
   full:
     if: push to main
     steps:
       - pytest tests/integration                # compose up, real services
       - make eval-full                          # 60 items, ~4 min, ~$0.90
-      - make eval-gate --tier=full
+      - make eval-gate TIER=full
       - make cost-gate                          # cost regression check
       - docker build && push
 ```
@@ -175,6 +175,34 @@ Every one of those is a step a reviewer hits and stops at.
 **The target:** clone → `cp .env.example .env` → add one API key → `docker compose --profile hosted up` → working system with a seeded demo corpus. Under five minutes, one manual step.
 
 Include a small seeded corpus in the repository so the system does something on first run. A service that starts with an empty index and nothing to query looks broken.
+
+---
+
+## Key Concept 6: One branch per directory — worktrees for parallel runs
+
+The full eval tier takes minutes, and agent experiments take longer. The naive workflow — switch branch, start the eval, wait, switch back — means you cannot fix a bug on `main` while an experiment's eval is running, because both need the same working directory. Stashing and switching mid-run also changes the files under a running process.
+
+A **git worktree** fixes this: one repository, several checked-out directories, **each on its own branch**, sharing one history. *Checked against Git 2.56.1 on 2026-11-11.*
+
+```bash
+# from your main checkout
+git worktree add -b exp/rerank-k8 ../spine-exp-rerank main   # new branch, new directory
+cd ../spine-exp-rerank
+cp ../spine/.env .                                            # gitignored files are not copied
+make eval-full > eval-exp.txt 2>&1 &                          # runs here...
+
+cd ../spine                                                   # ...while you fix main here
+git worktree list                                             # see every checkout
+git worktree remove ../spine-exp-rerank                       # when done (must be clean, or --force)
+```
+
+Rules that save time:
+
+- **A branch can be checked out in only one worktree at a time.** Git refuses a second checkout of the same branch, which is exactly the protection you want.
+- **Each worktree is a fresh checkout.** Untracked and gitignored files — `.env`, downloaded weights, a virtual environment, eval caches — are not there. Recreate them or point to a shared cache, and give each worktree its own Compose project name (`docker compose -p spine-exp up`) and ports so two stacks do not collide.
+- **Results must say where they came from.** Record the branch and commit in every eval report entry (Lesson 3.5), or two parallel runs become indistinguishable.
+
+**Coding agents now do this for you.** Claude Code's `claude --worktree <name>` starts a session in its own worktree (under `.claude/worktrees/`, on a new branch), the Codex app can run a chat in a dedicated worktree, and Cursor's Agents Window gives each agent its own worktree, with setup steps in `.cursor/worktrees.json`. That is how you run two agents on the same repository without their edits colliding — and the same rule applies: the agent's branch is evaluated by your CI gate before it merges, like anyone else's.
 
 ---
 
@@ -229,6 +257,8 @@ The cause: the new cache layer was keyed on the rewritten query, but citation va
 
 **9. Time it.** From `git clone` to a working query. If it is over five minutes or more than one manual step, keep going.
 
+**10. Run an eval and a fix in parallel (20 minutes).** Create a worktree on a new experiment branch (`git worktree add -b exp/<name> ../<repo>-exp main`), copy your `.env`, change one retrieval parameter there, and start `make eval-full`. While it runs, fix something small on `main` in your original directory and run the smoke tier there. **You know it worked when** both runs finish, each report names its own branch and commit, `git worktree list` shows both directories, and `git worktree remove` cleans up the experiment afterwards.
+
 ---
 
 ## Visual Aid
@@ -244,6 +274,19 @@ The cause: the new cache layer was keyed on the rewritten query, but citation va
 - **The config that matters here is model choice, prompt version, retrieval-k, thresholds, budgets, and sampling rates** — all changeable without a rebuild, all validated at startup.
 - **CI gates on quality *and* cost.** A quality-only gate ships cost regressions that surface as an unexplained bill; the `call_site` breakdown from Lesson 1.4 locates them instantly.
 - **Run the clean-clone test, twice.** Target: clone, one key, one command, under five minutes — and it is a hiring signal, not housekeeping.
+- **Use worktrees for parallel work.** One branch per directory lets an experiment's eval run while you fix `main`; recreate gitignored files in each, keep their stacks apart, and record the branch and commit in every report. Claude Code, Codex, and Cursor create worktrees for their agents.
+
+---
+
+## Sources
+
+Checked 2026-11-11.
+
+- Git `git worktree` documentation: https://git-scm.com/docs/git-worktree — checked 2026-11-11 (Git 2.56.1, released 2026-10-23)
+- Claude Code, run parallel sessions with worktrees (`claude --worktree`): https://code.claude.com/docs/en/worktrees — checked 2026-11-11
+- Codex app, Git worktrees: https://learn.chatgpt.com/docs/environments/git-worktrees — checked 2026-11-11
+- Cursor, worktrees (Agents Window, `.cursor/worktrees.json`): https://cursor.com/docs/configuration/worktrees — checked 2026-11-11
+- Docker Compose project name (`-p`): https://docs.docker.com/compose/how-tos/project-name/ — checked 2026-11-11
 
 ---
 

@@ -145,6 +145,52 @@ Two things make this the most differentiating artifact in your Module 12 portfol
 
 ---
 
+## Key Concept 5: Putting the suite into a tool
+
+You can build all of this with `make` and a Python script, and the first time you should, because it teaches you what the parts are. In a team you will usually map it onto an eval tool. *Checked 2026-11-11:*
+
+- **Promptfoo 0.125.x** — open-source CLI (MIT), config in YAML, runs locally and in any CI. OpenAI announced an agreement to acquire Promptfoo on 2026-03-09 and said it will remain open source; the closing had not been confirmed when this was checked, so re-check the licence and repository before you standardize on it.
+- **Hosted alternatives:** **Braintrust** and **LangSmith** run the same kind of experiments with datasets, scorers, and a UI for comparing runs, and both have CI integrations. Pick one if your team already uses its tracing (Lesson 10.4).
+
+The mapping from this module onto Promptfoo:
+
+| This module | Promptfoo |
+|---|---|
+| Golden dataset item with its stratum | a test with `vars` and `metadata: {stratum: out_of_scope}` |
+| Your pipeline under test | a Python provider: `id: 'file://spine_provider.py'` exposing `call_api(prompt, options, context)` |
+| Mechanical checks (refused? citation valid?) | `python` or `javascript` assertions |
+| Calibrated judge (Lesson 3.4) | an `llm-rubric` assertion, with your rubric text and judge model |
+| Per-stratum and per-metric reporting | assertion `metric:` labels, test `metadata` |
+| Smoke vs full tier | two config files, or one config filtered by metadata |
+| The gate | `promptfoo eval` exits with code 100 when tests fail or the pass rate is below `PROMPTFOO_PASS_RATE_THRESHOLD` |
+
+```yaml
+# promptfooconfig.yaml (smoke tier, abbreviated)
+providers:
+  - id: 'file://spine_provider.py'
+tests:
+  - vars: {question: "Does it support GraphQL?"}
+    metadata: {stratum: out_of_scope}
+    assert:
+      - type: python
+        value: file://checks/refused.py
+        metric: refusal_recall
+```
+
+```bash
+PROMPTFOO_PASS_RATE_THRESHOLD=95 npx promptfoo@0.125.1 eval -c promptfooconfig.yaml -o results.json
+```
+
+**The 95 in that line is a decision, not a constant.** By default Promptfoo allows no failures at all (100%), which on a non-deterministic system is a gate that flaps. Set the pass rate per suite from what a failure costs:
+
+- An **out-of-scope question answered with an invented price** is a support incident. That suite's hard-floor tests should allow no failures, or close to none.
+- A **style or verbosity** suite where a failure means a slightly worse answer can tolerate several percent.
+- And the threshold must sit **below the pass rate your unchanged system scores run to run** (your Lesson 3.4 noise), or it fails on no change at all.
+
+Two numbers live side by side: a **pass-rate threshold** for per-item assertions (did this item pass its checks?), and the **baseline band** from Key Concept 2 for aggregate scores (did quality drop by more than noise?). The tool gives you the first out of the box; the comparison with the committed baseline is still a short script you own, reading `results.json`.
+
+---
+
 ## Worked Example: The gate that earned its keep
 
 A GitHub Actions workflow:
@@ -157,13 +203,13 @@ jobs:
   smoke:
     steps:
       - run: make eval-smoke        # 15 items, ~80s, ~$0.04
-      - run: make eval-gate --tier=smoke
+      - run: make eval-gate TIER=smoke
 
   full:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - run: make eval-full         # 60 items, ~4min, ~$0.90
-      - run: make eval-gate --tier=full
+      - run: make eval-gate TIER=full
       - run: make eval-report-append
 ```
 
@@ -189,6 +235,8 @@ Total cost of catching it: about a dollar and one revert. Cost of not catching i
 
 **6. Commit the baseline** to `eval-report.md` with the pre-retrieval numbers from Lesson 3.3.
 
+**7. Port the smoke tier to Promptfoo (40 minutes).** Install a pinned version (`npm install -D promptfoo@0.125.1`). Write a Python provider that calls your pipeline, turn your 15 smoke items into tests with `metadata: {stratum: ...}`, express the refusal and citation checks as `python` assertions with `metric:` labels, and add your judge as an `llm-rubric` assertion. Choose `PROMPTFOO_PASS_RATE_THRESHOLD` and write one sentence in `docs/eval-gate.md` justifying it from what a failure costs and from your measured run-to-run noise. Re-run the step 5 breaking change. **You know it worked when** `promptfoo eval` exits with code 100 on the breaking change, exits 0 on the unchanged system three runs in a row, and the failing items in `results.json` carry the right stratum.
+
 ---
 
 ## Visual Aid
@@ -204,6 +252,21 @@ Total cost of catching it: about a dollar and one revert. Cost of not catching i
 - **Per-stratum thresholds and absolute hard floors** catch what the aggregate hides — including the exact failure mode from Lesson 3.1, where the overall drop was inside the band.
 - **The report must name the stratum and show failing examples.** A gate that reports only a number costs an engineer an hour every time it fires.
 - **`eval-report.md` is a portfolio artifact.** It shows decisions and trade-offs, and the entry where you reverted a change is the strongest evidence of discipline in your repository.
+- **A tool runs the suite; you still own the thresholds.** Promptfoo (or hosted Braintrust / LangSmith) maps the tiers, strata, and judge onto config, but the pass rate is set per suite from what a failure costs and must sit above your measured noise.
+
+---
+
+## Sources
+
+Checked 2026-11-11.
+
+- Promptfoo command line (exit code 100, `PROMPTFOO_PASS_RATE_THRESHOLD`, `-o`): https://www.promptfoo.dev/docs/usage/command-line/ — checked 2026-11-11 (Promptfoo 0.125.1, MIT)
+- Promptfoo configuration reference (test `metadata`, `threshold`, assertion `metric`): https://www.promptfoo.dev/docs/configuration/reference/ — checked 2026-11-11
+- Promptfoo Python provider and Python assertions: https://www.promptfoo.dev/docs/providers/python/ and https://www.promptfoo.dev/docs/configuration/expected-outputs/python/ — checked 2026-11-11
+- Promptfoo CI/CD integration (caching, GitHub Action): https://www.promptfoo.dev/docs/integrations/ci-cd/ — checked 2026-11-11
+- OpenAI, "OpenAI to acquire Promptfoo" (2026-03-09): https://openai.com/index/openai-to-acquire-promptfoo/ — checked 2026-11-11
+- Braintrust: https://www.braintrust.dev/docs — checked 2026-11-11
+- LangSmith evaluation: https://docs.langchain.com/langsmith/evaluation — checked 2026-11-11
 
 ---
 

@@ -1,6 +1,6 @@
 # Module 1 Quiz — The AI Engineer Role & a Provider-Agnostic Baseline
 
-**8 questions · ~25 min plus the practical**
+**9 questions · ~27 min plus the practical**
 Weighted toward application and diagnosis. Answer key with explanations follows the questions.
 
 ---
@@ -84,7 +84,20 @@ For each of these, recommend a backend and give one sentence of reasoning:
 
 ---
 
-## Q8 — Practical
+## Q8 — Multiple choice
+
+Your team develops against `qwen3.5:4b` on Ollama and ships on a hosted frontier model by changing only the base URL, key, and model name. A teammate proposes running the merge-gating eval suite on the local model too, since "the code path is identical and it's free."
+
+What is the strongest objection?
+
+A. Local quality, caching, latency, and provider features all differ, so a local pass says little about production
+B. Ollama's OpenAI-compatible endpoint returns a different response shape, so the eval harness would have to be rewritten for it
+C. Local runs are slower than hosted calls, so the gate would push CI past its time budget on every merge
+D. Small models are non-deterministic at `temperature=0`, while hosted frontier models return identical output every time
+
+---
+
+## Q9 — Practical
 
 Extend your `LLMClient` so every call emits a `CallRecord` containing `request_id`, `call_site`, tokens in/out, cost, TTFT, total latency, and `finish_reason`. Run 50 requests across two backends and produce a summary table with calls per request, p50/p95 request latency, mean cost per request, and total spend.
 
@@ -166,7 +179,13 @@ Quality matters most, volume is trivial, and engineering time is the scarce reso
 
 **Full credit** requires the reasoning to reference the constraint that dominates each case — latency and per-request cost, total volume, and time-to-demo respectively.
 
-## Q8 — Practical rubric
+## Q8 — **A**
+
+The seam makes the *code* identical, not the *system*. Small local models lag on knowledge and hallucinate more, and Ollama's compatibility endpoints lack provider features such as prompt caching and `tool_choice`, so a gating eval on the local model measures a different system. Local is for fast, free development; the gate runs on the production model (Lesson 1.2, Lesson 3.5).
+
+**B** is wrong: Ollama serves the OpenAI-compatible shape, which is the point of the seam. **C** may be true on some machines but is a cost-of-CI argument, not a validity one. **D** is wrong twice: neither local nor hosted models are deterministic at `temperature=0` (Lesson 1.3).
+
+## Q9 — Practical rubric
 
 | Criterion | Full credit |
 |---|---|

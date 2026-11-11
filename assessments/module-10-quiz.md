@@ -1,6 +1,6 @@
 # Module 10 Quiz — Serving, Deployment & Performance
 
-**9 questions · ~35 min plus the practical**
+**10 questions · ~37 min plus the practical**
 
 This module maps most directly onto the interview deep-dive, so the questions are framed the way that round frames them.
 
@@ -135,7 +135,20 @@ COST GATE: FAILED    $0.0026 → $0.0071 (+173%)
 
 ---
 
-## Q9 — Practical
+## Q9 — Multiple choice
+
+A 25-minute full eval of experiment branch `exp/rerank-k8` is running in your only checkout when a production bug on `main` needs a fix now. You also want a coding agent to try a second experiment at the same time.
+
+What is the best setup?
+
+A. Stash the experiment, switch to `main` for the fix, then switch back and restart the eval from the beginning
+B. Clone the repository twice more so each task has a separate copy with its own history and remotes
+C. Add a worktree per branch: fix `main` in one, give the agent its own; recreate `.env` and separate the stacks
+D. Check out `main` in a second worktree while the first one also stays on `main`, then cherry-pick the fix
+
+---
+
+## Q10 — Practical
 
 Take the supplied slow agent endpoint in `exercises/m10-latency-halving/` and cut p95 latency by half without losing eval score.
 
@@ -237,7 +250,13 @@ The second user receives the batch endpoint's limits, presented confidently, wit
 
 **(c)** Without it: the PR merges green, spend rises 173%, and someone notices at the end of the billing period. The investigation then has to reconstruct which of several weeks of merges caused it — the exact "week-eight surprise" scenario Lesson 1.4 opens with.
 
-## Q9 — Practical rubric
+## Q9 — **C**
+
+Worktrees give one directory per branch from a single repository, so the running eval is never disturbed, the fix happens in parallel, and the agent's edits cannot collide with yours. Each worktree is a fresh checkout, so gitignored files such as `.env` must be recreated and each Compose stack needs its own project name and ports.
+
+**A** throws away the running eval and changes files under a running process. **B** works but duplicates history and remotes and drifts out of sync, which worktrees avoid. **D** fails because Git refuses to check out the same branch in two worktrees.
+
+## Q10 — Practical rubric
 
 | Criterion | Full credit |
 |---|---|

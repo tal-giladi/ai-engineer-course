@@ -1,6 +1,6 @@
 # Module 2 Quiz — Structured Output & Prompting as Engineering
 
-**8 questions · ~25 min plus the practical**
+**9 questions · ~27 min plus the practical**
 
 ---
 
@@ -112,7 +112,20 @@ What would you expect to happen on a backend with no prefix caching?
 
 ---
 
-## Q8 — Practical
+## Q8 — Multiple choice
+
+Your extraction service calls a hosted provider's API. Every output must match a 9-field schema, and `invoice_date` must not be later than `due_date`. Format failures and date-order violations both reach production today.
+
+Which design fits best?
+
+A. Run the model yourself on vLLM so constrained decoding can enforce both the schema and the date rule
+B. Use the provider's native structured outputs, then a validator with a bounded repair loop for the date rule
+C. Keep prompt-only JSON and raise the repair budget to 5 attempts, since each repair fixes most failures
+D. Use tool-call shaping and encode the date rule as a JSON Schema `minimum` constraint on `due_date`
+
+---
+
+## Q9 — Practical
 
 Build an extractor for messy invoice text that **never returns an invalid object**. Inputs include mixed formats, missing fields, two languages, and one OCR-mangled scan.
 
@@ -199,7 +212,13 @@ Without the field, the investigation has no starting point.
 
 **Which is exactly why the ordering discipline is applied unconditionally** (it never hurts, and it is free) **while the caching mechanism sits behind a capability check** (Lesson 1.2's rule).
 
-## Q8 — Practical rubric
+## Q8 — **B**
+
+On a hosted API you cannot touch the sampler, so the provider's native structured outputs are the strongest shape guarantee available. The date rule is a cross-field semantic constraint that JSON Schema cannot express, so it belongs in a Pydantic validator with a bounded, classified repair loop (Lesson 2.3).
+
+**A** changes the hosting model to solve a problem the hosted API already solves, and constrained decoding still cannot express "date A before date B". **C** keeps the weakest rung and spends money on attempts that the recovery table shows rarely pay off. **D** fails because JSON Schema `minimum` applies to numbers, not to a comparison between two date fields.
+
+## Q9 — Practical rubric
 
 | Criterion | Full credit |
 |---|---|
