@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    Your agent endpoint is fine at 5 concurrent users but p95 jumps to a minute at 20, and CPU sits
+    near 15%. The model calls already use an async client. Where is the problem most likely to be?
+  options:
+    - >-
+      The model provider is slow at peak, so switching to a faster model will remove the ceiling.
+    - >-
+      The server has too few CPU cores, so adding workers on a bigger machine will fix it.
+    - >-
+      A blocking call elsewhere in the path, like a sync DB driver or a tool's sync HTTP client.
+    - >-
+      The response is streamed, and streaming holds connections open too long under higher load.
+  correct: 2
+  explanation: >-
+    Low CPU with collapsing latency means workers are waiting, not working. One blocking call
+    serializes a whole worker, and it is usually not the model call but a database driver, a tool,
+    or a CPU-bound reranker on the event loop.
+- id: q2
+  question: >-
+    You added `task.cancel()` when a client disconnects, and the agent now stops taking new steps.
+    Yet your provider bill for abandoned requests barely moved. What is still missing?
+  options:
+    - >-
+      Aborting the in-flight model call, since closing that connection is what stops the meter.
+    - >-
+      Recording the cancelled request in telemetry, since unrecorded spend is billed at a higher rate.
+    - >-
+      Saving a checkpoint on disconnect, because only checkpointed runs are released by the provider.
+    - >-
+      Returning a 429 to the disconnected client, so the provider sees the request as rejected early.
+  correct: 0
+  explanation: >-
+    Stopping the loop is half the fix: the model call already in flight keeps generating and
+    billing until its connection is closed. Telemetry matters too, but it records the spend rather
+    than stopping it.
+- id: q3
+  question: >-
+    Your provider quota supports about 30 concurrent agent runs. At launch, traffic spikes to 80
+    concurrent requests and every request slows down until most time out. What is the right fix?
+  options:
+    - >-
+      Raise the worker count so the service accepts all 80 requests and processes them in parallel.
+    - >-
+      Increase the request timeout so slow requests finish instead of failing at the load balancer.
+    - >-
+      Buffer the full response before sending it, so each request holds its connection for less time.
+    - >-
+      Bound concurrency to the quota and return a fast explicit 429 when no slot frees up quickly.
+  correct: 3
+  explanation: >-
+    Capacity is the provider quota, not your CPU, so accepting more requests only grows the queue.
+    A fast 429 lets clients back off and keeps p95 meaningful, which beats a slow implicit timeout.
+- id: q4
+  question: >-
+    Your agent streams typed SSE events. During one tool call that takes 40 seconds with no output,
+    users see the stream end with no error, and the run is otherwise fine. What should you add?
+  options:
+    - >-
+      A token-only stream format, since typed events add overhead that slows long tool calls down.
+    - >-
+      Keepalive heartbeats, so a proxy's idle timeout is not tripped during silent stretches.
+    - >-
+      A larger buffer on the service, so the tool's output is held and sent in one piece at the end.
+    - >-
+      A retry wrapper on the client that silently reconnects and starts the whole agent run again.
+  correct: 1
+  explanation: >-
+    A long silent stretch can trip a proxy or load balancer idle timeout, which looks like a dropped
+    connection. Heartbeats keep the connection alive, and real failures should arrive as error
+    events rather than silence.

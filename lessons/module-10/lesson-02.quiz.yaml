@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    A team tried self-hosting an 8B model with a `transformers` loop calling `generate()` per
+    request, got about 3 requests per second at 22% GPU utilization, and concluded the GPU is too
+    small. What is the better reading?
+  options:
+    - >-
+      The model is too large for one GPU, so they should shard it with tensor parallelism first.
+    - >-
+      The serving stack is the problem; continuous batching and paged KV cache fix most of it.
+    - >-
+      Self-hosting cannot match hosted APIs on throughput, so they should stay on the hosted model.
+    - >-
+      Quantizing the model to 4-bit would bring throughput up to hosted levels on the same GPU.
+  correct: 1
+  explanation: >-
+    Low GPU utilization points at static batching and wasted KV-cache memory, not at weak hardware.
+    vLLM's continuous batching and PagedAttention gave about 13 times the throughput on identical
+    hardware in the lesson's example.
+- id: q2
+  question: >-
+    Your measured context lengths are p50 2,100, p99 7,900 and max 12,400 tokens. A colleague wants
+    `--max-model-len 32768` to be safe. What should you do?
+  options:
+    - >-
+      Use 32,768, since an unused context limit costs nothing until a long request arrives.
+    - >-
+      Use 16,384, so the maximum fits with headroom and no request ever has to go elsewhere.
+    - >-
+      Use 4,096, since it covers the median and long requests can simply be truncated to fit.
+    - >-
+      Use 8,192 to cover p99, and route the rare longer requests to a hosted model instead.
+  correct: 3
+  explanation: >-
+    Concurrency is bounded by KV-cache memory, so doubling maximum context roughly halves it. 32,768
+    would cost about four times the capacity to serve 0.1% of requests, which one routing branch
+    handles instead.
+- id: q3
+  question: >-
+    An extraction workload runs 50,000 requests a month. Hosted pricing comes to about $105 a month,
+    and one GPU instance costs about $1,050 a month. Which choice fits this volume?
+  options:
+    - >-
+      Stay hosted, because a GPU billed every hour sits idle at this volume and costs 10x more.
+    - >-
+      Self-host, because owning the model removes per-token pricing and is always cheaper long term.
+    - >-
+      Self-host on a smaller GPU, since throughput needs are low and that closes the price gap fully.
+    - >-
+      Stay hosted only until fine-tuning is done, then move, since tuned models always self-host.
+  correct: 0
+  explanation: >-
+    Self-hosting pays per GPU-hour whether used or not, so at low or spiky volume per-token pricing
+    wins. Break-even for this shape was around 500,000 requests a month, and operations time adds to
+    the self-hosted side.
+- id: q4
+  question: >-
+    You cut retrieved context from about 6,000 to 3,000 tokens per request without losing quality.
+    On your vLLM deployment, what else does this change?
+  options:
+    - >-
+      Nothing for serving, since vLLM pre-allocates the maximum length for every sequence anyway.
+    - >-
+      Only the cost per request, since token count affects price but not how many requests run.
+    - >-
+      It raises how many sequences fit in the KV cache, so serving capacity goes up as well.
+    - >-
+      It lowers GPU memory for the weights, so a larger model can now fit on the same instance.
+  correct: 2
+  explanation: >-
+    KV cache per sequence scales with context length, and PagedAttention allocates it on demand.
+    Shorter contexts mean more concurrent sequences, so trimming context is a capacity decision, not
+    only a cost one.

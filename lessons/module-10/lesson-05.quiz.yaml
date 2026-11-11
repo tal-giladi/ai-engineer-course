@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    After `docker compose up`, the vLLM container is marked unhealthy and restarted again and again,
+    and the API never starts. Run on its own, vLLM serves fine after about two minutes. What do you
+    change?
+  options:
+    - >-
+      Bake the model weights into the image so the container no longer has to load them at start.
+    - >-
+      Remove the vLLM health check so Compose stops restarting the container while it warms up.
+    - >-
+      Give the health check a `start_period` that covers the weight load, such as 180 seconds.
+    - >-
+      Make the API depend on vLLM starting instead of on vLLM reporting itself as healthy.
+  correct: 2
+  explanation: >-
+    vLLM needs 60 to 180 seconds to load weights, so a short start period marks it unhealthy
+    forever. Keep the health check and readiness-based ordering, and mount weights rather than
+    baking them in.
+- id: q2
+  question: >-
+    A reviewer clones your portfolio repo on a laptop with no GPU, and the stack fails because the
+    vLLM service cannot start. What design choice prevents this?
+  options:
+    - >-
+      A `hosted` Compose profile that swaps vLLM for a hosted model, so no GPU is needed.
+    - >-
+      A README note asking reviewers to rent a GPU instance before trying out the project.
+    - >-
+      A quantized model in the default stack, so vLLM can run on the reviewer's laptop CPU.
+    - >-
+      A recorded demo video in place of a runnable stack, since most reviewers lack a GPU.
+  correct: 0
+  explanation: >-
+    A CPU-only profile through the existing client seam lets everyone run the project. In Module 12
+    a reviewer spends a few minutes on the repo, so a stack that will not start loses them.
+- id: q3
+  question: >-
+    On merge, the eval gate passes (0.871 to 0.869, within band) but the cost gate fails: $0.0026
+    to $0.0071 per request, with the `validate` call site up 750%. The PR was already approved.
+    What is the right response?
+  options:
+    - >-
+      Override the cost gate, since quality held and the reviewer already approved the change.
+    - >-
+      Raise the cost limit to 200%, since cost gates that fail on approved PRs cause friction.
+    - >-
+      Rerun the full tier, since eval runs are non-deterministic and the cost may come back down.
+    - >-
+      Treat it as a real regression and use the `call_site` breakdown to find what changed.
+  correct: 3
+  explanation: >-
+    A quality-only gate would have shipped a near tripling of cost that shows up later as an
+    unexplained bill. The `call_site` breakdown points straight at validation, where sampling had
+    been bypassed.
+- id: q4
+  question: >-
+    You create a worktree for `exp/rerank-k8` and run `make eval-full` there. It fails because the
+    provider key is missing, and starting its Compose stack clashes with the one running from your
+    main checkout. What explains both problems?
+  options:
+    - >-
+      Git shares one working directory across worktrees, so the two branches overwrite each other.
+    - >-
+      Each worktree is a fresh checkout without gitignored files, and needs its own project name.
+    - >-
+      The experiment branch is also checked out in the main directory, so Git blocks its use there.
+    - >-
+      Worktrees cannot run Docker, so the experiment must be moved into a separate full clone first.
+  correct: 1
+  explanation: >-
+    Gitignored files like `.env` are not copied into a new worktree, so recreate them. Give each
+    stack its own Compose project name with `-p` and its own ports so the two do not collide.

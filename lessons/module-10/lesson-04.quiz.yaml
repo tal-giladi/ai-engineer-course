@@ -1,0 +1,75 @@
+- id: q1
+  question: >-
+    Production p95 is 2.4 times the staging figure. Logs show every operation succeeding in tens of
+    milliseconds. The trace shows eight vector searches and a large rerank inside one `search_docs`
+    call. What is the most likely cause?
+  options:
+    - >-
+      A cache keyed on the wrong query plus a retry re-running the whole multi-query expansion.
+    - >-
+      A slow vector index in production, since each search takes much longer there than in staging.
+    - >-
+      The reranker model is too large, so it should be replaced with a smaller one to cut latency.
+    - >-
+      The model is calling `search_docs` too often, so the agent's step limit needs to be lowered.
+  correct: 0
+  explanation: >-
+    Each search is fast; the problem is that one tool call repeats retrieval eight times. Logs record
+    points in time, so only the span tree shows that relationship, and the lesson traced it to a
+    mis-keyed cache and a retry wrapper.
+- id: q2
+  question: >-
+    Offline refusal accuracy is 0.86, but online evaluation on a 10% sample shows 0.61. Low-scoring
+    traces cluster around pricing and billing questions the corpus does not cover. Which response
+    fixes this for the long term?
+  options:
+    - >-
+      Recalibrate the judge, since a 25-point gap means the online scores are not trustworthy.
+    - >-
+      Lower the online sampling rate, since a 10% sample overweights unusual production questions.
+    - >-
+      Add real pricing questions to the golden set as a new out-of-scope sub-stratum.
+    - >-
+      Add pricing documents to the corpus so the model can answer those questions from sources.
+  correct: 2
+  explanation: >-
+    The gap shows the golden set never contained this kind of out-of-scope question. A scope
+    classifier is the quick fix, but adding real production cases is what stops the gap from
+    silently coming back.
+- id: q3
+  question: >-
+    You are adding tracing to the service and need an identifier for each trace. You want to jump
+    from a trace straight to the agent run's saved state for time-travel debugging. Which ID should
+    you use?
+  options:
+    - >-
+      A fresh UUID per span, so every operation in the tree can be looked up on its own.
+    - >-
+      The existing `request_id`, which is already the call record and checkpoint thread ID.
+    - >-
+      The prompt version string, since it links each trace to the prompt that produced it.
+    - >-
+      The user's account ID, so every trace for one person groups together in a single view.
+  correct: 1
+  explanation: >-
+    The `request_id` from Lesson 1.4 is already your telemetry correlation ID and the Module 7
+    checkpoint thread ID. Using it as the trace ID ties telemetry, traces and checkpoints together
+    with one key.
+- id: q4
+  question: >-
+    Your tracer captures full prompts, retrieved documents, tool arguments and answers for every
+    request, stored with no expiry. What is the right way to handle this store?
+  options:
+    - >-
+      Keep full capture so debugging is easy, and redact personal data later in a monthly cleanup.
+    - >-
+      Treat it like log files, since traces hold only technical data and no user content anyway.
+    - >-
+      Turn tracing off in production, since storing user content in traces cannot be made safe.
+    - >-
+      Redact at capture, set retention, restrict access, and sample rather than keep all.
+  correct: 3
+  explanation: >-
+    Traces can be the most sensitive store in the system, so they get production-database
+    controls. Redacting after storage is too late, and a 10% sample answers most questions at a
+    tenth of the exposure.

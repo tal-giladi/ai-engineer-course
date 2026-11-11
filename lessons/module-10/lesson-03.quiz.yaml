@@ -1,0 +1,71 @@
+- id: q1
+  question: >-
+    Traces show p95 of 8,400 ms: generation 29%, two independent rerank calls run one after the
+    other 35%, and a citation-validation model call on every request 29%. Which change comes first?
+  options:
+    - >-
+      Switch generation to a faster model, since generation is the stage users notice most.
+    - >-
+      Add a semantic cache, since it removes the most latency of any technique in one change.
+    - >-
+      Trim retrieval to fewer chunks, since less context speeds up every stage after retrieval.
+    - >-
+      Run the two rerank calls in parallel, which cuts latency with zero quality risk.
+  correct: 3
+  explanation: >-
+    Start with free wins found by the decomposition. Parallelizing independent stages saves time at
+    zero quality risk, while a 30% faster generation would only cut total p95 by about 9%.
+- id: q2
+  question: >-
+    A semantic cache sweep gives quality 0.79 at threshold 0.90, 0.84 at 0.94, 0.87 at 0.97 and 0.87
+    at 0.99. Baseline quality is 0.87 and the floor is 0.85. Hit rates fall from 41% to 6%. Which
+    threshold do you pick?
+  options:
+    - >-
+      0.90, because the 41% hit rate gives the biggest latency and cost win of the four values.
+    - >-
+      0.97, because it keeps baseline quality while still serving about a fifth of requests.
+    - >-
+      0.94, because it sits in the middle of the curve and balances hit rate against quality.
+    - >-
+      0.99, because the highest threshold is always the safest choice for a cache like this.
+  correct: 1
+  explanation: >-
+    0.90 and 0.94 fall below the quality floor because near-miss queries get wrong cached answers.
+    0.99 gives up most of the benefit for no extra quality, so 0.97 is the point on the curve to
+    choose.
+- id: q3
+  question: >-
+    You want to use batching to cut cost. The system has an interactive chat endpoint and a nightly
+    job that re-embeds and re-indexes changed documents. Where does batching belong?
+  options:
+    - >-
+      On the chat endpoint, because users send many requests and grouping them cuts cost the most.
+    - >-
+      On both paths equally, since batching lowers cost wherever it is applied without trade-offs.
+    - >-
+      On the nightly ingestion job, since filling a batch adds latency to interactive calls.
+    - >-
+      On neither path, since provider prefix caching already gives the same savings as batching.
+  correct: 2
+  explanation: >-
+    Batching is a large win for bulk paths like ingestion, backfills and eval runs. On the
+    interactive path you wait to fill a batch, which adds latency users feel.
+- id: q4
+  question: >-
+    Your SLO is p95 under 3,000 ms with a quality floor of 0.85. Trimming retrieval from 5 chunks to
+    3 cuts p95 by 13% and cost by 19%, but quality drops to 0.81, mostly on multi-hop questions.
+    What do you do?
+  options:
+    - >-
+      Revert it and record the measured result and the reason in the eval report.
+    - >-
+      Keep it, since the latency and cost gains are larger than the quality loss here.
+    - >-
+      Keep it, and lower the quality floor to 0.80 so the change now meets the SLO.
+    - >-
+      Keep it for multi-hop questions only, since the loss there is easy to accept.
+  correct: 0
+  explanation: >-
+    A change that pushes quality below the floor is reverted, whatever it saves. The recorded revert
+    is one of the most credible lines in the eval report because it shows the gate actually worked.

@@ -1,0 +1,183 @@
+- id: q1
+  question: >-
+    In an interview deep-dive you are shown a service at p95 9.1 s with 5 concurrent users that
+    collapses at 20 (p95 61 s, 12% errors) while CPU stays at 14%. What is the best diagnosis?
+  options:
+    - >-
+      The provider is throttling at 20 users, so the fix is a higher quota or a faster model.
+    - >-
+      The machine is undersized, so the fix is more CPU cores and more workers per container.
+    - >-
+      A blocking call holds a worker while waiting: a sync DB driver, tool or reranker.
+    - >-
+      Streaming keeps too many connections open, so the fix is to buffer responses instead.
+  correct: 2
+  explanation: >-
+    Low CPU with collapsing latency means workers are waiting while holding an execution slot. Look
+    for a synchronous database driver, a Module 6 tool using a sync HTTP library, or CPU-bound work
+    such as a local reranker on the event loop; the model call is usually not the culprit.
+- id: q2
+  question: >-
+    Twenty percent of clients disconnect about three seconds into a nine-second agent run. Your load
+    test report shows good latency and no errors. Why does this waste not appear in the report?
+  options:
+    - >-
+      A cancelled request is neither an error nor a latency sample, so it needs its own metric.
+    - >-
+      Load tests always reuse cached responses, so no tokens are billed for disconnected clients.
+    - >-
+      Providers refund tokens for disconnected clients, so the waste only appears on the invoice.
+    - >-
+      The disconnects show up as errors, but the report rounds them away below one percent.
+  correct: 0
+  explanation: >-
+    Standard reports measure latency, throughput and error rate, and an abandoned request counts as
+    none of these. You keep paying for the rest of the run until cancellation reaches the provider
+    connection, so wasted spend has to be measured on purpose.
+- id: q3
+  question: >-
+    Traces put p95 at 8,400 ms, with generation at 29% of the total. A colleague proposes a faster
+    model that cuts generation time by 30%. What does that do to total p95, and what does it show?
+  options:
+    - >-
+      About 30% faster overall, because generation sets the pace for every other stage downstream.
+    - >-
+      About 29% faster overall, because the whole generation stage is effectively removed.
+    - >-
+      About 15% faster overall, because the faster model also shortens the validation stage.
+    - >-
+      About 9% faster overall, an Amdahl's law case: fix the largest stage, not the visible one.
+  correct: 3
+  explanation: >-
+    30% of a 29% stage is about 8.7% of the total, roughly 730 ms. The decomposition showed the
+    sequential double rerank and the per-request citation validation as bigger, cheaper targets.
+- id: q4
+  question: >-
+    At semantic cache threshold 0.90, quality drops from 0.87 to 0.79. Failures cluster on pairs
+    like "rate limit for batch endpoints" and "rate limit for streaming endpoints" (similarity about
+    0.94). Why is this worse than a cache miss?
+  options:
+    - >-
+      A miss is slower to serve, while a false hit fails fast, so users notice it and retry at once.
+    - >-
+      A false hit returns a confident, cited, wrong answer with no error or log line to flag it.
+    - >-
+      A false hit costs more tokens than a miss, because the cached answer is regenerated anyway.
+    - >-
+      A false hit corrupts the cache entry, so every later query on that topic is also served wrong.
+  correct: 1
+  explanation: >-
+    A miss costs time and money but produces a correct answer. A near-miss hit is the response, so
+    nothing in the trace distinguishes it from a correct one; you catch it only by sweeping the
+    threshold against per-stratum quality and validating a sample of hits.
+- id: q5
+  question: >-
+    Measured contexts are p50 2,100, p95 5,800, p99 7,900 and max 12,400 tokens. vLLM supports 96
+    concurrent at 4,096, 48 at 8,192, 23 at 16,384 and 11 at 32,768. What do you deploy?
+  options:
+    - >-
+      32,768, so every request fits and the deployment never has to route traffic anywhere else.
+    - >-
+      8,192 to cover p99, with requests above it routed to a hosted profile through the seam.
+    - >-
+      16,384, which covers the max with headroom and keeps about half the capacity of 8,192.
+    - >-
+      4,096, which maximizes concurrency, with longer prompts truncated to fit the window.
+  correct: 1
+  explanation: >-
+    Capacity is KV-cache bound, so doubling max context roughly halves concurrency. 8,192 covers p99
+    with 48 concurrent sequences, and the rare longer requests take one routing branch instead of
+    costing the whole deployment four times its capacity.
+- id: q6
+  question: >-
+    One `search_docs` span takes 2,900 ms. Inside it are one embed, eight vector searches of about
+    40 ms each, and a 2,100 ms rerank. The logs for that request show nothing unusual. What is the
+    best explanation?
+  options:
+    - >-
+      The vector index is degraded, so each search is slow and the rerank waits on the results.
+    - >-
+      The logs are sampled at 10%, so the slow searches were most likely dropped before storage.
+    - >-
+      The reranker is overloaded, so it should move to a thread pool to free up the event loop.
+    - >-
+      Retrieval runs eight times, e.g. a mis-keyed cache plus a retry re-running the tool.
+  correct: 3
+  explanation: >-
+    Every operation succeeded quickly, so no single log line is anomalous; the problem is the
+    relationship between eight of them, which only a span tree shows. A cache keyed on the original
+    instead of the rewritten query, plus a retry re-invoking the tool, produces exactly this.
+- id: q7
+  question: >-
+    Offline refusal accuracy is 0.86 and online is 0.61. Low-scoring traces are pricing and billing
+    questions, while every out-of-scope item in the golden set is technical. You add a scope
+    classifier that refuses billing topics. What is the more important second fix?
+  options:
+    - >-
+      Add real pricing questions from production to the golden set's out-of-scope stratum.
+    - >-
+      Retrain the judge on billing data, since the online scores disagree with the offline ones.
+    - >-
+      Raise online sampling to 100% so every future out-of-scope gap is caught on the first day.
+    - >-
+      Remove refusal accuracy from online evaluation, since it is too noisy on production input.
+  correct: 0
+  explanation: >-
+    The offline set is a guess about production, and the gap measures how good that guess is. The
+    classifier stops today's leak, but only new test cases keep the gap from silently returning when
+    inputs shift again.
+- id: q8
+  question: >-
+    CI on main reports: eval gate passed (0.871 to 0.869, within band), cost gate failed ($0.0026 to
+    $0.0071, +173%), with the `validate` call site up 750%. What would have happened without the
+    cost gate?
+  options:
+    - >-
+      The eval gate would have caught it later, since a cost spike always lowers quality in the end.
+    - >-
+      Nothing serious, since the provider caps spend automatically once usage jumps that sharply.
+    - >-
+      It would merge green and appear weeks later as a bill with no obvious change to blame.
+    - >-
+      The reviewer would have caught it, since the PR diff shows the new validation call clearly.
+  correct: 2
+  explanation: >-
+    A quality-only gate has no view of cost, so the change ships. The `call_site` field from Lesson
+    1.4 is what turned the investigation into a ten-second lookup pointing at validation.
+- id: q9
+  question: >-
+    A 25-minute full eval of `exp/rerank-k8` is running in your only checkout when a production bug
+    on `main` needs a fix now. You also want a coding agent to try a second experiment at the same
+    time. What is the best setup?
+  options:
+    - >-
+      Stash the experiment, switch to `main` for the fix, then switch back and restart the eval.
+    - >-
+      Clone the repository twice more so each task has a separate copy with its own remotes.
+    - >-
+      Check out `main` in a second worktree while the first stays on `main`, then cherry-pick.
+    - >-
+      Add a worktree per branch, recreate `.env` in each, and give each stack its own name.
+  correct: 3
+  explanation: >-
+    Worktrees give one directory per branch from one repository, so the eval is undisturbed and the
+    agent's edits cannot collide with yours. Stashing changes files under a running process, extra
+    clones drift apart, and Git refuses the same branch in two worktrees.
+- id: q10
+  question: >-
+    A reviewer clones your repo, follows the README and gets stuck: the API cannot reach the
+    database because a migration you ran by hand months ago never ran, and the index is empty. Which
+    practice would have caught this before the reviewer did?
+  options:
+    - >-
+      Adding more unit tests with mocked model calls, so every code path runs in the fast CI tier.
+    - >-
+      Running the clean-clone test: a fresh directory, following your own README literally.
+    - >-
+      Raising the health-check `start_period` so slow services have time to finish their setup.
+    - >-
+      Baking the database state into the image so every reviewer starts from the same snapshot.
+  correct: 1
+  explanation: >-
+    The clean-clone test surfaces exactly these hidden assumptions: hand-run migrations, shell
+    variables and cached models. Run it twice, and seed a demo corpus so the first query works.
