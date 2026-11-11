@@ -2,7 +2,7 @@
 id: "06.2"
 module: 6
 minutes: 13
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["06.1"]
 objectives:
   - "Write an agent loop by hand and explain every control-flow decision inside it."

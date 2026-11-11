@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    Your agent has `query_customer_db` (read-only) and `send_email`. A reviewer says the database
+    tool needs no special controls because it has no side effects. Why is that wrong?
+  options:
+    - >-
+      It is a high-sensitivity read: the source of a leak once paired with an outbound tool.
+    - >-
+      Read-only tools can still change data through their queries, so they count as write tools.
+    - >-
+      Every tool needs a human approval gate, whatever its sensitivity or reversibility may be.
+    - >-
+      The database tool is slow, so it needs per-tool rate limits to protect the agent's budget.
+  correct: 0
+  explanation: >-
+    High-sensitivity read tools feel safe because they change nothing, but a tool that reads
+    customer records plus any tool that sends data outward is an exfiltration path waiting for
+    a trigger.
+- id: q2
+  question: >-
+    In a multi-tenant app, the agent's `get_orders` tool uses the application's database connection
+    and adds `WHERE tenant_id = :tenant` from an argument the model fills in. What is the stronger
+    design?
+  options:
+    - >-
+      Keep the WHERE clause but tell the model in the description never to change the tenant value.
+    - >-
+      Validate that the tenant argument is a well-formed ID before the query is ever executed.
+    - >-
+      Log every query with its tenant value, so cross-tenant reads can be caught in the audit later.
+    - >-
+      Run the tool with a credential scoped to the requesting tenant, not a filter the model sets.
+  correct: 3
+  explanation: >-
+    Tenant scope belongs in the credential, where the model cannot influence it. A WHERE clause
+    built from a model-chosen argument is exactly what an adversarial argument would change.
+- id: q3
+  question: >-
+    A team adds an approval gate to every tool, including search and calculator. After a week,
+    reviewers approve almost everything within seconds. What has gone wrong?
+  options:
+    - >-
+      Nothing; a high approval rate shows the agent is choosing its actions correctly.
+    - >-
+      Gates that fire constantly breed reflexive approval; gate only the irreversible tools.
+    - >-
+      The reviewers need more training, so add a quiz before each one can approve actions.
+    - >-
+      The gate should block for longer, so reviewers are forced to read each request in full.
+  correct: 1
+  explanation: >-
+    Gates must be rare. A gate on every action produces reflexive approval within a day, leaving
+    the ceremony of a control without the control, so reserve gates for irreversible, consequential
+    tools.
+- id: q4
+  question: >-
+    You are adding a Python code-execution tool to the agent. Retrieved files may contain text that
+    nudges the model to write extra code. Which single change does the most to stop data leaving
+    the system?
+  options:
+    - >-
+      A system prompt telling the model never to write code that sends data over the network.
+    - >-
+      A static scan of the generated code that rejects any `import` of networking libraries.
+    - >-
+      Running each execution in a fresh container with `network_mode: none` set on it.
+    - >-
+      Running the code as the service user but with a short wall-clock timeout on every execution.
+  correct: 2
+  explanation: >-
+    Code execution is arbitrary remote code execution by design, and no prompt makes it safe.
+    Without network access most exfiltration paths from inside the sandbox simply do not exist.

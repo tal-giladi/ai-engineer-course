@@ -1,0 +1,75 @@
+- id: q1
+  question: >-
+    A teammate says the agent "deleted a record by itself" after the model emitted a
+    `delete_record` tool call. Where in the tool-calling round trip did the deletion actually
+    happen, and where should the check that would have stopped it live?
+  options:
+    - >-
+      Inside the model, so the fix is a stronger system prompt telling it never to delete.
+    - >-
+      In the provider's API, so the fix is disabling that tool in the provider console.
+    - >-
+      In your code, which executed the call; validation and authorization belong there.
+    - >-
+      In the tool schema, so the fix is marking the delete parameter as optional instead.
+  correct: 2
+  explanation: >-
+    The model only emits a request; your code decides whether to honour it and runs the function.
+    That execution step is where validation, authorization and every other safety property live.
+- id: q2
+  question: >-
+    Your agent has a single tool, `search` / "Searches.", and keeps calling it for pricing
+    questions that a separate pricing tool handles. You cannot change the model. What change is
+    most likely to raise selection accuracy?
+  options:
+    - >-
+      Rename it `search_docs` and say when to use it and what it does not cover, like pricing.
+    - >-
+      Merge the pricing tool into `search` so the model only ever has one tool to choose from.
+    - >-
+      Add three more narrow search tools so each kind of question has a dedicated option.
+    - >-
+      Retry the call with a higher temperature whenever the model picks the wrong tool for a query.
+  correct: 0
+  explanation: >-
+    The model picks tools from their names and descriptions, so a "use this when" and a "does not
+    cover" clause fix selection without touching the model. More overlapping tools make selection
+    worse, not better.
+- id: q3
+  question: >-
+    An agent works in short tests but fails around step 7 of real tasks with errors that seem
+    unrelated to any tool. Logs show `get_account` returns the raw internal API JSON, about 6,000
+    tokens per call. What is the most likely cause and fix?
+  options:
+    - >-
+      The model loses track of the task over many steps; switch to a larger model with more reasoning.
+    - >-
+      The API is flaky on long runs; add retries with backoff around each `get_account` call.
+    - >-
+      The tool schema is too loose; add enums and length limits to the `get_account` arguments.
+    - >-
+      Results pile up and exhaust the context; project the fields needed and cap the result size.
+  correct: 3
+  explanation: >-
+    Every tool result stays in the conversation for all later turns, so oversized raw results
+    exhaust the context window a few steps in. Returning only what the model needs, with a hard cap
+    and visible truncation, lets the run finish.
+- id: q4
+  question: >-
+    In one turn the model emits three tool calls: `create_ticket`, `create_ticket` with the same
+    arguments, and `get_ticket_status` for the ticket being created. You run all tool calls
+    concurrently by default. What is the problem?
+  options:
+    - >-
+      None; calls emitted together in one turn are always independent, so concurrency is always safe.
+    - >-
+      The status call depends on the create, and the duplicate create runs as a second real write.
+    - >-
+      Concurrent calls share one rate limit per turn, so the third call will always be rejected.
+    - >-
+      The model will ignore all three results unless they come back in the exact order emitted.
+  correct: 1
+  explanation: >-
+    Models sometimes emit dependent calls together, and parallel writes are real writes that
+    multiply side effects. Run concurrently only tools that are genuinely independent and serialize
+    the rest.

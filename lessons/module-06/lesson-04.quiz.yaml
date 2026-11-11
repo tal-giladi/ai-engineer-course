@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    Your agent's `crm_lookup` tool starts returning 403 Forbidden after a credential rotation.
+    The current loop passes the error back to the model, which keeps retrying with different
+    arguments. What should the policy be?
+  options:
+    - >-
+      Keep returning the error, but cap the model at two retries for this tool before moving on.
+    - >-
+      Retry the call with backoff in your code, since most errors clear up after a short wait.
+    - >-
+      Fail the run and alert; the model cannot fix auth, and repeated 403s look like an attack.
+    - >-
+      Return an empty result to the model, so it treats the lookup as "not found" and continues.
+  correct: 2
+  explanation: >-
+    Your code handles what the model cannot fix. An auth failure is not something new arguments
+    can solve, and repeated attempts look like an attack, so the run should fail and someone
+    should be alerted.
+- id: q2
+  question: >-
+    A product page shows "Something went wrong, try again" whenever the agent stops early, whether
+    it ran out of budget or concluded the docs do not cover the question. What is wrong with this?
+  options:
+    - >-
+      Nothing; from the user's point of view both cases simply mean the agent failed to give an answer.
+    - >-
+      A refusal is a correct finished answer, while an exhausted budget means it could not finish.
+    - >-
+      Budget exhaustion should be hidden and retried automatically, so only refusals are shown.
+    - >-
+      Both cases should be logged as bugs, because a well-built agent always produces an answer.
+  correct: 1
+  explanation: >-
+    `REFUSED` means "I finished, and the answer is no"; `BUDGET_EXHAUSTED` means "I could not
+    finish" and should show partial findings and offer to continue. Callers must be able to tell
+    them apart.
+- id: q3
+  question: >-
+    Your agent loop checks the cost budget after each model call returns, and stops if the total
+    is over the limit. In production, some runs still end well above `max_cost_usd`. Why?
+  options:
+    - >-
+      The cost limit is too low for real tasks and should be raised to the p95 of observed spend.
+    - >-
+      Cost cannot be bounded per run, so it should be tracked only in a daily billing dashboard.
+    - >-
+      Token prices change between calls, so any per-run cost figure is always an estimate anyway.
+    - >-
+      Checking after the call means the spend has already happened; check before each call.
+  correct: 3
+  explanation: >-
+    Budgets must be checked before each model call and each tool execution. Exceeding a budget
+    and then doing the work anyway is not a budget.
+- id: q4
+  question: >-
+    Your chaos harness injects timeouts, connection errors and permission errors, and the agent
+    now handles all of them cleanly. Which injected failure is most likely to reveal a problem
+    the existing controls do not catch?
+  options:
+    - >-
+      Wrong but well-formed data, which tests whether the agent notices bad results at all.
+    - >-
+      A larger number of timeouts, to make sure retry with backoff works under heavy load.
+    - >-
+      Rate-limit errors, so you can confirm the tool is removed for the rest of the run.
+    - >-
+      Malformed tool calls from the model, to check the repair loop stays within its budget.
+  correct: 0
+  explanation: >-
+    Plausible garbage is the most valuable and most often skipped case. Agents usually accept it
+    and produce a confident wrong answer, which no error-handling control catches; it is a
+    grounding and verification problem.

@@ -1,0 +1,73 @@
+- id: q1
+  question: >-
+    On step 7 of a 20-step run, the model emits a tool call with an argument that fails Pydantic
+    validation. In your hand-written loop the exception escapes and the whole run dies. What is
+    usually the better policy?
+  options:
+    - >-
+      Let it crash, because a malformed call means the model is unreliable for this whole task.
+    - >-
+      Return the validation error as a tool result so the model can correct it, within a budget.
+    - >-
+      Silently drop the invalid call and continue the loop as if the model had emitted nothing.
+    - >-
+      Fill the invalid argument with a safe default value and execute the call without telling it.
+  correct: 1
+  explanation: >-
+    Returning the error lets the model repair its own call, the same repair loop as for structured
+    output. It needs a retry budget so a model that keeps failing cannot loop forever.
+- id: q2
+  question: >-
+    A user reports a wrong final answer from a 15-step agent run. You have the final answer and the
+    per-call cost metrics, which look normal. What do you need to debug it?
+  options:
+    - >-
+      A rerun of the same question at temperature zero to see whether the answer is stable.
+    - >-
+      A comparison of the final answer against the retrieved chunks from the very first search.
+    - >-
+      The final model message with its token count, since that step produced the wrong answer.
+    - >-
+      The full trajectory: every message, tool call, argument, result and timing for that run.
+  correct: 3
+  explanation: >-
+    A wrong answer at step 15 often comes from a bad tool result at step 3 that the model then
+    reasoned from. Only the logged trajectory shows where it went wrong; the final answer does not.
+- id: q3
+  question: >-
+    Asked about a policy that is not in the corpus, your agent calls `search_docs` 14 times with
+    slightly different queries, one of them identical to the first, and is still running. No step
+    raised an error. Which description of the problem is right?
+  options:
+    - >-
+      Every step worked; nothing stops the loop, catches repeats or lets it say "not found".
+    - >-
+      The search tool is broken, because a working retriever would have returned the relevant answer.
+    - >-
+      The model is hallucinating queries; a stronger model would have answered on the first step.
+    - >-
+      The context window is too small, so the model forgets earlier searches and repeats them.
+  correct: 0
+  explanation: >-
+    Nothing failed in the ordinary sense: the model keeps searching because it believes the answer
+    exists and nothing stops it. The fix is loop-level: a budget, detection of repeated actions and
+    a refusal path.
+- id: q4
+  question: >-
+    A team's agent writes a full plan up front and then executes it step by step. When step 3
+    returns something unexpected, the agent carries on with a plan that no longer makes sense.
+    What is the shipping-grade alternative?
+  options:
+    - >-
+      Plain ReAct with no limits, so the model can adapt freely after every tool result it sees.
+    - >-
+      Keep plan-then-execute but ask the model to write a longer, more detailed plan at the start.
+    - >-
+      An interleaved loop with hard limits: step cap, tools per phase, verification.
+    - >-
+      Replace the agent with a fixed pipeline, since agents cannot handle unexpected tool results.
+  correct: 2
+  explanation: >-
+    Plan-then-execute is brittle and unbounded ReAct wanders. What ships is the constrained
+    hybrid: an interleaved loop with well-chosen restrictions around it, because the constraints
+    are the engineering.

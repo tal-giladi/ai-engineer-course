@@ -1,0 +1,74 @@
+- id: q1
+  question: >-
+    After rolling summarization kicks in at step 10, your agent states an API's rate limit at
+    step 17 but drops the detail that it applies per key rather than per account. What fix does
+    the lesson recommend?
+  options:
+    - >-
+      Tell the summarizer prompt to be more careful and to keep every important detail it sees.
+    - >-
+      Turn summarization off and rely on a larger context window to hold the whole conversation.
+    - >-
+      Summarize more often, so each pass compresses fewer turns and has less detail to drop.
+    - >-
+      Add a qualifiers field to the findings schema that is carried forward verbatim.
+  correct: 3
+  explanation: >-
+    Summarization loses details unpredictably, and a better prompt does not change that. A schema
+    field that is never summarized carries identifiers and qualifiers through every pass, so
+    summarization loss is fixed as a schema problem.
+- id: q2
+  question: >-
+    A database tool returns about 8,000 tokens of rows per call, and the agent sometimes needs
+    specific rows several steps later. What is the best way to handle these results?
+  options:
+    - >-
+      Store the payload, return a handle with a summary and count, and add a tool to fetch parts.
+    - >-
+      Keep the full result in the conversation so the later steps can still read the rows they need.
+    - >-
+      Truncate each result to its first 500 tokens and throw the rest away to protect the context.
+    - >-
+      Summarize each result into prose right away and keep only that summary for later steps.
+  correct: 0
+  explanation: >-
+    Externalizing by handle keeps the full data available without leaving it resident in context.
+    The model pulls the parts it needs on demand, which plain truncation or prose summaries cannot
+    give back.
+- id: q3
+  question: >-
+    On long runs your agent gradually loses the thread and starts working on side questions, well
+    before the context window is full. Which cheap change targets this directly?
+  options:
+    - >-
+      Move the goal into the system prompt so it is the very first thing in every context.
+    - >-
+      Raise the step budget so the agent has more turns to come back to the original task.
+    - >-
+      Re-render the goal near the end of the context on every turn, not only at the top.
+    - >-
+      Lower the temperature so the model is less likely to wander off into side questions.
+  correct: 2
+  explanation: >-
+    In a long context the top is where models attend least, so a goal that only sits at the start
+    drifts out of focus. Re-injecting it near the end each turn is one line and measurably reduces
+    drift.
+- id: q4
+  question: >-
+    A product manager wants the support agent to remember what each user told it in past sessions
+    by storing those conversations and retrieving them at the start of new ones. Which concern
+    should you raise first?
+  options:
+    - >-
+      It is not possible, because agents can only keep memory for the length of a single run.
+    - >-
+      Stored text can inject instructions later, and it is PII that needs a retention policy.
+    - >-
+      It will exhaust the context window, since all past sessions must be loaded in every new run.
+    - >-
+      It needs a fine-tuned model, because retrieval cannot work on the agent's own past history.
+  correct: 1
+  explanation: >-
+    Long-term memory is retrieval over the agent's own history, which makes it a persistent
+    indirect prompt injection surface and a store of user content. Both need deciding before it
+    ships.

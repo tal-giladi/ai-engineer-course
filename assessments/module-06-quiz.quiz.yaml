@@ -1,0 +1,184 @@
+- id: q1
+  question: >-
+    A security reviewer is scoping a review of your new agent, which can call `issue_refund`. She
+    asks which component decides whether a refund actually happens. What is the accurate answer?
+  options:
+    - >-
+      The model, because it chooses the tool and writes the arguments that go into the refund.
+    - >-
+      Your dispatcher code, which validates, authorizes and runs the requested call.
+    - >-
+      The provider's API, because it checks every tool call against the declared JSON Schema.
+    - >-
+      The system prompt, because it sets the rules the model follows before calling any tool.
+  correct: 1
+  explanation: >-
+    The model executes nothing; it emits a request. Validation, authorization and execution all
+    happen in your code, so that is where the whole security surface sits and what the review
+    should cover.
+- id: q2
+  question: >-
+    You are publishing your `search_docs` tool on an MCP server for other teams' agents. Your own
+    tests showed that adding "Use before answering any question about how the product works. Does
+    not cover pricing or account data." raised selection accuracy from 81% to 94%. What does this
+    imply for the published description?
+  options:
+    - >-
+      Keep it short, since other agents add their own prompts that explain when to use each tool.
+    - >-
+      Drop the "does not cover" clause, because other teams' agents may have no pricing tool at all.
+    - >-
+      Leave the description to the consuming teams, who can override it in their own agent configs.
+    - >-
+      Write it with the same care, since it is prompt text in agents you will never get to debug.
+  correct: 3
+  explanation: >-
+    A tool description is prompt real estate in someone else's agent. The "use when" and "does not
+    cover" clauses do the most work, and you will not be there to fix selection failures.
+- id: q3
+  question: >-
+    A 10-step agent fails at step 7. Every step ran correctly; context per step was 1,200 → 8,400
+    → 18,900 → 27,100 → 34,800 → 41,000 → failure. `search_docs` returns about 6,200 tokens per
+    call. Which fix do you apply first?
+  options:
+    - >-
+      Project and cap `search_docs` results; it is small and loses nothing unpredictably.
+    - >-
+      Add rolling summarization with state separation, which keeps the context flat on any task.
+    - >-
+      Raise the step budget, so the agent has room to finish the task before the run is stopped.
+    - >-
+      Switch to a model with a larger context window, so the same results fit without changes.
+  correct: 0
+  explanation: >-
+    Projection targets the dominant contributor, needs no loop restructuring and loses nothing
+    unpredictably. Summarization is the next step once results are already lean, because it is
+    lossy in ways that are hard to predict.
+- id: q4
+  question: >-
+    Your loop ends with `if not response.tool_calls: return response.text`. In production, users
+    report the agent sometimes says "done" after covering only two of the three things they
+    asked for. Which implicit decision is at fault, and what should replace it?
+  options:
+    - >-
+      The per-turn tool-call limit; allow more calls per turn so it can cover all parts at once.
+    - >-
+      The context growth policy; summarize earlier turns so the model remembers every sub-goal.
+    - >-
+      Who decides it is done; add a code-side check of the required sub-goals.
+    - >-
+      The malformed-call handling; return validation errors to the model so it keeps going.
+  correct: 2
+  explanation: >-
+    Returning whenever the model stops calling tools hands termination entirely to the model.
+    A code-side check of required sub-goals, or a structured completion that names them, catches
+    false completion.
+- id: q5
+  question: >-
+    Asked about an enterprise SLA that is not in the corpus, the agent ran 14+ searches, one
+    identical to the first, costing about 38,400 tokens and $0.058 with no answer. You add
+    repeated-action detection whose message names the earlier call and allows concluding the
+    information is unavailable. What outcome should you expect?
+  options:
+    - >-
+      The run hits its step budget sooner and ends as `BUDGET_EXHAUSTED` at a slightly lower cost.
+    - >-
+      The run ends as `LOOP_DETECTED` at step 6, with the same cost but a clearer log entry.
+    - >-
+      The model rewrites its queries to avoid exact repeats, so it keeps searching at the same cost.
+    - >-
+      Around step 5 it ends as `REFUSED`, saying the docs do not cover it, about six times cheaper.
+  correct: 3
+  explanation: >-
+    Telling the model what it already tried and that it may conclude unavailability usually turns
+    the spin into a clean refusal: about 6,100 tokens and $0.009 instead of an abandoned run.
+- id: q6
+  question: >-
+    Your error policy treats every tool exception the same way. A `search_docs` call for a new
+    feature returns zero results, and the agent shows it as a tool failure and retries. How should
+    a zero-result search be handled?
+  options:
+    - >-
+      Retry it silently in your code with backoff, since the index may not be updated yet.
+    - >-
+      Return it to the model as a normal result, because "nothing found" is information.
+    - >-
+      Terminate the run and alert, since an empty search usually means the index is broken.
+    - >-
+      Return an error to the model telling it the search failed, so that it tries other words.
+  correct: 1
+  explanation: >-
+    An empty result is information, not an error. Treating it as a failure stops the agent from
+    concluding that the material does not exist, which is exactly the refusal path you want.
+- id: q7
+  question: >-
+    An external API behind one of your tools starts returning 429 Too Many Requests during a busy
+    hour. What should your loop do?
+  options:
+    - >-
+      Return the 429 to the model so it can decide to wait a few steps before trying the tool again.
+    - >-
+      Fail the whole run and alert, because a rate limit means the tool cannot be trusted any more.
+    - >-
+      Back off in your code; if it persists, remove the tool for this run and tell the model.
+    - >-
+      Retry immediately in a tight loop until the API accepts the request, then carry on as normal.
+  correct: 2
+  explanation: >-
+    Rate limiting is something your code handles: back off, and if it persists drop the tool for
+    the run. The model retrying only makes the rate-limit situation worse.
+- id: q8
+  question: >-
+    After adding budgets, chaos tests show mean cost per run fell from $0.081 to $0.019 and p95
+    from $0.310 to $0.038. Your manager only wants the mean on the dashboard. Why should p95 be
+    there too?
+  options:
+    - >-
+      p95 shows your exposure: the costly tail that means and per-call metrics hide.
+    - >-
+      p95 is easier to compute from billing data, while the mean needs per-run trajectory logs.
+    - >-
+      p95 is more stable than the mean, so it changes less between test runs and deploys.
+    - >-
+      p95 is what providers bill on, so it matches the invoice better than the average cost does.
+  correct: 0
+  explanation: >-
+    The mean describes the typical run; p95 describes the worst runs. Before the budgets, the worst
+    5% cost nearly four times the mean, which is what an unbounded agent does to a monthly bill.
+- id: q9
+  question: >-
+    In the same chaos test, the share of runs that "refused cleanly" went from 0% to 12% after
+    your changes. A colleague flags it as a regression because more runs end without an answer.
+    How do you respond?
+  options:
+    - >-
+      It is a regression; refusals should be retried with a larger budget until they produce an answer.
+    - >-
+      It is neutral; refusals and budget exhaustion are the same outcome and should be reported together.
+    - >-
+      It is a regression; refusals mean the new repeat detection is stopping runs that would succeed.
+    - >-
+      It is an improvement; the agent can now see a question is unanswerable instead of spinning.
+  correct: 3
+  explanation: >-
+    Zero refusals meant the agent had no way to conclude a question could not be answered and spun
+    until something stopped it. `REFUSED` is a successful outcome, which is why it must be distinct
+    from `BUDGET_EXHAUSTED`.
+- id: q10
+  question: >-
+    You are adding `issue_refund` to a support agent. The agent already has scoped credentials and
+    argument validation on every tool. What else does this tool need that `create_draft` does not?
+  options:
+    - >-
+      A sandboxed container with no network, since every write tool must run fully isolated.
+    - >-
+      A longer, clearer description, so the model is more confident about when to issue a refund.
+    - >-
+      An approval gate showing its reasoning, an amount ceiling and an idempotency key.
+    - >-
+      A higher per-run call limit, so the agent can retry refunds that time out on the first try.
+  correct: 2
+  explanation: >-
+    `issue_refund` is irreversible and high-sensitivity, so it needs a human gate that shows the
+    reasoning, plus a capped credential and an idempotency key. `create_draft` is reversible and
+    sends nothing, so validation and a rate limit are enough.
