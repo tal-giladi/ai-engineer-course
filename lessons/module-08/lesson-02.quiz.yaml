@@ -1,0 +1,72 @@
+- id: q1
+  question: >-
+    You are building a training set from production traces to fix a field the model fills wrongly.
+    Many successful-looking traces still contain that wrong field. What should you do with them?
+  options:
+    - >-
+      Keep them, because they are real traffic and carry the true input distribution you serve.
+    - >-
+      Move them into the validation split so early stopping is measured on the hard cases.
+    - >-
+      Keep them but weight them half, so the model sees the pattern without over-learning it.
+    - >-
+      Remove them, since training on outputs that contain the defect teaches the defect back.
+  correct: 3
+  explanation: >-
+    Filter by outcome, not just by completion. Examples whose targets contain the error you are
+    training away would teach the model to repeat it.
+- id: q2
+  question: >-
+    Your training loss falls smoothly from 1.84 to 0.41, but at inference the model emits
+    "### Response: ... ### Instruction:" and never stops. You formatted examples with your own
+    format string. What went wrong, and what prevents it next time?
+  options:
+    - >-
+      A hand-written template; use `apply_chat_template` and read three formatted examples first.
+    - >-
+      The dataset had near-duplicates; deduplicate at a stricter similarity threshold and retrain.
+    - >-
+      The learning rate was too high; lower it and watch the loss curve for spikes next time.
+    - >-
+      Too few epochs; the model has not yet learned where responses end, so train for longer.
+  correct: 0
+  explanation: >-
+    The model learned the delimiter structure it was trained on, which the inference template does
+    not match. The loss curve gives no warning, so use the tokenizer's own template and read
+    formatted examples before spending GPU time.
+- id: q3
+  question: >-
+    Your leakage check against the held-out golden set removes only 17 of about 3,300 candidate
+    examples. A teammate says that is too few to matter and wants to skip the check next time. Why
+    is that wrong?
+  options:
+    - >-
+      Seventeen examples are enough to cause catastrophic forgetting of the model's refusal behavior.
+    - >-
+      Leaked items make the fine-tune look excellent on the held-out set, and nothing flags it.
+    - >-
+      The check is also the main deduplication step, so skipping it lets repetitive traffic dominate.
+    - >-
+      Leaked items make the validation loss rise early, so you would stop the training run too soon.
+  correct: 1
+  explanation: >-
+    A model that saw part of the test set scores well on it, so the comparison looks great and
+    means little. Because the error flatters the result, nobody investigates; the check is the only
+    way to know.
+- id: q4
+  question: >-
+    You have 50,000 candidate examples for a narrow extraction task and plan a LoRA run. What is the
+    better use of your time?
+  options:
+    - >-
+      Train on all 50,000, since more examples make the model more robust to unusual inputs.
+    - >-
+      Add synthetic examples from a stronger model to reach 100,000, labelled as synthetic.
+    - >-
+      Curate down to the best 1,000 or so with dedup, defect filtering, balance and a judge.
+    - >-
+      Train on a random 5,000 so the run stays short, then add more if the results look weak.
+  correct: 2
+  explanation: >-
+    Data quality dominates: a curated set in the 500-2,000 range beats tens of thousands of noisy
+    examples on the same base model. Your job with a large pool is selection, not volume.

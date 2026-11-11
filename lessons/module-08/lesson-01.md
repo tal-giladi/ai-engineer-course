@@ -2,7 +2,7 @@
 id: "08.1"
 module: 8
 minutes: 13
-practice_minutes: 90
+practice_minutes: 60
 prerequisites: ["07.4"]
 objectives:
   - "Decide between prompting, retrieval, and fine-tuning for a given problem, with a cost and maintenance argument."

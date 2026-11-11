@@ -1,0 +1,70 @@
+- id: q1
+  question: >-
+    In your LoRA run, training loss keeps falling, but validation loss bottomed at step 250 and has
+    risen since. A colleague suggests raising the rank from 16 to 64 "so it fits better." What do
+    you do?
+  options:
+    - >-
+      Raise the rank as suggested, since a rising validation loss means the adapter is too small.
+    - >-
+      Lower the learning rate and keep the epoch count, since instability is causing the rise.
+    - >-
+      Train for fewer epochs, stopping near step 250, or add more data; do not raise the rank.
+    - >-
+      Switch target modules to all linear layers so the adapter can learn the harder patterns.
+  correct: 2
+  explanation: >-
+    This is overfitting: everything after the turn is memorization. More rank gives more capacity
+    to memorize, so it makes things worse; fewer epochs or more data is the fix.
+- id: q2
+  question: >-
+    You want to fine-tune a 7-8B model on a Colab GPU. Why is QLoRA the practical choice over full
+    fine-tuning?
+  options:
+    - >-
+      It quantizes the trained adapter to 4-bit, so the final file is small enough to upload.
+    - >-
+      It trains every weight at lower precision, so the memory needed drops by about a quarter.
+    - >-
+      It skips the optimizer state by training only the attention layers at full precision.
+    - >-
+      It freezes a 4-bit base and trains small adapters, so memory fits a modest GPU.
+  correct: 3
+  explanation: >-
+    Full fine-tuning needs memory for weights, gradients and optimizer state for every parameter.
+    LoRA freezes the base and trains thin matrices, and QLoRA also stores the frozen base in 4-bit,
+    which costs little because it is not being trained.
+- id: q3
+  question: >-
+    Your run's training and validation curves both descend and flatten. You are about to push the
+    adapter. What should you check that the curves cannot tell you?
+  options:
+    - >-
+      The gradient norms at each step, to confirm that no layer exploded during training.
+    - >-
+      The generated outputs on a few held-out inputs at checkpoints, read by a person.
+    - >-
+      The final training loss, which should be close to zero if the model learned the task.
+    - >-
+      The adapter file size, since an adapter that is too small means training did not converge.
+  correct: 1
+  explanation: >-
+    A chat-template bug and memorization can both produce a healthy-looking curve. Sampling and
+    reading outputs at checkpoints is the habit that catches them.
+- id: q4
+  question: >-
+    You are writing the model card for an adapter that extracts fields from support tickets,
+    trained on 90 days of traffic. Which addition does the most to make it professional?
+  options:
+    - >-
+      Out-of-scope uses and limitations, such as ticket formats that appeared after the window.
+    - >-
+      A sample of training examples, so readers can see what kind of data the model has learned.
+    - >-
+      The final training loss value, which shows readers how well the adapter fit its data.
+    - >-
+      A full list of every hyperparameter the trainer used, including the defaults left unchanged.
+  correct: 0
+  explanation: >-
+    Stating what the model is not for and where it degrades tells a future user how to use it
+    safely. Their absence reads as unawareness, the same principle as limitations in a datasheet.

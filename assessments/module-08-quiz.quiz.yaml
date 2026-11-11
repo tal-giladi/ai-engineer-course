@@ -1,0 +1,184 @@
+- id: q1
+  question: >-
+    Across all outputs, your model says "customer" where the company's internal vocabulary says
+    "member". Nobody has tried to fix it yet. A teammate wants to fine-tune it away. What is the
+    right first move?
+  options:
+    - >-
+      Fine-tune on a few hundred corrected outputs, since vocabulary misuse is a fine-tuning case.
+    - >-
+      Add retrieval over the internal glossary so the model can look up the preferred terms.
+    - >-
+      Put the substitution in the prompt, measure it, and escalate only if it plateaus.
+    - >-
+      Post-process every output with a find-and-replace and leave the model untouched.
+  correct: 2
+  explanation: >-
+    A consistent word substitution is a plain instruction, and prompting has not been tried, so the
+    framework stops at question 2. Fine-tuning only becomes a candidate if measured prompt versions
+    plateau, which here is unlikely.
+- id: q2
+  question: >-
+    Constrained decoding keeps an extractor's JSON shape valid, but field semantics are wrong 8% of
+    the time. Four measured prompt versions have plateaued, and the right behavior is easier to show
+    by example than to describe in words. How should you classify this problem?
+  options:
+    - >-
+      A legitimate fine-tuning candidate, to be confirmed with a TCO and value estimate.
+    - >-
+      A knowledge problem, because the model does not know which field each value belongs in.
+    - >-
+      A prompting problem, because four versions are not enough to show a real plateau yet.
+    - >-
+      A schema problem, because valid shape with wrong meaning means the schema is too loose.
+  correct: 0
+  explanation: >-
+    It is not knowledge and not shape, prompting is exhausted with measured evidence, and the task
+    is easier to demonstrate than describe: fine-tuning's home ground. The decision still needs the
+    cost model and the quantified value.
+- id: q3
+  question: >-
+    A team fine-tuned a model on its product documentation. Asked about a setting that is not in the
+    docs, it describes a plausible section with plausible parameters that do not exist. Why is this
+    worse than a model that simply does not know?
+  options:
+    - >-
+      The facts are frozen at training time, so the answer was correct once and has since gone stale.
+    - >-
+      The model has forgotten its general knowledge, so it can no longer reason about the product.
+    - >-
+      The answers cannot be cited, so users have no way to check them against the original source.
+    - >-
+      It learned the docs' shape and confabulates fluently in it, so errors look like real answers.
+  correct: 3
+  explanation: >-
+    A retrieval system says "not in the docs." A fact-tuned model invents content in the learned
+    shape, producing confident, uncitable fabrication that is hard to tell from a correct answer.
+    Staleness makes it worse, but confabulation around the gaps is the core failure.
+- id: q4
+  question: >-
+    A team asks you to approve a fine-tune. They have 2,000 good examples and a two-year TCO, but no
+    evaluation baseline and only one untested prompt. Using the decision framework, what do you say?
+  options:
+    - >-
+      Approve it, because 2,000 examples is well above the 500 needed for a viable fine-tune.
+    - >-
+      Stop: exhaust prompting with measured versions, which needs the baseline built first.
+    - >-
+      Approve it if the TCO shows the saving is several times the cost over two years.
+    - >-
+      Stop until they can say what happens when the base model is deprecated in two years.
+  correct: 1
+  explanation: >-
+    The framework is ordered and stops at the first question that resolves it. Prompting is not
+    exhausted and there is no baseline, so the later questions about data, TCO and deprecation are
+    not reached yet.
+- id: q5
+  question: >-
+    A fine-tune has a two-year cost of about $9,400 and cuts semantic errors from 8% to 1% on 40,000
+    extractions a month. Each bad record takes about 6 minutes to fix by hand. How do you turn this
+    into a decision?
+  options:
+    - >-
+      Approve it, because a seven-point drop in errors is a large relative improvement.
+    - >-
+      Reject it, because $9,400 is too much for a single extraction component to justify.
+    - >-
+      Ask for a pilot run first, since the loss curve will show whether the gain is real.
+    - >-
+      Convert the drop into fewer bad records a month and the hours that saves.
+  correct: 3
+  explanation: >-
+    A rate change does not say whether the cost is worth it. Turning it into records and correction
+    hours gives a value you can set against the TCO, which here clearly exceeds it.
+- id: q6
+  question: >-
+    A LoRA run shows train loss 0.47 to 0.08 and validation loss 0.68 to 0.88 between steps 250 and
+    700. A colleague suggests increasing the rank so the adapter "fits better." What is the correct
+    response?
+  options:
+    - >-
+      Reject it: this is overfitting, so use fewer epochs or more data, not more capacity.
+    - >-
+      Accept it: a rising validation loss means the adapter lacks the capacity to generalise.
+    - >-
+      Reject it: the learning rate is too high, so lower it and keep training for longer.
+    - >-
+      Accept it, but also add the MLP layers as targets so the extra rank has more room to fit.
+  correct: 0
+  explanation: >-
+    Validation bottomed at step 250 and rose after, so everything later is memorization. More rank
+    adds capacity to memorize and makes it worse; stopping near step 250 or adding data fixes it.
+- id: q7
+  question: >-
+    In that same overfit run, you sample outputs at step 700 on held-out inputs. What are you most
+    likely to see?
+  options:
+    - >-
+      Truncated outputs that stop mid-field, because the model has lost track of the format.
+    - >-
+      Template tokens such as "### Instruction:" emitted as literal text in every response.
+    - >-
+      Near-verbatim training data, like a training customer name in another input.
+    - >-
+      Generic, hedged answers, because the model has drifted back toward base-model behavior.
+  correct: 2
+  explanation: >-
+    Memorization shows up as the model reproducing training data, and a specific value from one
+    training example appearing in a different extraction is the classic sign. Literal template
+    tokens point to a template bug instead.
+- id: q8
+  question: >-
+    A run built with a hand-written "### Instruction / ### Response" format has a textbook loss curve,
+    1.84 to 0.41, yet outputs loop through delimiters at inference. Why did the curve give no warning?
+  options:
+    - >-
+      The validation set used the same wrong format, so the error cancelled out in the curve.
+    - >-
+      Loss measures fit to the training data, and the model fit the wrong format perfectly well.
+    - >-
+      Prompt tokens were masked out of the loss, so the delimiter errors were never counted.
+    - >-
+      The loss was logged only once per epoch, which is too coarse to show the formatting failure.
+  correct: 1
+  explanation: >-
+    A wrong template does not make optimization harder; the model just learns the wrong structure,
+    so the curve matches a healthy run. Use the tokenizer's chat template, read formatted examples
+    before training and sample outputs during it.
+- id: q9
+  question: >-
+    Your dataset funnel has stages for successful outcomes, held-out leakage, near-duplicates, the
+    target defect, a quality filter and a category cap. Which stage, if skipped, would produce a
+    model that looks excellent in your evaluation while being no better?
+  options:
+    - >-
+      The held-out leakage check, since the model would be scored on items it trained on.
+    - >-
+      The near-duplicate removal, since one common phrasing would dominate the training data.
+    - >-
+      The category balance cap, since the model would over-predict the most frequent category.
+    - >-
+      The target-defect filter, since the model would learn to repeat the error it should fix.
+  correct: 0
+  explanation: >-
+    Every other skipped stage makes the result look worse, which prompts investigation. Only leakage
+    flatters the result, so even 17 leaked items can inflate the comparison unnoticed.
+- id: q10
+  question: >-
+    Against a prompted baseline, a fine-tune lifts format adherence from 0.92 to 0.99 and cuts cost
+    from $2.10 to $0.11 per 1,000 requests, but out-of-scope refusal falls from 0.88 to 0.43. It runs
+    a customer-facing documentation assistant. What do you recommend?
+  options:
+    - >-
+      Ship it as-is, because the cost saving and on-task gain outweigh one weaker stratum.
+    - >-
+      Discard it, because a documentation assistant must never lose refusal accuracy.
+    - >-
+      Retrain with a higher rank so the adapter has room to keep its refusal behavior too.
+    - >-
+      Ship with a scope router so out-of-scope questions never reach the tuned model.
+  correct: 3
+  explanation: >-
+    Confident answers to out-of-scope questions are the worst failure for this product, but a 19x
+    cost cut is too valuable to throw away over one fixable regression. A router restored refusal
+    to 0.86 while staying about 11x cheaper, at the cost of one more component to maintain.

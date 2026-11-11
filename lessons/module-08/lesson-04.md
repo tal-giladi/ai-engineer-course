@@ -2,7 +2,7 @@
 id: "08.4"
 module: 8
 minutes: 13
-practice_minutes: 90
+practice_minutes: 75
 prerequisites: ["08.3"]
 objectives:
   - "Prove — or disprove — improvement against the Module 3 baseline rather than asserting it."

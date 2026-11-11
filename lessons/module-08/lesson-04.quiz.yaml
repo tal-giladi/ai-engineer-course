@@ -1,0 +1,69 @@
+- id: q1
+  question: >-
+    Your fine-tuned model beats the prompted baseline on format adherence and field accuracy on the
+    held-out set. Before recommending it, what is the most important check left?
+  options:
+    - >-
+      Evaluate off-task: every stratum, out-of-scope included, plus a general probe.
+    - >-
+      Re-run the on-task metrics with a new random seed to confirm the gain is stable.
+    - >-
+      Compare the training loss to the baseline's loss to confirm a better fit overall.
+    - >-
+      Ask a few users to try it, since metrics do not show whether people like the outputs.
+  correct: 0
+  explanation: >-
+    Narrow training often breaks unrelated behavior, and skipping that check is the most common
+    failure. The full stratified set plus a small general probe is what reveals it.
+- id: q2
+  question: >-
+    After fine-tuning on 800 examples that all produce an extraction, the model's out-of-scope
+    refusal accuracy falls from 0.88 to 0.43. What is the most likely explanation?
+  options:
+    - >-
+      Some held-out out-of-scope items leaked into training, so the stratum is now unreliable.
+    - >-
+      The learning rate was too high, which erased the base model's safety training completely.
+    - >-
+      The quantized base lost precision in 4-bit, and refusal is the first behavior to degrade.
+    - >-
+      The training data never showed a refusal, so the model learned it should always answer.
+  correct: 3
+  explanation: >-
+    Training on examples that all produce output shifts the model's prior toward always producing
+    output. Refusal is the usual casualty because the data by construction never demonstrates it.
+- id: q3
+  question: >-
+    A fine-tune is 19 times cheaper and gains 7 points on the target task, but refusal accuracy has
+    collapsed. It powers a customer-facing documentation assistant. What do you recommend?
+  options:
+    - >-
+      Discard it, since any regression on a safety-relevant stratum means the project failed.
+    - >-
+      Ship it as-is, because the cost saving is so large that it outweighs one weaker stratum.
+    - >-
+      Ship with a router that sends out-of-scope questions to the refusal path first.
+    - >-
+      Ship it but add a line to the system prompt telling the tuned model to refuse when unsure.
+  correct: 2
+  explanation: >-
+    Confidently answering what it should refuse is the worst failure for this product, but
+    discarding a large cost gain over one fixable regression wastes it. A router keeps most of the
+    saving and restores refusal.
+- id: q4
+  question: >-
+    After three days of dataset work and a GPU budget, your fine-tune loses to the baseline once
+    off-task strata are counted. How should you write it up?
+  options:
+    - >-
+      Report only the on-task metrics, where it won, and treat off-task as future work.
+    - >-
+      Report the loss plainly, with numbers and an analysis of why it lost.
+    - >-
+      Leave it out of the portfolio, since a failed project weakens your story in interviews.
+    - >-
+      Re-run training with different settings until one run wins, then report that run.
+  correct: 1
+  explanation: >-
+    Shipping a model that lost costs the whole TCO while making the system worse. A rigorously
+    evaluated negative result is also strong evidence that your evaluations are real.
