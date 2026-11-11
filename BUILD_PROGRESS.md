@@ -22,24 +22,23 @@ substance; only format changes, plus new multiple-choice quizzes.
 - Per module: lesson `.quiz.yaml` files (3-5 questions), `practice_minutes` set from the Practice
   section, module quiz converted to `assessments/module-NN-quiz.quiz.yaml` (8-10 scenario MCQs) plus a
   short intro page, practical items moved to `projects/module-NN-practical.md`
-  - [ ] Module 1
-  - [ ] Module 2
-  - [ ] Module 3
-  - [ ] Module 4
-  - [ ] Module 5
-  - [ ] Module 6
-  - [ ] Module 7
-  - [ ] Module 8
-  - [ ] Module 9
-  - [ ] Module 10
-  - [ ] Module 11
-  - [ ] Module 12
-- [ ] Final QA: check-course 0 problems, link check, TODO_FOR_TAL.md, push
+  - [x] Module 1
+  - [x] Module 2
+  - [x] Module 3
+  - [x] Module 4
+  - [x] Module 5
+  - [x] Module 6
+  - [x] Module 7
+  - [x] Module 8
+  - [x] Module 9
+  - [x] Module 10
+  - [x] Module 11
+  - [x] Module 12
+- [x] Final QA: check-course 0 problems, link check, TODO_FOR_TAL.md, push
 
 ## Who is working on what
 
-(updated by the main session) Agents work one module each, two at a time, writing only that
-module's quiz/project/status files and `practice_minutes`; the main session commits per module.
+All units done 2026-11-11; no agents running.
 
 ## Decisions
 
